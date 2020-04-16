@@ -25,7 +25,7 @@ void timer1_int (void) interrupt TIMER1_VECTOR
 /********************* Timer2ÖÐ¶Ïº¯Êý************************/
 void timer2_int (void) interrupt TIMER2_VECTOR
 {
-	P10 = ~P10;
+	
 }
 
 

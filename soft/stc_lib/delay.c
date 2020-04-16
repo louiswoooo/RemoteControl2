@@ -38,7 +38,6 @@ void  delay_ms(unsigned char ms)
 		  while(--i)	;   //14T per loop
      }while(--ms);
 }
-
 void delay_s(u8 second)
 {
 	u8 i;

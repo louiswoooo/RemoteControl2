@@ -1,0 +1,1 @@
+"source\wifi.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\stc_lib) DEBUG OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS (2) OBJECT(.\Objects\wifi.obj)

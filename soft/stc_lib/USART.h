@@ -4,14 +4,10 @@
 
 #include	"config.h"
 
-#define	COM_TX1_Lenth	128
-#define	COM_RX1_Lenth	128
 #define	COM_TX2_Lenth	128
-#define	COM_RX2_Lenth	128
+#define	COM_RX2_Lenth	1024
 
-#define	COM_TX3_Lenth	128
-#define	COM_RX3_Lenth	1024
-#define	COM_TX4_Lenth	128
+#define	COM_TX4_Lenth	1024
 #define	COM_RX4_Lenth	128
 
 #define	USART1	1
@@ -33,8 +29,8 @@
 /*设置串口超时时间，以块为接收单位，如果在超时时间内
 没有接收到新的字节，则认为块接收结束*/
 #define	TimeOutSet1		5
-#define	TimeOutSet2		5
-#define	TimeOutSet3		1
+#define	TimeOutSet2		10
+#define	TimeOutSet3		5
 #define	TimeOutSet4		5
 
 #define	BRT_Timer1	1
@@ -70,32 +66,20 @@ typedef struct
 
 } COMx_InitDefine; 
 
-extern	COMx_Define	COM1,COM2;
-extern	u8	xdata TX1_Buffer[COM_TX1_Lenth];	//发送缓冲
-extern	u8 	xdata RX1_Buffer[COM_RX1_Lenth];	//接收缓冲
+extern	COMx_Define	COM2;
 extern	u8	xdata TX2_Buffer[COM_TX2_Lenth];	//发送缓冲
 extern	u8 	xdata RX2_Buffer[COM_RX2_Lenth];	//接收缓冲
 
-extern	COMx_Define	COM3,COM4;
-extern	u8	xdata TX3_Buffer[COM_TX3_Lenth];	//发送缓冲
-extern	u8 	xdata RX3_Buffer[COM_RX3_Lenth];	//接收缓冲
+extern	COMx_Define	COM4;
 extern	u8	xdata TX4_Buffer[COM_TX4_Lenth];	//发送缓冲
 extern	u8 	xdata RX4_Buffer[COM_RX4_Lenth];	//接收缓冲
 
-u8	USART_Configuration(u8 UARTx, COMx_InitDefine *COMx);
-void TX1_write2buff(u8 dat);	//写入发送缓冲，指针+1
-void TX2_write2buff(u8 dat);	//写入发送缓冲，指针+1
-void PrintString1(u8 *puts);
-void PrintString2(u8 *puts);
-
-//void COMx_write2buff(COMx_Define *COMx, u8 dat);	//写入发送缓冲，指针+1
-//void PrintString(COMx_Define *COMx, u8 *puts);
 
 /************************Below is personal adding drives*********************************/
-void USART3_Config (void);
+void USART2_Config (void);
 void USART4_Config(void);
 void PrintString4(u8 *puts);
-void PrintString3(u8 *puts);
+void PrintString2(u8 *puts);
 
 #endif
 

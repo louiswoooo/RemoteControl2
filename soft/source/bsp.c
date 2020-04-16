@@ -1,5 +1,7 @@
 #include "bsp.h"
 #include "timer_config.h"
+
+/*
 void Debug_Var(u16 var)
 {
 	u8 num[6];
@@ -11,7 +13,7 @@ void Debug_Var(u16 var)
 	num[5]='\0';
 	debug(num);
 }
-
+*/
 void bsp(void)
 {
 	GPIO_InitTypeDef	light_pin_init, switch_gpio_init;
@@ -29,13 +31,15 @@ void bsp(void)
 
 
 
-	USART3_Config();
-	S3_Int_en();
+	USART2_Config();
+	S2_Int_en();
 	
 	USART4_Config();
 	S4_Int_en();
 
-	IP2 |=0x01;
+	IP=0x00;
+	IP2=0x00;
+	IP2 |=0x01;			//设置串口2 优先级高
 	
 	
 	sys_time_init();

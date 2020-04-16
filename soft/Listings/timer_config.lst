@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   TIMER_CONFIG                                                      04/15/2020 21:58:02 PAGE 1   
+C51 COMPILER V9.56.0.0   TIMER_CONFIG                                                      04/16/2020 22:04:47 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE TIMER_CONFIG
@@ -54,20 +54,20 @@ line level    source
   44   3          }
   45   2        }
   46   1        
-  47   1        if(COM3.B_RX_EN)
+  47   1        if(COM2.B_RX_EN)
   48   1        {
-  49   2          if(COM3.RX_TimeOut>0) 
+  49   2          if(COM2.RX_TimeOut>0) 
   50   2          {
-  51   3            COM3.RX_TimeOut--;
-  52   3            if(0==COM3.RX_TimeOut)
+  51   3            COM2.RX_TimeOut--;
+  52   3            if(0==COM2.RX_TimeOut)
   53   3            {
-  54   4              if(COM3.RX_Cnt>0)
-C51 COMPILER V9.56.0.0   TIMER_CONFIG                                                      04/15/2020 21:58:02 PAGE 2   
+  54   4              if(COM2.RX_Cnt>0)
+C51 COMPILER V9.56.0.0   TIMER_CONFIG                                                      04/16/2020 22:04:47 PAGE 2   
 
   55   4              {
-  56   5                COM3.B_RX_EN=0;
-  57   5                RX3_Buffer[COM3.RX_Cnt]='\0';
-  58   5                COM3.B_RX_OK=1;
+  56   5                COM2.B_RX_EN=0;
+  57   5                RX2_Buffer[COM2.RX_Cnt]='\0';
+  58   5                COM2.B_RX_OK=1;
   59   5              }
   60   4            }
   61   3          }

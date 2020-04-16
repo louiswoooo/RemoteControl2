@@ -23,30 +23,33 @@ void wifi_reset(void)
 	wifi_reset_pin_high();
 }
 
-u8 wifi_receive(u16 timeout_tick)
+u8 wifi_receive()
 {
-	u16 i;
-	for(i = timeout_tick/(COM3.RX_TimeOut); i>0; i--)
+	COM2.B_RX_EN=1;
+	COM2.RX_Cnt=0;
+	COM2.B_RX_OK=0;
+	COM2.RX_TimeOut=TimeOutSet2;
+	while(COM2.RX_TimeOut>0);			//每次串口接收不到字节产生超时，判定为一次块接收完成
+	if(COM2.B_RX_OK)
 	{
-		COM3.B_RX_EN=1;
-		COM3.RX_Cnt=0;
-		COM3.RX_TimeOut=TimeOutSet3;
-		while(COM3.RX_TimeOut>0);			//每次串口接收不到字节产生超时，判定为一次块接收完成
-		if(COM3.B_RX_OK)
-			return COM3.RX_Cnt;
+		//debug(RX2_Buffer);
+		return COM2.RX_Cnt;
 	}
 	return NULL;
 }
 
-	
-u8 *WIFI_SendAndWait(u8 *send,u8 *match,u8 timeout_tick)
+u8 *WIFI_SendAndWait(u8 *send, u8 *match, u8 try_count)
 {
 	u8 *p;
-	wifi_send(send);
-	if(wifi_receive(timeout_tick))
+	u8 i;
+	for(i=try_count; i>0; i--)
 	{
-		if(p=strstr(RX3_Buffer,match))
-			return p;
+		wifi_send(send);
+		if(wifi_receive())
+		{
+			if(p=strstr(RX2_Buffer,match))
+				return p;
+		}
 	}
 	return NULL;
 }

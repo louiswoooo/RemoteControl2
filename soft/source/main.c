@@ -1,7 +1,7 @@
 #include "bsp.h"
 #include <delay.h>
 #include "string.h"
-
+/*
 void debug_time(void)
 {
 	debug_var((u16)hour);
@@ -12,21 +12,21 @@ void debug_time(void)
 	debug("\r\n");
 	
 }
-
+*/
 void main(void)
 {
 	bsp();
 	
-	memset(RX3_Buffer, 0, sizeof(RX3_Buffer));
-
+	memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
+	
+	//delay_s(10);
 	while(1)
 	{
-		if(wifi_receive(100))
-		{
-			debug("\r\n<<:");
-			debug(RX3_Buffer);
-		}
-		sys_sleep();
+		if(wifi_receive())
+			debug(RX2_Buffer);
+		//WIFI_SendAndWait("AT+CWMODE=2", "OK", 10);
+		//debug("response sucess!!!\r\n");
+		//delay_s(10);
 		
 	}
 }

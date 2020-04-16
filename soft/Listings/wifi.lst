@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   WIFI                                                              04/15/2020 21:58:02 PAGE 1   
+C51 COMPILER V9.56.0.0   WIFI                                                              04/16/2020 22:12:19 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE WIFI
@@ -33,43 +33,46 @@ line level    source
   23   1        wifi_reset_pin_high();
   24   1      }
   25          
-  26          u8 wifi_receive(u16 timeout_tick)
+  26          u8 wifi_receive()
   27          {
-  28   1        u16 i;
-  29   1        for(i = timeout_tick/(COM3.RX_TimeOut); i>0; i--)
-  30   1        {
-  31   2          COM3.B_RX_EN=1;
-  32   2          COM3.RX_Cnt=0;
-  33   2          COM3.RX_TimeOut=TimeOutSet3;
-  34   2          while(COM3.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
-  35   2          if(COM3.B_RX_OK)
-  36   2            return COM3.RX_Cnt;
+  28   1        COM2.B_RX_EN=1;
+  29   1        COM2.RX_Cnt=0;
+  30   1        COM2.B_RX_OK=0;
+  31   1        COM2.RX_TimeOut=TimeOutSet2;
+  32   1        while(COM2.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
+  33   1        if(COM2.B_RX_OK)
+  34   1        {
+  35   2          //debug(RX2_Buffer);
+  36   2          return COM2.RX_Cnt;
   37   2        }
   38   1        return NULL;
   39   1      }
   40          
-  41            
-  42          u8 *WIFI_SendAndWait(u8 *send,u8 *match,u8 timeout_tick)
-  43          {
-  44   1        u8 *p;
-  45   1        wifi_send(send);
-  46   1        if(wifi_receive(timeout_tick))
-  47   1        {
-  48   2          if(p=strstr(RX3_Buffer,match))
-  49   2            return p;
-  50   2        }
-  51   1        return NULL;
-  52   1      }
+  41          u8 *WIFI_SendAndWait(u8 *send, u8 *match, u8 try_count)
+  42          {
+  43   1        u8 *p;
+  44   1        u8 i;
+  45   1        for(i=try_count; i>0; i--)
+  46   1        {
+  47   2          wifi_send(send);
+  48   2          if(wifi_receive())
+  49   2          {
+  50   3            if(p=strstr(RX2_Buffer,match))
+  51   3              return p;
+  52   3          }
+  53   2        }
+  54   1        return NULL;
+C51 COMPILER V9.56.0.0   WIFI                                                              04/16/2020 22:12:19 PAGE 2   
 
+  55   1      }
 
-C51 COMPILER V9.56.0.0   WIFI                                                              04/15/2020 21:58:02 PAGE 2   
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    130    ----
+   CODE SIZE        =    131    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----       9
+   DATA SIZE        =   ----      10
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

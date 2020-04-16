@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              04/15/2020 21:58:01 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              04/16/2020 22:09:51 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
@@ -11,40 +11,40 @@ line level    source
    1          #include "bsp.h"
    2          #include <delay.h>
    3          #include "string.h"
-   4          
+   4          /*
    5          void debug_time(void)
    6          {
-   7   1        debug_var((u16)hour);
-   8   1        debug(":");
-   9   1        debug_var((u16)minute);
-  10   1        debug(":");
-  11   1        debug_var((u16)second);
-  12   1        debug("\r\n");
-  13   1        
-  14   1      }
-  15          
+   7            debug_var((u16)hour);
+   8            debug(":");
+   9            debug_var((u16)minute);
+  10            debug(":");
+  11            debug_var((u16)second);
+  12            debug("\r\n");
+  13            
+  14          }
+  15          */
   16          void main(void)
   17          {
   18   1        bsp();
   19   1        
-  20   1        memset(RX3_Buffer, 0, sizeof(RX3_Buffer));
-  21   1      
-  22   1        while(1)
-  23   1        {
-  24   2          if(wifi_receive(100))
-  25   2          {
-  26   3            debug("\r\n<<:");
-  27   3            debug(RX3_Buffer);
-  28   3          }
-  29   2          sys_sleep();
+  20   1        memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
+  21   1        
+  22   1        //delay_s(10);
+  23   1        while(1)
+  24   1        {
+  25   2          if(wifi_receive())
+  26   2            debug(RX2_Buffer);
+  27   2          //WIFI_SendAndWait("AT+CWMODE=2", "OK", 10);
+  28   2          //debug("response sucess!!!\r\n");
+  29   2          //delay_s(10);
   30   2          
   31   2        }
   32   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     99    ----
-   CONSTANT SIZE    =     11    ----
+   CODE SIZE        =     35    ----
+   CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
