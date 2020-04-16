@@ -1,0 +1,83 @@
+C51 COMPILER V9.56.0.0   BSP                                                               04/15/2020 21:58:02 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE BSP
+OBJECT MODULE PLACED IN .\Objects\bsp.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE source\bsp.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_lib
+                    -) DEBUG OBJECTEXTEND PRINT(.\Listings\bsp.lst) TABS(2) OBJECT(.\Objects\bsp.obj)
+
+line level    source
+
+   1          #include "bsp.h"
+   2          #include "timer_config.h"
+   3          void Debug_Var(u16 var)
+   4          {
+   5   1        u8 num[6];
+   6   1        num[0]=var/10000+0x30;
+   7   1        num[1]=var%10000/1000+0x30;
+   8   1        num[2]=var%1000/100+0x30;
+   9   1        num[3]=var%100/10+0x30;
+  10   1        num[4]=var%10+0x30;
+  11   1        num[5]='\0';
+  12   1        debug(num);
+  13   1      }
+  14          
+  15          void bsp(void)
+  16          {
+  17   1        GPIO_InitTypeDef  light_pin_init, switch_gpio_init;
+  18   1        
+  19   1        light_pin_init.Mode=GPIO_OUT_PP;
+  20   1        light_pin_init.Pin=LIGHT1_GPIO_PIN;
+  21   1        GPIO_Inilize(LIGHT1_GPIO_PORT, &light_pin_init);
+  22   1        
+  23   1        light_pin_init.Pin=LIGHT2_GPIO_PIN|LIGHT3_GPIO_PIN|LIGHT4_GPIO_PIN;
+  24   1        GPIO_Inilize(LIGHT2_GPIO_PORT, &light_pin_init);
+  25   1      
+  26   1        switch_gpio_init.Mode=GPIO_OUT_PP;
+  27   1        switch_gpio_init.Pin=SWITCH1_GPIO_PIN|SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
+  28   1        GPIO_Inilize(SWITCH1_GPIO_PORT,SWITCH1_GPIO_PORT);
+  29   1      
+  30   1      
+  31   1      
+  32   1        USART3_Config();
+  33   1        S3_Int_en();
+  34   1        
+  35   1        USART4_Config();
+  36   1        S4_Int_en();
+  37   1        
+  38   1        
+  39   1        sys_time_init();
+  40   1      
+  41   1        EA=1;
+  42   1      
+  43   1        wifi_reset();
+  44   1            
+  45   1      
+  46   1      }
+  47          
+  48          void sys_sleep(void)
+  49          {
+  50   1        _nop_();
+  51   1        _nop_();
+  52   1        _nop_();
+  53   1        _nop_();
+  54   1        PCON |= 0x01;
+C51 COMPILER V9.56.0.0   BSP                                                               04/15/2020 21:58:02 PAGE 2   
+
+  55   1      }
+  56          
+  57          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    206    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

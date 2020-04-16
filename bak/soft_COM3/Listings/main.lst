@@ -1,0 +1,56 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              04/15/2020 21:58:01 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE source\main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_li
+                    -b) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "bsp.h"
+   2          #include <delay.h>
+   3          #include "string.h"
+   4          
+   5          void debug_time(void)
+   6          {
+   7   1        debug_var((u16)hour);
+   8   1        debug(":");
+   9   1        debug_var((u16)minute);
+  10   1        debug(":");
+  11   1        debug_var((u16)second);
+  12   1        debug("\r\n");
+  13   1        
+  14   1      }
+  15          
+  16          void main(void)
+  17          {
+  18   1        bsp();
+  19   1        
+  20   1        memset(RX3_Buffer, 0, sizeof(RX3_Buffer));
+  21   1      
+  22   1        while(1)
+  23   1        {
+  24   2          if(wifi_receive(100))
+  25   2          {
+  26   3            debug("\r\n<<:");
+  27   3            debug(RX3_Buffer);
+  28   3          }
+  29   2          sys_sleep();
+  30   2          
+  31   2        }
+  32   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     99    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

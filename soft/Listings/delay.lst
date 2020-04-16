@@ -1,0 +1,78 @@
+C51 COMPILER V9.56.0.0   DELAY                                                             04/15/2020 20:58:12 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN .\Objects\delay.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE stc_lib\delay.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_
+                    -lib) DEBUG OBJECTEXTEND PRINT(.\Listings\delay.lst) TABS(2) OBJECT(.\Objects\delay.obj)
+
+line level    source
+
+   1          
+   2          /*---------------------------------------------------------------------*/
+   3          /* --- STC MCU International Limited ----------------------------------*/
+   4          /* --- STC 1T Series MCU Demo Programme -------------------------------*/
+   5          /* --- Mobile: (86)13922805190 ----------------------------------------*/
+   6          /* --- Fax: 86-0513-55012956,55012947,55012969 ------------------------*/
+   7          /* --- Tel: 86-0513-55012928,55012929,55012966 ------------------------*/
+   8          /* --- Web: www.GXWMCU.com --------------------------------------------*/
+   9          /* --- QQ:  800003751 -------------------------------------------------*/
+  10          /* 如果要在程序中使用此代码,请在程序中注明使用了宏晶科技的资料及程序   */
+  11          /*---------------------------------------------------------------------*/
+  12          
+  13          
+  14          /*************  功能说明  **************
+  15          
+  16          本文件为STC15xxx系列的延时程序,用户几乎可以不修改这个程序.
+  17          
+  18          ******************************************/
+  19          
+  20          #include  "delay.h"
+  21          
+  22          
+  23          
+  24          //========================================================================
+  25          // 函数: void  delay_ms(unsigned char ms)
+  26          // 描述: 延时函数。
+  27          // 参数: ms,要延时的ms数, 这里只支持1~255ms. 自动适应主时钟.
+  28          // 返回: none.
+  29          // 版本: VER1.0
+  30          // 日期: 2013-4-1
+  31          // 备注: 
+  32          //========================================================================
+  33          void  delay_ms(unsigned char ms)
+  34          {
+  35   1           unsigned int i;
+  36   1         do{
+  37   2              i = MAIN_Fosc / 13000;
+  38   2            while(--i)  ;   //14T per loop
+  39   2           }while(--ms);
+  40   1      }
+  41          
+  42          void delay_s(u8 second)
+  43          {
+  44   1        u8 i;
+  45   1        while(second--)
+  46   1        {
+  47   2          for(i=4;i>0;i--)
+  48   2          {
+  49   3            delay_ms(250);
+  50   3          }
+  51   2        }
+  52   1      }
+
+
+C51 COMPILER V9.56.0.0   DELAY                                                             04/15/2020 20:58:12 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     41    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

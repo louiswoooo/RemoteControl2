@@ -1,0 +1,89 @@
+C51 COMPILER V9.56.0.0   TIMER_CONFIG                                                      04/15/2020 21:58:02 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE TIMER_CONFIG
+OBJECT MODULE PLACED IN .\Objects\timer_config.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE source\timer_config.c OPTIMIZE(8,SPEED) BROWSE INCDIR(
+                    -.\stc_lib) DEBUG OBJECTEXTEND PRINT(.\Listings\timer_config.lst) TABS(2) OBJECT(.\Objects\timer_config.obj)
+
+line level    source
+
+   1          #include "config.h"
+   2          #include "usart.h"
+   3          #include "timer_config.h"
+   4          
+   5          u8 sys_tick;
+   6          u8 second,minute,hour;
+   7          
+   8          void sys_time_init(void)    //10毫秒@22.1184MHz
+   9          {
+  10   1        AUXR &= 0x7F;   //定时器时钟12T模式
+  11   1        TMOD &= 0xF0;   //设置定时器模式
+  12   1        TL0 = 0x00;   //设置定时初值
+  13   1        TH0 = 0xB8;   //设置定时初值
+  14   1        TF0 = 0;    //清除TF0标志
+  15   1        TR0 = 1;    //定时器0开始计时
+  16   1      
+  17   1        ET0=1;
+  18   1      
+  19   1        sys_tick=TICK_PER_SECOND;
+  20   1        second=0;
+  21   1        minute=0;
+  22   1        hour=0;
+  23   1      }
+  24          
+  25          void sys_time_interrupt(void) interrupt TIMER0_VECTOR
+  26          {
+  27   1        if(sys_tick>0)
+  28   1        {
+  29   2          sys_tick--;
+  30   2        }
+  31   1        else
+  32   1        {
+  33   2          sys_tick=TICK_PER_SECOND;
+  34   2          second++;
+  35   2          if(second>=60)
+  36   2          {
+  37   3            second=0;
+  38   3            minute++;
+  39   3            if(minute>=60)
+  40   3            {
+  41   4              minute=0;
+  42   4              hour++;
+  43   4            }
+  44   3          }
+  45   2        }
+  46   1        
+  47   1        if(COM3.B_RX_EN)
+  48   1        {
+  49   2          if(COM3.RX_TimeOut>0) 
+  50   2          {
+  51   3            COM3.RX_TimeOut--;
+  52   3            if(0==COM3.RX_TimeOut)
+  53   3            {
+  54   4              if(COM3.RX_Cnt>0)
+C51 COMPILER V9.56.0.0   TIMER_CONFIG                                                      04/15/2020 21:58:02 PAGE 2   
+
+  55   4              {
+  56   5                COM3.B_RX_EN=0;
+  57   5                RX3_Buffer[COM3.RX_Cnt]='\0';
+  58   5                COM3.B_RX_OK=1;
+  59   5              }
+  60   4            }
+  61   3          }
+  62   2        }
+  63   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    129    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

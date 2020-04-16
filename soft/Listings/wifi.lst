@@ -1,0 +1,78 @@
+C51 COMPILER V9.56.0.0   WIFI                                                              04/15/2020 21:58:02 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE WIFI
+OBJECT MODULE PLACED IN .\Objects\wifi.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE source\wifi.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_li
+                    -b) DEBUG OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
+
+line level    source
+
+   1          #include "usart.h"
+   2          #include "string.h"
+   3          #include "gpio.h"
+   4          #include "delay.h"
+   5          #include "wifi.h"
+   6          #define WIFI_GPIO_PORT    GPIO_P4
+   7          #define WIFI_GPIO_PIN   GPIO_Pin_2
+   8          
+   9          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  10          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  11          
+  12          void wifi_reset(void)
+  13          {
+  14   1        GPIO_InitTypeDef  wifi_gpio_init;
+  15   1      
+  16   1        wifi_gpio_init.Mode=GPIO_PullUp;
+  17   1        wifi_gpio_init.Pin=WIFI_GPIO_PIN;
+  18   1        
+  19   1        GPIO_Inilize(WIFI_GPIO_PORT, &wifi_gpio_init);
+  20   1      
+  21   1        wifi_reset_pin_low();
+  22   1        delay_ms(100);
+  23   1        wifi_reset_pin_high();
+  24   1      }
+  25          
+  26          u8 wifi_receive(u16 timeout_tick)
+  27          {
+  28   1        u16 i;
+  29   1        for(i = timeout_tick/(COM3.RX_TimeOut); i>0; i--)
+  30   1        {
+  31   2          COM3.B_RX_EN=1;
+  32   2          COM3.RX_Cnt=0;
+  33   2          COM3.RX_TimeOut=TimeOutSet3;
+  34   2          while(COM3.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
+  35   2          if(COM3.B_RX_OK)
+  36   2            return COM3.RX_Cnt;
+  37   2        }
+  38   1        return NULL;
+  39   1      }
+  40          
+  41            
+  42          u8 *WIFI_SendAndWait(u8 *send,u8 *match,u8 timeout_tick)
+  43          {
+  44   1        u8 *p;
+  45   1        wifi_send(send);
+  46   1        if(wifi_receive(timeout_tick))
+  47   1        {
+  48   2          if(p=strstr(RX3_Buffer,match))
+  49   2            return p;
+  50   2        }
+  51   1        return NULL;
+  52   1      }
+
+
+C51 COMPILER V9.56.0.0   WIFI                                                              04/15/2020 21:58:02 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    130    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

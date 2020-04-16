@@ -1,0 +1,1 @@
+"stc_lib\Soft_UART.c" LARGE OPTIMIZE (8,SPEED) BROWSE INCDIR(.\stc_lib) DEBUG OBJECTEXTEND PRINT(.\Listings\Soft_UART.lst) TABS (2) OBJECT(.\Objects\Soft_UART.obj)
