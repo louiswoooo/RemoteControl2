@@ -15,18 +15,18 @@ void debug_time(void)
 */
 void main(void)
 {
+	u8 i;
 	bsp();
 	
 	memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
 	
-	//delay_s(10);
+	delay_s(5);
+	debug("delay finish\r\n");
+	WIFI_SendAndWait("AT\r\n", "OK", 5);
+	debug("match!\r\n");
 	while(1)
 	{
-		if(wifi_receive())
-			debug(RX2_Buffer);
-		//WIFI_SendAndWait("AT+CWMODE=2", "OK", 10);
-		//debug("response sucess!!!\r\n");
-		//delay_s(10);
 		
+	
 	}
 }

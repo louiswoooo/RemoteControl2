@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:04:48 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:43:41 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
@@ -33,112 +33,123 @@ line level    source
   23          {
   24   1          for (; *puts != 0;  puts++)  TX2_write2buff(*puts);   //遇到停止符0结束
   25   1      }
-  26          void TX4_write2buff(u8 dat) //写入发送缓冲，指针+1
-  27          {
-  28   1        TX4_Buffer[COM4.TX_write] = dat;  //装发送缓冲
-  29   1        if(++COM4.TX_write >= COM_TX4_Lenth)  COM4.TX_write = 0;
-  30   1      
-  31   1        if(COM4.B_TX_busy == 0)   //空闲
-  32   1        {  
-  33   2          COM4.B_TX_busy = 1;   //标志忙
-  34   2          SET_TI4();        //触发发送中断
-  35   2        }
-  36   1      }
-  37          
+  26          
+  27          void TX4_write2buff(u8 dat) //写入发送缓冲，指针+1
+  28          {
+  29   1        TX4_Buffer[COM4.TX_write] = dat;  //装发送缓冲
+  30   1        if(++COM4.TX_write >= COM_TX4_Lenth)  COM4.TX_write = 0;
+  31   1      
+  32   1        if(COM4.B_TX_busy == 0)   //空闲
+  33   1        {  
+  34   2          COM4.B_TX_busy = 1;   //标志忙
+  35   2          SET_TI4();        //触发发送中断
+  36   2        }
+  37   1      }
   38          
-  39          void PrintString4(u8 *puts)
-  40          {
-  41   1          for (; *puts != 0;  puts++)  TX4_write2buff(*puts);   //遇到停止符0结束
-  42   1      }
-  43          
-  44          void USART2_Config(void)    //115200bps@22.1184MHz
-  45          {
-  46   1        S2CON = 0x50;   //8位数据,可变波特率
-  47   1        AUXR |= 0x04;   //定时器2时钟为Fosc,即1T
-  48   1        T2L = 0xD0;   //设定定时初值
-  49   1        T2H = 0xFF;   //设定定时初值
-  50   1        AUXR |= 0x10;   //启动定时器2
-  51   1        
-  52   1        COM2.id = 2;
-  53   1        COM2.TX_read    = 0;
-  54   1        COM2.TX_write   = 0;
-C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:04:48 PAGE 2   
+  39          
+  40          void PrintString4(u8 *puts)
+  41          {
+  42   1          for (; *puts != 0;  puts++)  TX4_write2buff(*puts);   //遇到停止符0结束
+  43   1      }
+  44          
+  45          void USART2_Config(void)    //115200bps@22.1184MHz
+  46          {
+  47   1        S2CON = 0x50;   //8位数据,可变波特率
+  48   1        AUXR |= 0x04;   //定时器2时钟为Fosc,即1T
+  49   1        T2L = 0xD0;   //设定定时初值
+  50   1        T2H = 0xFF;   //设定定时初值
+  51   1        AUXR |= 0x10;   //启动定时器2
+  52   1        
+  53   1        COM2.id = 2;
+  54   1        COM2.TX_read    = 0;
+C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:43:41 PAGE 2   
 
-  55   1        COM2.B_TX_busy  = 0;
-  56   1        COM2.RX_Cnt     = 0;
-  57   1        COM2.RX_TimeOut = 0;
-  58   1        COM2.B_RX_EN    = 0;
-  59   1        COM2.B_RX_OK    = 0;
-  60   1      }
-  61          
-  62          void USART4_Config(void)    //115200bps@22.1184MHz
-  63          {
-  64   1        S4CON = 0x10;   //8???,?????
-  65   1        S4CON |= 0x40;    //??4?????4???????
-  66   1        T4T3M |= 0x20;    //???4???Fosc,?1T
-  67   1        T4L = 0xD0;   //??????
-  68   1        T4H = 0xFF;   //??????
-  69   1        T4T3M |= 0x80;    //?????4
-  70   1      
-  71   1        COM4.id = 4;
-  72   1        COM4.TX_read    = 0;
-  73   1        COM4.TX_write   = 0;
-  74   1        COM4.B_TX_busy  = 0;
-  75   1        COM4.RX_Cnt     = 0;
-  76   1        COM4.RX_TimeOut = 0;
-  77   1        COM4.B_RX_EN    = 0;
-  78   1        COM4.B_RX_OK    = 0;
-  79   1      
-  80   1      }
-  81          
-  82          /********************* UART4中断函数************************/
-  83          void UART2_int (void) interrupt UART2_VECTOR
-  84          {
-  85   1        if(RI2)
-  86   1        {
-  87   2          CLR_RI2();
-  88   2          if(COM2.B_RX_EN == 1)
-  89   2          {
-  90   3            if(COM2.RX_Cnt >= COM_RX2_Lenth)  COM2.RX_Cnt = 0;
-  91   3            RX2_Buffer[COM2.RX_Cnt++] = S2BUF;
-  92   3            COM2.RX_TimeOut = TimeOutSet2;
-  93   3          }
-  94   2        }
-  95   1      }
-  96          
-  97          void UART4_int (void) interrupt UART4_VECTOR
-  98          {
-  99   1        if(RI4)
- 100   1        {
- 101   2          CLR_RI4();
- 102   2          if(COM4.B_RX_EN == 1)
- 103   2          {
- 104   3            if(COM4.RX_Cnt >= COM_RX2_Lenth)  COM4.RX_Cnt = 0;
- 105   3            RX4_Buffer[COM4.RX_Cnt++] = S4BUF;
- 106   3            COM4.RX_TimeOut = TimeOutSet4;
- 107   3          }
- 108   2        }
- 109   1      
- 110   1        if(TI4)
+  55   1        COM2.TX_write   = 0;
+  56   1        COM2.B_TX_busy  = 0;
+  57   1        COM2.RX_Cnt     = 0;
+  58   1        COM2.RX_TimeOut = 0;
+  59   1        COM2.B_RX_EN    = 0;
+  60   1        COM2.B_RX_OK    = 0;
+  61   1      }
+  62          
+  63          void USART4_Config(void)    //115200bps@22.1184MHz
+  64          {
+  65   1        S4CON = 0x10;   //8???,?????
+  66   1        S4CON |= 0x40;    //??4?????4???????
+  67   1        T4T3M |= 0x20;    //???4???Fosc,?1T
+  68   1        T4L = 0xD0;   //??????
+  69   1        T4H = 0xFF;   //??????
+  70   1        T4T3M |= 0x80;    //?????4
+  71   1      
+  72   1        COM4.id = 4;
+  73   1        COM4.TX_read    = 0;
+  74   1        COM4.TX_write   = 0;
+  75   1        COM4.B_TX_busy  = 0;
+  76   1        COM4.RX_Cnt     = 0;
+  77   1        COM4.RX_TimeOut = 0;
+  78   1        COM4.B_RX_EN    = 0;
+  79   1        COM4.B_RX_OK    = 0;
+  80   1      
+  81   1      }
+  82          
+  83          /********************* UART4中断函数************************/
+  84          void UART2_int (void) interrupt UART2_VECTOR
+  85          {
+  86   1        if(RI2)
+  87   1        {
+  88   2          CLR_RI2();
+  89   2          if(COM2.B_RX_EN == 1)
+  90   2          {
+  91   3            if(COM2.RX_Cnt >= COM_RX2_Lenth)  COM2.RX_Cnt = 0;
+  92   3            RX2_Buffer[COM2.RX_Cnt++] = S2BUF;
+  93   3            COM2.RX_TimeOut = TimeOutSet2;
+  94   3          }
+  95   2        }
+  96   1        if(TI2)
+  97   1        {
+  98   2          CLR_TI2();
+  99   2          if(COM2.TX_read != COM2.TX_write)
+ 100   2          {
+ 101   3            S2BUF = TX2_Buffer[COM2.TX_read];
+ 102   3            if(++COM2.TX_read >= COM_TX2_Lenth)   COM2.TX_read = 0;
+ 103   3          }
+ 104   2          else  COM2.B_TX_busy = 0;
+ 105   2        }
+ 106   1      }
+ 107          
+ 108          void UART4_int (void) interrupt UART4_VECTOR
+ 109          {
+ 110   1        if(RI4)
  111   1        {
- 112   2          CLR_TI4();
- 113   2          if(COM4.TX_read != COM4.TX_write)
+ 112   2          CLR_RI4();
+ 113   2          if(COM4.B_RX_EN == 1)
  114   2          {
- 115   3            S4BUF = TX4_Buffer[COM4.TX_read];
- 116   3            if(++COM4.TX_read >= COM_TX4_Lenth)   COM4.TX_read = 0;
-C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:04:48 PAGE 3   
+ 115   3            if(COM4.RX_Cnt >= COM_RX2_Lenth)  COM4.RX_Cnt = 0;
+ 116   3            RX4_Buffer[COM4.RX_Cnt++] = S4BUF;
+C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:43:41 PAGE 3   
 
- 117   3          }
- 118   2          else  COM4.B_TX_busy = 0;
+ 117   3            COM4.RX_TimeOut = TimeOutSet4;
+ 118   3          }
  119   2        }
  120   1      
- 121   1      }
- 122          
- 123          
+ 121   1        if(TI4)
+ 122   1        {
+ 123   2          CLR_TI4();
+ 124   2          if(COM4.TX_read != COM4.TX_write)
+ 125   2          {
+ 126   3            S4BUF = TX4_Buffer[COM4.TX_read];
+ 127   3            if(++COM4.TX_read >= COM_TX4_Lenth)   COM4.TX_read = 0;
+ 128   3          }
+ 129   2          else  COM4.B_TX_busy = 0;
+ 130   2        }
+ 131   1      
+ 132   1      }
+ 133          
+ 134          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    382    ----
+   CODE SIZE        =    427    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   2304    ----
    PDATA SIZE       =   ----    ----

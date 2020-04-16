@@ -23,6 +23,7 @@ void PrintString2(u8 *puts)
 {
     for (; *puts != 0;	puts++)  TX2_write2buff(*puts); 	//Óöµ½Í£Ö¹·û0½áÊø
 }
+
 void TX4_write2buff(u8 dat)	//Ð´Èë·¢ËÍ»º³å£¬Ö¸Õë+1
 {
 	TX4_Buffer[COM4.TX_write] = dat;	//×°·¢ËÍ»º³å
@@ -91,6 +92,16 @@ void UART2_int (void) interrupt UART2_VECTOR
 			RX2_Buffer[COM2.RX_Cnt++] = S2BUF;
 			COM2.RX_TimeOut = TimeOutSet2;
 		}
+	}
+	if(TI2)
+	{
+		CLR_TI2();
+		if(COM2.TX_read != COM2.TX_write)
+		{
+		 	S2BUF = TX2_Buffer[COM2.TX_read];
+			if(++COM2.TX_read >= COM_TX2_Lenth)		COM2.TX_read = 0;
+		}
+		else	COM2.B_TX_busy = 0;
 	}
 }
 

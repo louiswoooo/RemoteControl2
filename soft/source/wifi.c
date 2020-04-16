@@ -32,7 +32,6 @@ u8 wifi_receive()
 	while(COM2.RX_TimeOut>0);			//每次串口接收不到字节产生超时，判定为一次块接收完成
 	if(COM2.B_RX_OK)
 	{
-		//debug(RX2_Buffer);
 		return COM2.RX_Cnt;
 	}
 	return NULL;
