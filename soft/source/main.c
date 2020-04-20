@@ -1,6 +1,7 @@
 #include "bsp.h"
 #include <delay.h>
 #include "string.h"
+#include "devices.h"
 /*
 void debug_time(void)
 {
@@ -13,20 +14,19 @@ void debug_time(void)
 	
 }
 */
+
 void main(void)
 {
-	u8 i;
 	bsp();
 	
 	memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
 	
-	delay_s(5);
-	debug("delay finish\r\n");
-	WIFI_SendAndWait("AT\r\n", "OK", 5);
-	debug("match!\r\n");
+	wifi_reset();
+	WIFI_Set_AP_mode();
+	debug("server create!!!\r\n");
 	while(1)
 	{
+		DevicesControl();
 		
-	
 	}
 }

@@ -62,8 +62,7 @@ extern	u16		CCAP0_tmp,PCA_Timer0;
 extern	u16		CCAP1_tmp,PCA_Timer1;
 extern	u16		CCAP2_tmp,PCA_Timer2;
 void	PCA_Init(u8 PCA_id, PCA_InitTypeDef *PCAx);
-void	UpdatePwm(u8 PCA_id, u8 pwm_value);
-void 	PWMn_Update(u8 PCA_id, u16 high);
+void	PWMn_Update(u8 PCA_id, u8 pwm_value);
 
 
 #endif

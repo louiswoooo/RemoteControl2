@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   DELAY                                                             04/16/2020 21:58:51 PAGE 1   
+C51 COMPILER V9.56.0.0   DELAY                                                             04/19/2020 23:01:00 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DELAY
@@ -40,31 +40,45 @@ line level    source
   30          // ÈÕÆÚ: 2013-4-1
   31          // ±¸×¢: 
   32          //========================================================================
-  33          void  delay_ms(unsigned char ms)
+  33          void delay_10us(u8 count)   //@22.1184MHz
   34          {
-  35   1           unsigned int i;
-  36   1         do{
-  37   2              i = MAIN_Fosc / 13000;
-  38   2            while(--i)  ;   //14T per loop
-  39   2           }while(--ms);
-  40   1      }
-  41          void delay_s(u8 second)
-  42          {
-  43   1        u8 i;
-  44   1        while(second--)
-  45   1        {
-  46   2          for(i=4;i>0;i--)
-  47   2          {
-  48   3            delay_ms(250);
-  49   3          }
-  50   2        }
-  51   1      }
+  35   1        unsigned char i;
+  36   1      
+  37   1        while(count--)
+  38   1        {
+  39   2          _nop_();
+  40   2          _nop_();
+  41   2          _nop_();
+  42   2          i = 26;
+  43   2          while (--i);
+  44   2        }
+  45   1      }
+  46          
+  47          void  delay_ms(unsigned char ms)  //@22.1184MHz
+  48          {
+  49   1           unsigned int i;
+  50   1         do{
+  51   2              i = MAIN_Fosc / 13000;
+  52   2            while(--i)  ;   //14T per loop
+  53   2           }while(--ms);
+  54   1      }
+C51 COMPILER V9.56.0.0   DELAY                                                             04/19/2020 23:01:00 PAGE 2   
+
+  55          void delay_s(u8 second)
+  56          {
+  57   1        u8 i;
+  58   1        while(second--)
+  59   1        {
+  60   2          for(i=4;i>0;i--)
+  61   2          {
+  62   3            delay_ms(250);
+  63   3          }
+  64   2        }
+  65   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-C51 COMPILER V9.56.0.0   DELAY                                                             04/16/2020 21:58:51 PAGE 2   
-
-   CODE SIZE        =     41    ----
+   CODE SIZE        =     59    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

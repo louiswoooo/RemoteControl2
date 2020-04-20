@@ -6,5 +6,6 @@
 
 void  delay_ms(unsigned char ms);
 void delay_s(u8 second);
+void delay_10us(u8 count);		//@22.1184MHz
 
 #endif

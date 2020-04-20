@@ -1,1 +1,0 @@
-"stc_lib\USART.C" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\stc_lib) DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS (2) OBJECT(.\Objects\USART.obj)

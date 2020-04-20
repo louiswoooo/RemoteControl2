@@ -124,7 +124,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>0</UseSimulator>
+            <UseSimulator>1</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -136,7 +136,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Simulator>
           <Target>
-            <UseTarget>1</UseTarget>
+            <UseTarget>0</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -383,6 +383,11 @@
               <FileType>1</FileType>
               <FilePath>.\source\wifi.c</FilePath>
             </File>
+            <File>
+              <FileName>devices.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\source\devices.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -402,6 +407,11 @@
               <FileName>USART.C</FileName>
               <FileType>1</FileType>
               <FilePath>.\stc_lib\USART.C</FilePath>
+            </File>
+            <File>
+              <FileName>PCA.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\stc_lib\PCA.c</FilePath>
             </File>
           </Files>
         </Group>

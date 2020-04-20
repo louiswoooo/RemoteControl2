@@ -30,7 +30,21 @@
 // ÈÕÆÚ: 2013-4-1
 // ±¸×¢: 
 //========================================================================
-void  delay_ms(unsigned char ms)
+void delay_10us(u8 count)		//@22.1184MHz
+{
+	unsigned char i;
+
+	while(count--)
+	{
+		_nop_();
+		_nop_();
+		_nop_();
+		i = 26;
+		while (--i);
+	}
+}
+
+void  delay_ms(unsigned char ms)	//@22.1184MHz
 {
      unsigned int i;
 	 do{

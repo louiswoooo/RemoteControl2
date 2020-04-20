@@ -2,8 +2,10 @@
 ".\Objects\bsp.obj",
 ".\Objects\timer_config.obj",
 ".\Objects\wifi.obj",
+".\Objects\devices.obj",
 ".\Objects\delay.obj",
 ".\Objects\GPIO.obj",
-".\Objects\USART.obj" 
+".\Objects\USART.obj",
+".\Objects\PCA.obj" 
 TO ".\Objects\RemoteControl" 
 PRINT(".\Listings\RemoteControl.m51") RAMSIZE(256) 

@@ -51,9 +51,9 @@ void sys_time_interrupt(void) interrupt TIMER0_VECTOR
 			COM2.RX_TimeOut--;
 			if(0==COM2.RX_TimeOut)
 			{
+				COM2.B_RX_EN=0;
 				if(COM2.RX_Cnt>0)
 				{
-					COM2.B_RX_EN=0;
 					RX2_Buffer[COM2.RX_Cnt]='\0';
 					COM2.B_RX_OK=1;
 				}

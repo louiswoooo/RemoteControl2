@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   BSP                                                               04/16/2020 22:05:33 PAGE 1   
+C51 COMPILER V9.56.0.0   BSP                                                               04/19/2020 22:39:12 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE BSP
@@ -11,76 +11,62 @@ line level    source
    1          #include "bsp.h"
    2          #include "timer_config.h"
    3          
-   4          /*
-   5          void Debug_Var(u16 var)
-   6          {
-   7            u8 num[6];
-   8            num[0]=var/10000+0x30;
-   9            num[1]=var%10000/1000+0x30;
-  10            num[2]=var%1000/100+0x30;
-  11            num[3]=var%100/10+0x30;
-  12            num[4]=var%10+0x30;
-  13            num[5]='\0';
-  14            debug(num);
-  15          }
-  16          */
-  17          void bsp(void)
-  18          {
-  19   1        GPIO_InitTypeDef  light_pin_init, switch_gpio_init;
-  20   1        
-  21   1        light_pin_init.Mode=GPIO_OUT_PP;
-  22   1        light_pin_init.Pin=LIGHT1_GPIO_PIN;
-  23   1        GPIO_Inilize(LIGHT1_GPIO_PORT, &light_pin_init);
-  24   1        
-  25   1        light_pin_init.Pin=LIGHT2_GPIO_PIN|LIGHT3_GPIO_PIN|LIGHT4_GPIO_PIN;
-  26   1        GPIO_Inilize(LIGHT2_GPIO_PORT, &light_pin_init);
-  27   1      
-  28   1        switch_gpio_init.Mode=GPIO_OUT_PP;
-  29   1        switch_gpio_init.Pin=SWITCH1_GPIO_PIN|SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
-  30   1        GPIO_Inilize(SWITCH1_GPIO_PORT,SWITCH1_GPIO_PORT);
+   4          void Debug_Var(u16 var)
+   5          {
+   6   1        u8 num[6];
+   7   1        num[0]=var/10000+0x30;
+   8   1        num[1]=var%10000/1000+0x30;
+   9   1        num[2]=var%1000/100+0x30;
+  10   1        num[3]=var%100/10+0x30;
+  11   1        num[4]=var%10+0x30;
+  12   1        num[5]='\0';
+  13   1        debug(num);
+  14   1      }
+  15          void bsp(void)
+  16          {
+  17   1      
+  18   1      
+  19   1        USART2_Config();
+  20   1        S2_Int_en();
+  21   1        
+  22   1        USART4_Config();
+  23   1        S4_Int_en();
+  24   1      
+  25   1        IP=0x00;
+  26   1        IP2=0x00;
+  27   1        IP2 |=0x01;     //设置串口2 优先级高
+  28   1        
+  29   1        
+  30   1        sys_time_init();
   31   1      
-  32   1      
-  33   1      
-  34   1        USART2_Config();
-  35   1        S2_Int_en();
-  36   1        
-  37   1        USART4_Config();
-  38   1        S4_Int_en();
-  39   1      
-  40   1        IP=0x00;
-  41   1        IP2=0x00;
-  42   1        IP2 |=0x01;     //设置串口2 优先级高
-  43   1        
-  44   1        
-  45   1        sys_time_init();
-  46   1      
-  47   1        EA=1;
-  48   1      
-  49   1        wifi_reset();
-  50   1            
-  51   1      
-  52   1      }
-  53          
-  54          void sys_sleep(void)
-C51 COMPILER V9.56.0.0   BSP                                                               04/16/2020 22:05:33 PAGE 2   
-
-  55          {
-  56   1        _nop_();
-  57   1        _nop_();
-  58   1        _nop_();
-  59   1        _nop_();
-  60   1        PCON |= 0x01;
-  61   1      }
-  62          
-  63          
+  32   1        EA=1;
+  33   1        
+  34   1      
+  35   1        //wifi_reset();
+  36   1            
+  37   1      
+  38   1      }
+  39          
+  40          void sys_sleep(void)
+  41          {
+  42   1        _nop_();
+  43   1        _nop_();
+  44   1        _nop_();
+  45   1        _nop_();
+  46   1        PCON |= 0x01;
+  47   1      }
+  48          
+  49          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     84    ----
+   CODE SIZE        =    164    ----
    CONSTANT SIZE    =   ----    ----
+C51 COMPILER V9.56.0.0   BSP                                                               04/19/2020 22:39:12 PAGE 2   
+
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----       4
+   DATA SIZE        =   ----       6
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

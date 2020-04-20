@@ -1,0 +1,118 @@
+C51 COMPILER V9.56.0.0   PCA                                                               04/19/2020 22:39:13 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE PCA
+OBJECT MODULE PLACED IN .\Objects\PCA.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE stc_lib\PCA.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_li
+                    -b) DEBUG OBJECTEXTEND PRINT(.\Listings\PCA.lst) TABS(2) OBJECT(.\Objects\PCA.obj)
+
+line level    source
+
+   1          
+   2          #include  "PCA.h"
+   3          
+   4          bit   B_Capture0,B_Capture1,B_Capture2;
+   5          u8    PCA0_mode,PCA1_mode,PCA2_mode;
+   6          u16   CCAP0_tmp,PCA_Timer0;
+   7          u16   CCAP1_tmp,PCA_Timer1;
+   8          u16   CCAP2_tmp,PCA_Timer2;
+   9          
+  10          
+  11          //========================================================================
+  12          // 函数: UpdatePwm(u8 PCA_id, u8 pwm_value)
+  13          // 描述: 更新PWM值. 
+  14          // 参数: PCA_id: PCA序号. 取值 PCA0,PCA1,PCA2,PCA_Counter
+  15          //     pwm_value: pwm值, 这个值是输出低电平的时间.
+  16          // 返回: none.
+  17          // 版本: V1.0, 2012-11-22
+  18          //========================================================================
+  19          void  PWMn_Update(u8 PCA_id, u8 pwm_value)
+  20          {
+  21   1        if(PCA_id == PCA0)    CCAP0H = pwm_value;
+  22   1        else if(PCA_id == PCA1) CCAP1H = pwm_value;
+  23   1        else if(PCA_id == PCA2) CCAP2H = pwm_value;
+  24   1      }
+  25          
+  26          //========================================================================
+  27          // 函数: void PCA_Init(PCA_id, PCA_InitTypeDef *PCAx)
+  28          // 描述: PCA初始化程序.
+  29          // 参数: PCA_id: PCA序号. 取值 PCA0,PCA1,PCA2,PCA_Counter
+  30          //     PCAx: 结构参数,请参考PCA.h里的定义.
+  31          // 返回: none.
+  32          // 版本: V1.0, 2012-11-22
+  33          //========================================================================
+  34          void  PCA_Init(u8 PCA_id, PCA_InitTypeDef *PCAx)
+  35          {
+  36   1        if(PCA_id > PCA_Counter)  return;   //id错误
+  37   1      
+  38   1        if(PCA_id == PCA_Counter)     //设置公用Counter
+  39   1        {
+  40   2          CR = 0;
+  41   2          CH = 0;
+  42   2          CL = 0;
+  43   2          AUXR1 = (AUXR1 & ~(3<<4)) | PCAx->PCA_IoUse;      //切换IO口
+  44   2          CMOD  = (CMOD  & ~(7<<1)) | PCAx->PCA_Clock;      //选择时钟源
+  45   2          CMOD  = (CMOD  & ~1) | (PCAx->PCA_Interrupt_Mode & 1);  //ECF
+  46   2          if(PCAx->PCA_Polity == PolityHigh)    PPCA = 1; //高优先级中断
+  47   2          else                  PPCA = 0; //低优先级中断
+  48   2          CR = 1;
+  49   2          return;
+  50   2        }
+  51   1      
+  52   1        PCAx->PCA_Interrupt_Mode &= (3<<4) + 1;
+  53   1        if(PCAx->PCA_Mode >= PCA_Mode_SoftTimer)  PCAx->PCA_Interrupt_Mode &= ~(3<<4);
+  54   1      
+C51 COMPILER V9.56.0.0   PCA                                                               04/19/2020 22:39:13 PAGE 2   
+
+  55   1        if(PCA_id == PCA0)
+  56   1        {
+  57   2          CCAPM0    = PCAx->PCA_Mode | PCAx->PCA_Interrupt_Mode;  //工作模式, 中断模式
+  58   2          PCA_PWM0  = (PCA_PWM0 & ~(3<<6)) | PCAx->PCA_PWM_Wide;  //PWM宽度
+  59   2      
+  60   2          PCA_Timer0 = PCAx->PCA_Value;
+  61   2          B_Capture0 = 0;
+  62   2          PCA0_mode = PCAx->PCA_Mode;
+  63   2          CCAP0_tmp = PCA_Timer0;
+  64   2          CCAP0L = (u8)CCAP0_tmp;     //将影射寄存器写入捕获寄存器，先写CCAP0L
+  65   2          CCAP0H = (u8)(CCAP0_tmp >> 8);  //后写CCAP0H
+  66   2        }
+  67   1        if(PCA_id == PCA1)
+  68   1        {
+  69   2          CCAPM1    = PCAx->PCA_Mode | PCAx->PCA_Interrupt_Mode;
+  70   2          PCA_PWM1  = (PCA_PWM1 & ~(3<<6)) | PCAx->PCA_PWM_Wide;
+  71   2      
+  72   2          PCA_Timer1 = PCAx->PCA_Value;
+  73   2          B_Capture1 = 0;
+  74   2          PCA1_mode = PCAx->PCA_Mode;
+  75   2          CCAP1_tmp = PCA_Timer1;
+  76   2          CCAP1L = (u8)CCAP1_tmp;     //将影射寄存器写入捕获寄存器，先写CCAP0L
+  77   2          CCAP1H = (u8)(CCAP1_tmp >> 8);  //后写CCAP0H
+  78   2        }
+  79   1        if(PCA_id == PCA2)
+  80   1        {
+  81   2          CCAPM2    = PCAx->PCA_Mode | PCAx->PCA_Interrupt_Mode;
+  82   2          PCA_PWM2  = (PCA_PWM2 & ~(3<<6)) | PCAx->PCA_PWM_Wide;
+  83   2      
+  84   2          PCA_Timer2 = PCAx->PCA_Value;
+  85   2          B_Capture2 = 0;
+  86   2          PCA2_mode = PCAx->PCA_Mode;
+  87   2          CCAP2_tmp = PCA_Timer2;
+  88   2          CCAP2L = (u8)CCAP2_tmp;     //将影射寄存器写入捕获寄存器，先写CCAP0L
+  89   2          CCAP2H = (u8)(CCAP2_tmp >> 8);  //后写CCAP0H
+  90   2        }
+  91   1      }
+  92          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    368    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     15       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

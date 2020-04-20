@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:43:41 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             04/19/2020 22:39:13 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
@@ -62,7 +62,7 @@ line level    source
   52   1        
   53   1        COM2.id = 2;
   54   1        COM2.TX_read    = 0;
-C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:43:41 PAGE 2   
+C51 COMPILER V9.56.0.0   USART                                                             04/19/2020 22:39:13 PAGE 2   
 
   55   1        COM2.TX_write   = 0;
   56   1        COM2.B_TX_busy  = 0;
@@ -126,7 +126,7 @@ line level    source
  114   2          {
  115   3            if(COM4.RX_Cnt >= COM_RX2_Lenth)  COM4.RX_Cnt = 0;
  116   3            RX4_Buffer[COM4.RX_Cnt++] = S4BUF;
-C51 COMPILER V9.56.0.0   USART                                                             04/16/2020 22:43:41 PAGE 3   
+C51 COMPILER V9.56.0.0   USART                                                             04/19/2020 22:39:13 PAGE 3   
 
  117   3            COM4.RX_TimeOut = TimeOutSet4;
  118   3          }
