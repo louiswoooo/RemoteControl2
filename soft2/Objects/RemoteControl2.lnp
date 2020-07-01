@@ -1,0 +1,11 @@
+".\Objects\config.obj",
+".\Objects\bsp.obj",
+".\Objects\devices.obj",
+".\Objects\main.obj",
+".\Objects\wifi.obj",
+".\Objects\sys.obj",
+".\Objects\GPIO.obj",
+".\Objects\PCA.obj",
+".\Objects\USART.obj" 
+TO ".\Objects\RemoteControl2" 
+PRINT(".\Listings\RemoteControl2.m51") RAMSIZE(256) 

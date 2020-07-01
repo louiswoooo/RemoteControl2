@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   PCA                                                               04/19/2020 22:39:13 PAGE 1   
+C51 COMPILER V9.56.0.0   PCA                                                               04/25/2020 20:39:20 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE PCA
 OBJECT MODULE PLACED IN .\Objects\PCA.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE stc_lib\PCA.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_li
-                    -b) DEBUG OBJECTEXTEND PRINT(.\Listings\PCA.lst) TABS(2) OBJECT(.\Objects\PCA.obj)
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE stc_lib\PCA.c COMPACT OPTIMIZE(8,SPEED) BROWSE INCDIR(
+                    -.\stc_lib) DEBUG OBJECTEXTEND PRINT(.\Listings\PCA.lst) TABS(2) OBJECT(.\Objects\PCA.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52   1        PCAx->PCA_Interrupt_Mode &= (3<<4) + 1;
   53   1        if(PCAx->PCA_Mode >= PCA_Mode_SoftTimer)  PCAx->PCA_Interrupt_Mode &= ~(3<<4);
   54   1      
-C51 COMPILER V9.56.0.0   PCA                                                               04/19/2020 22:39:13 PAGE 2   
+C51 COMPILER V9.56.0.0   PCA                                                               04/25/2020 20:39:20 PAGE 2   
 
   55   1        if(PCA_id == PCA0)
   56   1        {
@@ -105,11 +105,11 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    368    ----
+   CODE SIZE        =    421    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
-   PDATA SIZE       =   ----    ----
-   DATA SIZE        =     15       3
+   PDATA SIZE       =     15       3
+   DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =      3    ----
 END OF MODULE INFORMATION.

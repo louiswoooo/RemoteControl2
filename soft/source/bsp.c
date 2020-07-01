@@ -30,7 +30,8 @@ void bsp(void)
 	sys_time_init();
 
 	EA=1;
-	
+
+	DevicesInit();
 
 	//wifi_reset();
 			

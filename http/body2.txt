@@ -1,0 +1,6 @@
+
+<html>
+<body>
+<h1>WIFI成功连接，感谢您使用天才云！</h1>
+</body>
+</html>

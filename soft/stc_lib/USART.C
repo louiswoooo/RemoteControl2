@@ -80,7 +80,7 @@ void USART4_Config(void)		//115200bps@22.1184MHz
 
 }
 
-/********************* UART4中断函数************************/
+/********************* UART2中断函数************************/
 void UART2_int (void) interrupt UART2_VECTOR
 {
 	if(RI2)

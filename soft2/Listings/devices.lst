@@ -1,0 +1,405 @@
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DEVICES
+OBJECT MODULE PLACED IN .\Objects\devices.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\devices.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\
+                    -STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\devices.lst) TABS(2) OBJECT(.\Objects\devices.obj)
+
+line level    source
+
+   1          /*****************************************************************************
+   2            * @file:      devices.c
+   3            * @author:    louiswoo
+   4            * @version:   V1.0
+   5            * @date:  2020-4-17
+   6            * @brief: 控制AI  实验板与上层控制设备的交互
+   7          协议: 
+   8              设置wifi: 命令"SETWIFI ssid password", 成功返回"OK", 失败返回"FAIL"
+   9              设置switch: 命令"SWITCHx ON/OFF", 成功返回"OK", 失败返回"FAIL"
+  10              设置light: 命令"LIGHTx ON/OFF/INC/DEC", 成功返回"OK", 失败返回"FAIL"
+  11              获取temp: 命令"TEMP", 返回"OK temp"
+  12              获取humi: 命令"HUMI", 返回"OK humi"
+  13          *******************************************************************************/
+  14          
+  15          #include "usart.h"
+  16          #include "devices.h"
+  17          #include "string.h"
+  18          #include "bsp.h"
+  19          #include  "PCA.h"
+  20          #include<intrins.h>
+  21          
+  22          #define KEYWORD_SWITCH  "SWITCH"
+  23          #define KEYWORD_LIGHT   "LIGHT"
+  24          #define KEYWORD_TEMP    "TEMP"
+  25          #define KEYWORD_HUMI    "HUMI"
+  26          #define KEYWORD_SETWIFI "SETWIFI"
+  27          #define LIGHT1_ID PCA0
+  28          #define LIGHT2_ID PCA2
+  29          
+  30          #define LIGHT_POWER_MAX 0xff
+  31          #define LIGHT_POWER_MIN 0x00
+  32          #define LIGHT_INIT_POWER  160
+  33          #define LIGHT_POWER_INC 40
+  34          #define LIGHT_POWER_DEC 40
+  35          
+  36          #define LIGHT1_PWM_SET    0xff - Light1Power
+  37          #define LIGHT2_PWM_SET    0xff - Light2Power
+  38          
+  39          u8 Light1Power;
+  40          u8 Light2Power;
+  41          
+  42          static void DHT11_Start(void)
+  43          {     
+  44   1        DH_Pin=1;   
+  45   1        delay_10us(1);
+  46   1        DH_Pin=0;   
+  47   1        delay_ms(18);   //延时18ms以上   
+  48   1        DH_Pin=1;   
+  49   1        delay_10us(4);
+  50   1      }
+  51          
+  52          static u8 DHT11_rec_byte(void)      //接收一个字节
+  53          {   
+  54   1        u8 i,dat=0;  
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 2   
+
+  55   1        for(i=0;i<8;i++)    //从高到低依次接收8位数据   
+  56   1        {                
+  57   2          while(!DH_Pin);   ////等待50us低电平过去      ，延时函数有误差
+  58   2          delay_10us(2);
+  59   2          dat<<=1;           //移位使正确接收8位数据，数据为0时直接移位      
+  60   2          if(DH_Pin==1)    //数据为1时，使dat加1来接收数据1         
+  61   2          dat+=1;      
+  62   2          while(DH_Pin);  //等待数据线拉低        
+  63   2        }     
+  64   1        return dat;
+  65   1      }
+  66          
+  67          static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
+  68          {    
+  69   1        u8 RH=0,RL=0,TH=0,TL=0,check=0;    
+  70   1        u16 temp, humi;
+  71   1        DHT11_Start();    
+  72   1        if(DH_Pin==0)    
+  73   1        {        
+  74   2          while(DH_Pin==0);   //等待拉高       
+  75   2          EA=0;
+  76   2          delay_10us(8);  //拉高后延时80us        
+  77   2          RH=DHT11_rec_byte();    //接收湿度高八位         
+  78   2          RL=DHT11_rec_byte();    //接收湿度低八位          
+  79   2          TH=DHT11_rec_byte();    //接收温度高八位         
+  80   2          TL=DHT11_rec_byte();    //接收温度低八位       
+  81   2          check=DHT11_rec_byte(); //接收校正位        
+  82   2          EA=1;
+  83   2          if((RH+RL+TH+TL)==check)      //校正        
+  84   2            debug("DHT11 true  \r\n");
+  85   2          else
+  86   2            debug("DHT11 false  \r\n");
+  87   2      
+  88   2          temp = TH;
+  89   2          humi = RH;
+  90   2      
+  91   2        }
+  92   1        if(strstr(cmd, KEYWORD_TEMP))
+  93   1          return temp;
+  94   1        else if(strstr(cmd, KEYWORD_HUMI))
+  95   1          return humi;
+  96   1        return 0xffff;
+  97   1      }
+  98          
+  99          static u8 SwitchControl(u8 *buf)
+ 100          {
+ 101   1        u8 *cmd=buf;
+ 102   1        u8 *p;
+ 103   1        switch(*(p+sizeof(KEYWORD_SWITCH)))
+ 104   1        {
+ 105   2          case '1':
+ 106   2            if(strstr((char *)cmd, "ON"))
+ 107   2            {
+ 108   3              SWITCH1_ON();
+ 109   3              debug("1 on!\r\n");
+ 110   3            }
+ 111   2            else if(strstr((char *)cmd, "OFF"))
+ 112   2            {
+ 113   3              SWITCH1_OFF();
+ 114   3              debug("1 off!\r\n");
+ 115   3            }
+ 116   2            break;
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 3   
+
+ 117   2          case '2':
+ 118   2            if(strstr((char *)cmd, "ON"))
+ 119   2            {
+ 120   3              SWITCH2_ON();
+ 121   3              debug("2 on!\r\n");
+ 122   3            }
+ 123   2            else if(strstr((char *)cmd, "OFF"))
+ 124   2            {
+ 125   3              SWITCH2_OFF();
+ 126   3              debug("2 off!\r\n");
+ 127   3            }
+ 128   2            break;
+ 129   2          case '3':
+ 130   2            if(strstr((char *)cmd, "ON"))
+ 131   2            {
+ 132   3              SWITCH3_ON();
+ 133   3              debug("3 on!\r\n");
+ 134   3            }
+ 135   2            else if(strstr((char *)cmd, "OFF"))
+ 136   2            {
+ 137   3              SWITCH3_OFF();
+ 138   3              debug("3 off!\r\n");
+ 139   3            }
+ 140   2            break;
+ 141   2          case '4':
+ 142   2            if(strstr((char *)cmd, "ON"))
+ 143   2            {
+ 144   3              SWITCH4_ON();
+ 145   3              debug("4 on!\r\n");
+ 146   3            }
+ 147   2            else if(strstr((char *)cmd, "OFF"))
+ 148   2            {
+ 149   3              SWITCH4_OFF();
+ 150   3              debug("4 off!\r\n");
+ 151   3            }
+ 152   2            break;
+ 153   2          default:
+ 154   2            debug("switch invalid command\r\n");
+ 155   2            return 0;
+ 156   2            break;
+ 157   2        }
+ 158   1        return 1;
+ 159   1      }
+ 160          static u8 LightOn(u8 light_id)
+ 161          {
+ 162   1        if (light_id==LIGHT1_ID)
+ 163   1        {
+ 164   2          Light1Power=LIGHT_INIT_POWER;
+ 165   2          PWMn_Update(PCA0, LIGHT1_PWM_SET);
+ 166   2          return 1;
+ 167   2        }
+ 168   1        else if (light_id==LIGHT2_ID)
+ 169   1        {
+ 170   2          Light2Power=LIGHT_INIT_POWER;
+ 171   2          PWMn_Update(PCA1, LIGHT2_PWM_SET);
+ 172   2          return 1;
+ 173   2        }
+ 174   1        else 
+ 175   1          return 0;
+ 176   1      }
+ 177          static u8 LightOff(u8 light_id)
+ 178          {
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 4   
+
+ 179   1        if (light_id==LIGHT1_ID)
+ 180   1        {
+ 181   2          Light1Power=LIGHT_POWER_MIN;
+ 182   2          PWMn_Update(PCA0, LIGHT1_PWM_SET);
+ 183   2          return 1;
+ 184   2        }
+ 185   1        else if (light_id==LIGHT2_ID)
+ 186   1        {
+ 187   2          Light2Power=0;
+ 188   2          PWMn_Update(PCA1, LIGHT2_PWM_SET);
+ 189   2          return 1;
+ 190   2        }
+ 191   1        else 
+ 192   1          return 0;
+ 193   1      }
+ 194          
+ 195          static u8 LightPowerInc(u8 light_id)
+ 196          {
+ 197   1        if (light_id==LIGHT1_ID)
+ 198   1        {
+ 199   2          if((LIGHT_POWER_MAX - Light1Power) < LIGHT_POWER_INC)
+ 200   2            Light1Power=LIGHT_POWER_MAX;
+ 201   2          else
+ 202   2            Light1Power += LIGHT_POWER_INC;
+ 203   2          PWMn_Update(PCA0, LIGHT1_PWM_SET);
+ 204   2          return 1;
+ 205   2        }
+ 206   1        else if (light_id==LIGHT2_ID)
+ 207   1        {
+ 208   2          if((LIGHT_POWER_MAX - Light2Power) < LIGHT_POWER_INC)
+ 209   2            Light2Power=LIGHT_POWER_MAX;
+ 210   2          else
+ 211   2            Light2Power += LIGHT_POWER_INC;
+ 212   2          PWMn_Update(PCA1, LIGHT2_PWM_SET);
+ 213   2          return 1;
+ 214   2        }
+ 215   1        else 
+ 216   1          return 0;
+ 217   1      }
+ 218          static u8 LightPowerDec(u8 light_id)
+ 219          {
+ 220   1        if (light_id==LIGHT1_ID)
+ 221   1        {
+ 222   2          if((Light1Power - LIGHT_POWER_MIN)<LIGHT_POWER_DEC)
+ 223   2            Light1Power=LIGHT_POWER_MIN;
+ 224   2          else
+ 225   2            Light1Power -= LIGHT_POWER_DEC;
+ 226   2          PWMn_Update(PCA0, LIGHT1_PWM_SET);
+ 227   2          return 1;
+ 228   2        }
+ 229   1        else if (light_id==LIGHT2_ID)
+ 230   1        {
+ 231   2          if((Light2Power - LIGHT_POWER_MIN)<LIGHT_POWER_DEC)
+ 232   2            Light2Power=LIGHT_POWER_MIN;
+ 233   2          else
+ 234   2            Light2Power -= LIGHT_POWER_DEC;
+ 235   2          PWMn_Update(PCA1, LIGHT2_PWM_SET);
+ 236   2          return 1;
+ 237   2        }
+ 238   1        else 
+ 239   1          return 0;
+ 240   1      }
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 5   
+
+ 241          
+ 242          static u8 LightControl(u8 *buf)
+ 243          {
+ 244   1        u8 *cmd=buf;
+ 245   1        u8 *p;
+ 246   1        if( p=strstr(cmd, KEYWORD_LIGHT))
+ 247   1        {
+ 248   2          switch(*(p+sizeof(KEYWORD_SWITCH)))
+ 249   2          {
+ 250   3            case '1':
+ 251   3              if(strstr((char *)cmd, "ON"))
+ 252   3              {
+ 253   4                LightOn(LIGHT1_ID);
+ 254   4                debug("light1 on!\r\n");
+ 255   4              }
+ 256   3              else if(strstr((char *)cmd, "OFF"))
+ 257   3              {
+ 258   4                LightOff(LIGHT1_ID);
+ 259   4                debug("light1 off!\r\n");
+ 260   4              }
+ 261   3              else if(strstr((char *)cmd, "INC"))
+ 262   3              {
+ 263   4                LightPowerInc(LIGHT1_ID);
+ 264   4                debug("light1 inc!\r\n");
+ 265   4              }
+ 266   3              else if(strstr((char *)cmd, "DEC"))
+ 267   3              {
+ 268   4                LightPowerDec(LIGHT1_ID);
+ 269   4                debug("light1 dec!\r\n");
+ 270   4              }
+ 271   3              break;
+ 272   3            case '2':
+ 273   3              if(strstr((char *)cmd, "ON"))
+ 274   3              {
+ 275   4                LightOn(LIGHT2_ID);
+ 276   4                debug("light1 on!\r\n");
+ 277   4              }
+ 278   3              else if(strstr((char *)cmd, "OFF"))
+ 279   3              {
+ 280   4                LightOff(LIGHT2_ID);
+ 281   4                debug("light1 off!\r\n");
+ 282   4              }
+ 283   3              else if(strstr((char *)cmd, "INC"))
+ 284   3              {
+ 285   4                LightPowerInc(LIGHT2_ID);
+ 286   4                debug("light2 inc!\r\n");
+ 287   4              }
+ 288   3              else if(strstr((char *)cmd, "DEC"))
+ 289   3              {
+ 290   4                LightPowerDec(LIGHT2_ID);
+ 291   4                debug("light2 dec!\r\n");
+ 292   4              }
+ 293   3              break;
+ 294   3            default:
+ 295   3              debug("light invalid command222\r\n");
+ 296   3              break;
+ 297   3          }
+ 298   2        }
+ 299   1        else
+ 300   1        {
+ 301   2          debug("invalid command111\r\n");
+ 302   2        }
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 6   
+
+ 303   1        return 1;
+ 304   1      }
+ 305          
+ 306          void DevicesInit(void)
+ 307          {
+ 308   1        GPIO_InitTypeDef  light_pin_init, switch_pin_init, dh_pin_init;
+ 309   1        PCA_InitTypeDef pca_init;
+ 310   1      
+ 311   1        switch_pin_init.Mode=GPIO_OUT_PP;
+ 312   1        switch_pin_init.Pin=SWITCH1_GPIO_PIN|SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
+ 313   1        GPIO_Inilize(SWITCH1_GPIO_PORT,&switch_pin_init);
+ 314   1      
+ 315   1        dh_pin_init.Mode=GPIO_PullUp;
+ 316   1        dh_pin_init.Pin=DH_GPIO_PIN;
+ 317   1        GPIO_Inilize(DH_GPIO_PORT, &dh_pin_init);
+ 318   1      
+ 319   1        light_pin_init.Mode=GPIO_OUT_PP;
+ 320   1        light_pin_init.Pin=LIGHT1_GPIO_PIN | LIGHT2_GPIO_PIN;
+ 321   1        GPIO_Inilize(LIGHT1_GPIO_PORT, &light_pin_init);
+ 322   1        
+ 323   1        pca_init.PCA_IoUse = PCA_P24_P25_P26_P27;
+ 324   1        pca_init.PCA_Clock = PCA_Clock_12T;
+ 325   1        pca_init.PCA_Mode = PCA_Mode_PWM;
+ 326   1        pca_init.PCA_PWM_Wide = PCA_PWM_8bit;
+ 327   1        pca_init.PCA_Interrupt_Mode = DISABLE;
+ 328   1        pca_init.PCA_Polity = PolityHigh;
+ 329   1        pca_init.PCA_Value = 0;
+ 330   1      
+ 331   1        PCA_Init(PCA_Counter, &pca_init);
+ 332   1        PCA_Init(PCA0, &pca_init);
+ 333   1        PCA_Init(PCA1, &pca_init);
+ 334   1      
+ 335   1        SWITCH1_OFF();
+ 336   1        SWITCH2_OFF();
+ 337   1        SWITCH3_OFF();
+ 338   1        SWITCH4_OFF();
+ 339   1      
+ 340   1        LightOff(LIGHT1_ID);
+ 341   1        LightOff(LIGHT2_ID);
+ 342   1      
+ 343   1        Light1Power=0;
+ 344   1        Light2Power=0;
+ 345   1      }
+ 346          
+ 347          void DevicesControl(u8 *cmd)
+ 348          {
+ 349   1        if(strstr(cmd, KEYWORD_SETWIFI))
+ 350   1        {
+ 351   2        }
+ 352   1        else if(strstr(cmd, KEYWORD_SWITCH))
+ 353   1        {
+ 354   2          if(SwitchControl(cmd))
+ 355   2            wifi_send("OK");
+ 356   2          else
+ 357   2            wifi_send("FAIL");
+ 358   2        }
+ 359   1        else if(strstr(cmd, KEYWORD_LIGHT))
+ 360   1          LightControl(cmd);
+ 361   1        else if(strstr(cmd, KEYWORD_TEMP))
+ 362   1          DHT11_Receive(cmd);
+ 363   1        else if(strstr(cmd, KEYWORD_HUMI))
+ 364   1          DHT11_Receive(cmd);
+C51 COMPILER V9.56.0.0   DEVICES                                                           06/30/2020 22:20:19 PAGE 7   
+
+ 365   1        
+ 366   1      }
+ 367          
+ 368          
+ 369          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1938    ----
+   CONSTANT SIZE    =    309    ----
+   XDATA SIZE       =      2      44
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

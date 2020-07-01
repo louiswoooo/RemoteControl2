@@ -8,6 +8,7 @@
 #include "intrins.h"
 #include "wifi.h"
 #include "delay.h"
+#include "devices.h"
 
 #define __DEBUG__
 #ifdef __DEBUG__

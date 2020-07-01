@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   DELAY                                                             04/19/2020 23:01:00 PAGE 1   
+C51 COMPILER V9.56.0.0   DELAY                                                             04/25/2020 20:39:19 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DELAY
 OBJECT MODULE PLACED IN .\Objects\delay.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE stc_lib\delay.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\stc_
-                    -lib) DEBUG OBJECTEXTEND PRINT(.\Listings\delay.lst) TABS(2) OBJECT(.\Objects\delay.obj)
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE stc_lib\delay.c COMPACT OPTIMIZE(8,SPEED) BROWSE INCDI
+                    -R(.\stc_lib) DEBUG OBJECTEXTEND PRINT(.\Listings\delay.lst) TABS(2) OBJECT(.\Objects\delay.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52   2            while(--i)  ;   //14T per loop
   53   2           }while(--ms);
   54   1      }
-C51 COMPILER V9.56.0.0   DELAY                                                             04/19/2020 23:01:00 PAGE 2   
+C51 COMPILER V9.56.0.0   DELAY                                                             04/25/2020 20:39:19 PAGE 2   
 
   55          void delay_s(u8 second)
   56          {

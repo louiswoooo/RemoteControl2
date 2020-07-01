@@ -1,0 +1,11 @@
+git init
+git add .
+git commit -m"my first commit"
+git status
+
+git config --list
+git config --global user.name "louiswoooo"
+git remote add origin https://github.com/louiswoooo/SocketTest1.git
+git push origin master:master
+
+git clone https://github.com/louiswoooo/wechat_flask.git

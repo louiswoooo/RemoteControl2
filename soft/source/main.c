@@ -1,7 +1,6 @@
 #include "bsp.h"
 #include <delay.h>
 #include "string.h"
-#include "devices.h"
 /*
 void debug_time(void)
 {

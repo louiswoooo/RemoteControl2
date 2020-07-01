@@ -1,0 +1,51 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              06/30/2020 22:17:26 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\main.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC
+                    -_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          /*****************************************************************************
+   2            * @file:      main.c
+   3            * @author:    louiswoo
+   4            * @version:   V1.0
+   5            * @date:  2020-6-6
+   6            * @brief: 主程序，初始化系统各个模块和各个任务
+   7            while(1),执行各个任务任务函数在执行的时候需要控制好自己的
+   8            时间计数器，控制好任务的执行时间，不要超时执行
+   9          *******************************************************************************/
+  10          #include "config.h"
+  11          #include "sys.h"
+  12          #include "debug.h"
+  13          #include "bsp.h"
+  14          
+  15          void main(void)
+  16          {
+  17   1          
+  18   1        bsp();
+  19   1        while(1)
+  20   1        {
+  21   2          if(wifi_receive())
+  22   2          {
+  23   3            debug(WIFI_RBUF);
+  24   3            DevicesControl(WIFI_RBUF);
+  25   3          }
+  26   2        }
+  27   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     29    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
