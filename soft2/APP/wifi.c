@@ -30,8 +30,9 @@ _t_WIFI_CMD_Info;
 			支持5个客户端的链接，id分配顺序是0-4。
 @AP_Para4:	模块开启服务器模式，端口号8080
 *******************************************************************************/
+const _t_WIFI_CMD_Info	AP_Para0={"AT+RESTORE\r\n", "OK", 300};                
 const _t_WIFI_CMD_Info	AP_Para1={"AT+CWMODE=2\r\n", "OK", 300};                
-const _t_WIFI_CMD_Info	AP_Para2={"AT+CWSAP=\"AI_Lab\",\"12345678\",1,4\r\n", "OK", 300};                
+const _t_WIFI_CMD_Info	AP_Para2={"AT+CWSAP=\"AI_Lab\",\"1234567890\",4,4\r\n", "OK", 300};                
 const _t_WIFI_CMD_Info	AP_Para3={"AT+RST\r\n", "OK", 300};                      
 const _t_WIFI_CMD_Info	AP_Para4={"AT+CIPMUX=1\r\n", "OK", 300};                
 const _t_WIFI_CMD_Info	AP_Para5={"AT+CIPSERVER=1,8000\r\n", "OK", 300};        
@@ -57,7 +58,7 @@ void wifi_reset(void)
 	wifi_reset_pin_low();
 	delay_ms(100);
 	wifi_reset_pin_high();
-	delay_s(10);
+	delay_s(5);
 }
 
 /****************************************************************************************
@@ -97,24 +98,35 @@ u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
 	for(i = timeout_ticks/TimeOutSet2; i>0; i--)
 	{
 		wifi_send(send);
+		debug(">>>>");
+		debug(send);
 		if(wifi_receive())
 		{
 			debug(RX2_Buffer);
 			if(p=strstr(RX2_Buffer,match))
-				return p;
+				return 1;
 		}
 	}
-	return NULL;
+	return 0;
 }
 
 u8 WIFI_Set_AP_mode(void)
 {
+	/*
+	if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
+		return FAIL;
+	delay_s(5);
+	*/
 	if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
 		return FAIL;
 	if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
+	{
+		delay_s(2);
 		return FAIL;
+	}
 	if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
 		return FAIL;
+	delay_s(5);
 	if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
 		return FAIL;
 	if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))

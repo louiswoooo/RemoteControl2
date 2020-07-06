@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   BSP                                                               07/01/2020 11:02:35 PAGE 1   
+C51 COMPILER V9.56.0.0   BSP                                                               07/01/2020 20:53:34 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE BSP
 OBJECT MODULE PLACED IN .\Objects\bsp.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\bsp.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_
-                    -LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\bsp.lst) TABS(2) OBJECT(.\Objects\bsp.obj)
+COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE APP\bsp.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\bsp.lst) TABS(2) OBJECT(.\Objects\bsp.obj)
 
 line level    source
 
@@ -30,29 +30,30 @@ line level    source
   20   1        sys_tick_init();
   21   1      
   22   1        EA=1;
-  23   1        DevicesInit();
-  24   1      
-  25   1        memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
-  26   1      
-  27   1        while(1)
-  28   1        {
-  29   2          debug("wifi reset\r\n");
-  30   2          wifi_reset();
-  31   2          if(WIFI_Set_AP_mode())
-  32   2          {
-  33   3            debug("wifi set ap sucess\r\n");
-  34   3            break;
-  35   3          }
-  36   2        }   
-  37   1      
-  38   1      }
-  39          
+  23   1        debug("sys start\r\n");
+  24   1        DevicesInit();
+  25   1      
+  26   1        memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
+  27   1      
+  28   1        while(1)
+  29   1        {
+  30   2          debug("wifi reset\r\n");
+  31   2          wifi_reset();
+  32   2          if(WIFI_Set_AP_mode())
+  33   2          {
+  34   3            debug("wifi set ap sucess\r\n");
+  35   3            break;
+  36   3          }
+  37   2        }   
+  38   1      
+  39   1      }
   40          
+  41          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     73    ----
-   CONSTANT SIZE    =     34    ----
+   CODE SIZE        =     82    ----
+   CONSTANT SIZE    =     46    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

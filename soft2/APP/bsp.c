@@ -20,6 +20,7 @@ void bsp(void)
 	sys_tick_init();
 
 	EA=1;
+	debug("sys start\r\n");
 	DevicesInit();
 
 	memset(RX2_Buffer, 0, sizeof(RX2_Buffer));

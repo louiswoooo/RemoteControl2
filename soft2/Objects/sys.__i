@@ -1,1 +1,0 @@
-"APP\sys.c" LARGE OPTIMIZE (8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\sys.lst) TABS (2) OBJECT(.\Objects\sys.obj)

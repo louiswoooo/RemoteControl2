@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   USART                                                             06/30/2020 22:17:27 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             07/01/2020 20:03:21 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
 OBJECT MODULE PLACED IN .\Objects\USART.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(
-                    -.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
+COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) 
+                    -DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52   1      
   53   1        if(COM4.B_TX_busy == 0)   //空闲
   54   1        {  
-C51 COMPILER V9.56.0.0   USART                                                             06/30/2020 22:17:27 PAGE 2   
+C51 COMPILER V9.56.0.0   USART                                                             07/01/2020 20:03:21 PAGE 2   
 
   55   2          COM4.B_TX_busy = 1;   //标志忙
   56   2          SET_TI4();        //触发发送中断
@@ -126,7 +126,7 @@ line level    source
  114   1        if(RI2)
  115   1        {
  116   2          CLR_RI2();
-C51 COMPILER V9.56.0.0   USART                                                             06/30/2020 22:17:27 PAGE 3   
+C51 COMPILER V9.56.0.0   USART                                                             07/01/2020 20:03:21 PAGE 3   
 
  117   2          if(COM2.B_RX_EN == 1)   //如果允许接收
  118   2          {
@@ -190,7 +190,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
-C51 COMPILER V9.56.0.0   USART                                                             06/30/2020 22:17:27 PAGE 4   
+C51 COMPILER V9.56.0.0   USART                                                             07/01/2020 20:03:21 PAGE 4   
 
 END OF MODULE INFORMATION.
 

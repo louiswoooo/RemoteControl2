@@ -99,8 +99,8 @@ static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
 static u8 SwitchControl(u8 *buf)
 {
 	u8 *cmd=buf;
-	u8 *p;
-	switch(*(p+sizeof(KEYWORD_SWITCH)))
+//	debug(cmd);
+	switch(*(cmd+sizeof(KEYWORD_SWITCH)))
 	{
 		case '1':
 			if(strstr((char *)cmd, "ON"))
@@ -245,7 +245,7 @@ static u8 LightControl(u8 *buf)
 	u8 *p;
 	if( p=strstr(cmd, KEYWORD_LIGHT))
 	{
-		switch(*(p+sizeof(KEYWORD_SWITCH)))
+		switch(*(p+sizeof(KEYWORD_LIGHT)))
 		{
 			case '1':
 				if(strstr((char *)cmd, "ON"))
@@ -346,22 +346,24 @@ void DevicesInit(void)
 
 void DevicesControl(u8 *cmd)
 {
-	if(strstr(cmd, KEYWORD_SETWIFI))
+	u8 *p;
+	p=strstr(cmd, KEYWORD_SETWIFI);
+	if(p)
 	{
 	}
-	else if(strstr(cmd, KEYWORD_SWITCH))
+	else if(p=strstr(cmd, KEYWORD_SWITCH))
 	{
-		if(SwitchControl(cmd))
+		if(SwitchControl(p))
 			wifi_send("OK");
 		else
 			wifi_send("FAIL");
 	}
-	else if(strstr(cmd, KEYWORD_LIGHT))
-		LightControl(cmd);
-	else if(strstr(cmd, KEYWORD_TEMP))
-		DHT11_Receive(cmd);
-	else if(strstr(cmd, KEYWORD_HUMI))
-		DHT11_Receive(cmd);
+	else if(p=strstr(cmd, KEYWORD_LIGHT))
+		LightControl(p);
+	else if(p=strstr(cmd, KEYWORD_TEMP))
+		DHT11_Receive(p);
+	else if(p=strstr(cmd, KEYWORD_HUMI))
+		DHT11_Receive(p);
 	
 }
 
