@@ -47,7 +47,7 @@ void sys_tick_init(void)		//10ºÁÃë@22.1184MHz
   * @param:	none
   * @retval:	none
 *****************************************************************************************/
-void sys_tick_int(void) interrupt TIMER0_VECTOR
+void sys_tick_int(void) interrupt TIMER0_VECTOR using 1
 {
 	if(sys_tick>0)
 	{

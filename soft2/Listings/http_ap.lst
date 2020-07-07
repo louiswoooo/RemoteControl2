@@ -1,0 +1,119 @@
+C51 COMPILER V9.56.0.0   HTTP_AP                                                           07/07/2020 17:02:21 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE HTTP_AP
+OBJECT MODULE PLACED IN .\Objects\http_ap.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\http_ap.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\
+                    -STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\http_ap.lst) TABS(2) OBJECT(.\Objects\http_ap.obj)
+
+line level    source
+
+   1          #include "http_ap.h"
+   2          
+   3          u8 const PORTAL_PAGE[]  = "<head>\
+   4              <meta charset=\"UTF-8\">\
+   5              <title>天才</title>\
+   6          </head>\
+   7          <body>\
+   8              我是一个天才！\
+   9          </body>\
+  10          </html>";
+  11          
+  12          
+  13          
+  14          
+  15          /*
+  16          u8 const WIFI_PAGE[]  = "HTTP/1.1 200 OK
+  17          Content-Type: text/html
+  18          Content-Length:361
+  19          
+  20          <html>
+  21          <body>
+  22          <h1>欢迎您使用天才的AI实验设备</h1>
+  23          <p>请您输入WIFI名称和密码，通过此WIFI，设备可以连接到天才云。</p>
+  24          <form action=\"/wifiset.html\">
+  25          WIFI名称:<br>
+  26          <input type=\"text\" name=\"firstname\" value=\"Louiswoo\">
+  27          <br>
+  28          密码:<br>
+  29          <input type=\"text\" name=\"lastname\" value=\"Genius\">
+  30          <br><br>
+  31          <input type=\"submit\" value=\"连接\">
+  32          </form>
+  33          </body>
+  34          </html>";
+  35          
+  36          u8 const CONNECTED_PAGE[] = "HTTP/1.1 200 OK
+  37          Content-Type: text/html
+  38          Content-Length:77
+  39          
+  40          <html>
+  41          <body>
+  42          <h1>WIFI成功连接，感谢您使用天才云！</h1>
+  43          </body>
+  44          </html>";
+  45          
+  46          u8 const PORTAL_PAGE[]  = "<html lang="en">
+  47          <head>
+  48              <meta charset="UTF-8">
+  49              <title>天才AI实验平台</title>
+  50              <style>
+  51                  h1{font-size: 600%;text-align: center}
+  52                  .wd{font-size: 300%;margin-left: 40px}
+  53                  .sw1,.sw2{margin-left: 40px;width: 120px;height: 120px;background: #ff9953;border-radius: 60px;pad
+             -ding: 20px}
+C51 COMPILER V9.56.0.0   HTTP_AP                                                           07/07/2020 17:02:21 PAGE 2   
+
+  54                  .sw2{background: darkgray}
+  55                  .l1,.l2,.l3,.l4{margin-left: 40px;width: 120px;height: 120px;background: #ff9953;border-radius: 30
+             -px;padding: 20px}
+  56                  .l2{background: #ffd689}
+  57                  .l3{background: #d8c3ed}
+  58                  .l4{background: darkgray}
+  59          
+  60              </style>
+  61          </head>
+  62          <body>
+  63              <div id="container" style="width: 1000px">
+  64                  <div id="header" style="background-color: slategray">
+  65                      <h1 style="margin-bottom:0;">天才AI实验平台</h1>
+  66                  </div>
+  67                  <div id="content" style="background-color: #EEEEEE;height: 1200px;width: 1000px;float: left;">
+  68                  <br>
+  69                      <form name="sw" action="table" method="get">
+  70                          <span class="wd">1号开关:</span>
+  71                          <button class="sw1" type="submit" name="SWITCH1" value="ON">开</button>
+  72                          <button class="sw2" type="submit" name="SWITCH1" value="OFF">关</button>
+  73                          <br>
+  74                          <span class="wd">2号开关:</span>
+  75                          <button class="sw1" type="submit" name="SWITCH2" value="ON">开</button>
+  76                          <button class="sw2" type="submit" name="SWITCH2" value="OFF">关</button><br>
+  77                          <span class="wd">3号开关:</span>
+  78                          <button class="sw1" type="submit" name="SWITCH3" value="ON">开</button>
+  79                          <button class="sw2" type="submit" name="SWITCH3" value="OFF">关</button><br>
+  80                          <span class="wd">4号开关:</span>
+  81                          <button class="sw1" type="submit" name="SWITCH4" value="ON">开</button>
+  82                          <button class="sw2" type="submit" name="SWITCH4" value="OFF">关</button>
+  83                      </form>
+  84                      <br>
+  85                      <hr>
+  86                  </div>
+  87              </div>
+  88              <br>
+  89          </body>
+  90          </html>";
+  91          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =    101    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

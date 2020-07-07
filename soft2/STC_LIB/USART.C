@@ -25,16 +25,11 @@ u8 	xdata RX4_Buffer[COM_RX4_Lenth];	//接收缓冲
   * @param:	dat
   * @retval:	none
 *****************************************************************************************/
-void TX2_write2buff(u8 dat)	//写入发送缓冲，指针+1
+void TX2_write2buff(u8 dat)
 {
-	TX2_Buffer[COM2.TX_write] = dat;	//装发送缓冲
-	if(++COM2.TX_write >= COM_TX2_Lenth)	COM2.TX_write = 0;
-
-	if(COM2.B_TX_busy == 0)		//空闲
-	{  
-		COM2.B_TX_busy = 1;		//标志忙
-		SET_TI2();				//触发发送中断
-	}
+	S2BUF = dat;
+	while(!TI2);
+	CLR_TI2();
 }
 /****************************************************************************************
   * @brief:	串口2字符串发送程序，遇到0结束
@@ -109,7 +104,7 @@ void Usart4Init(void)		//115200bps@22.1184MHz
   * @param:	none
   * @retval:	none
 *****************************************************************************************/
-void UART2_int (void) interrupt UART2_VECTOR
+void UART2_int (void) interrupt UART2_VECTOR		using 2
 {
 	if(RI2)
 	{
@@ -121,16 +116,6 @@ void UART2_int (void) interrupt UART2_VECTOR
 			COM2.RX_TimeOut = TimeOutSet2;						//重新设置超时计时器
 		}
 	}
-	if(TI2)
-	{
-		CLR_TI2();
-		if(COM2.TX_read != COM2.TX_write)		//没有完成发送
-		{
-		 	S2BUF = TX2_Buffer[COM2.TX_read];	//继续发送
-			if(++COM2.TX_read >= COM_TX2_Lenth)		COM2.TX_read = 0;	//越界处理
-		}
-		else	COM2.B_TX_busy = 0;			//结束发送
-	}
 }
 /****************************************************************************************
   * @brief:	串口4中断程序，根据接收状态，接收到的字符放入缓冲区
@@ -139,7 +124,7 @@ void UART2_int (void) interrupt UART2_VECTOR
   * @param:	none
   * @retval:	none
 *****************************************************************************************/
-void UART4_int (void) interrupt UART4_VECTOR
+void UART4_int (void) interrupt UART4_VECTOR	using 3
 {
 	if(RI4)
 	{

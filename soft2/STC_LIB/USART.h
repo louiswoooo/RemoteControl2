@@ -5,7 +5,7 @@
 #include	"config.h"
 
 #define	COM_TX2_Lenth	128
-#define	COM_RX2_Lenth	1024
+#define	COM_RX2_Lenth	2048
 
 #define	COM_TX4_Lenth	1024
 #define	COM_RX4_Lenth	128

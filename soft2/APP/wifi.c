@@ -28,15 +28,18 @@ _t_WIFI_CMD_Info;
 @AP_Para2:	重启模块使AP模式生效
 @AP_Para3:	启动多连接，ESP8266作为服务器最多
 			支持5个客户端的链接，id分配顺序是0-4。
-@AP_Para4:	模块开启服务器模式，端口号8080
+@AP_Para4:	模块开启服务器模式，端口号5000
 *******************************************************************************/
 const _t_WIFI_CMD_Info	AP_Para0={"AT+RESTORE\r\n", "OK", 300};                
 const _t_WIFI_CMD_Info	AP_Para1={"AT+CWMODE=2\r\n", "OK", 300};                
 const _t_WIFI_CMD_Info	AP_Para2={"AT+CWSAP=\"AI_Lab\",\"1234567890\",4,4\r\n", "OK", 300};                
 const _t_WIFI_CMD_Info	AP_Para3={"AT+RST\r\n", "OK", 300};                      
 const _t_WIFI_CMD_Info	AP_Para4={"AT+CIPMUX=1\r\n", "OK", 300};                
-const _t_WIFI_CMD_Info	AP_Para5={"AT+CIPSERVER=1,8000\r\n", "OK", 300};        
+const _t_WIFI_CMD_Info	AP_Para5={"AT+CIPSERVER=1,5000\r\n", "OK", 300};        
 const _t_WIFI_CMD_Info	AP_Para6={"AT+CIFSR\r\n", "OK", 300};        
+
+//ap模式下的发送命令
+const _t_WIFI_CMD_Info 	AP_Send_Para= {"AT+CIPSEND=0,10\r\n", "OK", 300};
 
 
 #define WIFI_GPIO_PORT		GPIO_P4
@@ -60,7 +63,23 @@ void wifi_reset(void)
 	wifi_reset_pin_high();
 	delay_s(5);
 }
-
+/****************************************************************************************
+  * @brief:	esp8266 发送函数，先发送准备发送的命令，AT+CIPSEND=clientid,length	，
+  			参数是client的号（0-4），和发送数据的长度，然后才是内容，
+  			如果length大于实际发送的数据长度，则此次发送不发生，
+  			如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+  * @param:	none
+  * @retval:	返回接收到的字节数，接收到的块存在缓存RX2_Buffer
+*****************************************************************************************/
+u8 wifi_send(u8 *p)
+{
+	if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))		//发送发送命令
+		return FAIL;
+	delay_ms(10);
+	if( !WIFI_SendAndWait(p, "OK", 300))			//发送内容
+		return FAIL;
+	return SUCCESS;
+}
 /****************************************************************************************
   * @brief:	esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
 			调用函数以后，如果TimeOutSet2 时间内接收不到新字节
@@ -97,7 +116,7 @@ u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
 	u16 i;
 	for(i = timeout_ticks/TimeOutSet2; i>0; i--)
 	{
-		wifi_send(send);
+		Usart2SendString(send);
 		debug(">>>>");
 		debug(send);
 		if(wifi_receive())

@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   WIFI                                                              07/01/2020 21:58:35 PAGE 1   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/07/2020 17:06:29 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE WIFI
 OBJECT MODULE PLACED IN .\Objects\wifi.obj
-COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE APP\wifi.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG
-                    - OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\wifi.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC
+                    -_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
 
 line level    source
 
@@ -38,132 +38,151 @@ line level    source
   28          @AP_Para2:  重启模块使AP模式生效
   29          @AP_Para3:  启动多连接，ESP8266作为服务器最多
   30                支持5个客户端的链接，id分配顺序是0-4。
-  31          @AP_Para4:  模块开启服务器模式，端口号8080
+  31          @AP_Para4:  模块开启服务器模式，端口号5000
   32          *******************************************************************************/
   33          const _t_WIFI_CMD_Info  AP_Para0={"AT+RESTORE\r\n", "OK", 300};                
   34          const _t_WIFI_CMD_Info  AP_Para1={"AT+CWMODE=2\r\n", "OK", 300};                
   35          const _t_WIFI_CMD_Info  AP_Para2={"AT+CWSAP=\"AI_Lab\",\"1234567890\",4,4\r\n", "OK", 300};                
   36          const _t_WIFI_CMD_Info  AP_Para3={"AT+RST\r\n", "OK", 300};                      
   37          const _t_WIFI_CMD_Info  AP_Para4={"AT+CIPMUX=1\r\n", "OK", 300};                
-  38          const _t_WIFI_CMD_Info  AP_Para5={"AT+CIPSERVER=1,8000\r\n", "OK", 300};        
+  38          const _t_WIFI_CMD_Info  AP_Para5={"AT+CIPSERVER=1,5000\r\n", "OK", 300};        
   39          const _t_WIFI_CMD_Info  AP_Para6={"AT+CIFSR\r\n", "OK", 300};        
   40          
-  41          
-  42          #define WIFI_GPIO_PORT    GPIO_P4
-  43          #define WIFI_GPIO_PIN   GPIO_Pin_2
+  41          //ap模式下的发送命令
+  42          const _t_WIFI_CMD_Info  AP_Send_Para= {"AT+CIPSEND=0,10\r\n", "OK", 300};
+  43          
   44          
-  45          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
-  46          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  45          #define WIFI_GPIO_PORT    GPIO_P4
+  46          #define WIFI_GPIO_PIN   GPIO_Pin_2
   47          
-  48          //esp8266硬件重启
-  49          void wifi_reset(void)
-  50          {
-  51   1        GPIO_InitTypeDef  wifi_gpio_init;
-  52   1      
-  53   1        wifi_gpio_init.Mode=GPIO_PullUp;
-  54   1        wifi_gpio_init.Pin=WIFI_GPIO_PIN;
-C51 COMPILER V9.56.0.0   WIFI                                                              07/01/2020 21:58:35 PAGE 2   
+  48          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  49          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  50          
+  51          //esp8266硬件重启
+  52          void wifi_reset(void)
+  53          {
+  54   1        GPIO_InitTypeDef  wifi_gpio_init;
+C51 COMPILER V9.56.0.0   WIFI                                                              07/07/2020 17:06:29 PAGE 2   
 
-  55   1        
-  56   1        GPIO_Inilize(WIFI_GPIO_PORT, &wifi_gpio_init);
-  57   1      
-  58   1        wifi_reset_pin_low();
-  59   1        delay_ms(100);
-  60   1        wifi_reset_pin_high();
-  61   1        delay_s(5);
-  62   1      }
-  63          
-  64          /****************************************************************************************
-  65            * @brief: esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
-  66                调用函数以后，如果TimeOutSet2 时间内接收不到新字节
-  67                接收块结束，返回接收到的字节数，本函数为阻塞函数  
-  68            * @param: none
-  69            * @retval:  返回接收到的字节数，接收到的块存在缓存RX2_Buffer
-  70          *****************************************************************************************/
-  71          u8 wifi_receive()
-  72          {
-  73   1        COM2.B_RX_EN=1;
-  74   1        COM2.RX_Cnt=0;
-  75   1        COM2.B_RX_OK=0;
-  76   1        COM2.RX_TimeOut=TimeOutSet2;
-  77   1        while(COM2.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
-  78   1        if(COM2.B_RX_OK)
-  79   1        {
-  80   2          COM2.B_RX_EN=0;
-  81   2          return COM2.RX_Cnt;
-  82   2        }
-  83   1        return NULL;
-  84   1      }
-  85          
-  86          /****************************************************************************************
-  87            * @brief: 给esp8266 发送命令，并匹配缓冲区当中的字符        
-  88            * @param: send: 要发送的命令
-  89                match:  要匹配的字符串
-  90                timeout_ticks:  设置超时的ticks
-  91            * @retval:  如果与match 匹配，则返回匹配指针，否则返回NULL
-  92          *****************************************************************************************/
-  93          
-  94          u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
-  95          {
-  96   1        u8 *p;
-  97   1        u16 i;
-  98   1        for(i = timeout_ticks/TimeOutSet2; i>0; i--)
-  99   1        {
- 100   2          wifi_send(send);
- 101   2          debug(">>>>");
- 102   2          debug(send);
- 103   2          if(wifi_receive())
- 104   2          {
- 105   3            debug(RX2_Buffer);
- 106   3            if(p=strstr(RX2_Buffer,match))
- 107   3              return 1;
- 108   3          }
- 109   2        }
- 110   1        return 0;
- 111   1      }
+  55   1      
+  56   1        wifi_gpio_init.Mode=GPIO_PullUp;
+  57   1        wifi_gpio_init.Pin=WIFI_GPIO_PIN;
+  58   1        
+  59   1        GPIO_Inilize(WIFI_GPIO_PORT, &wifi_gpio_init);
+  60   1      
+  61   1        wifi_reset_pin_low();
+  62   1        delay_ms(100);
+  63   1        wifi_reset_pin_high();
+  64   1        delay_s(5);
+  65   1      }
+  66          /****************************************************************************************
+  67            * @brief: esp8266 发送函数，先发送准备发送的命令，AT+CIPSEND=clientid,length  ，
+  68                  参数是client的号（0-4），和发送数据的长度，然后才是内容，
+  69                  如果length大于实际发送的数据长度，则此次发送不发生，
+  70                  如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+  71            * @param: none
+  72            * @retval:  返回接收到的字节数，接收到的块存在缓存RX2_Buffer
+  73          *****************************************************************************************/
+  74          u8 wifi_send(u8 *p)
+  75          {
+  76   1        if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))   //发送发送命令
+  77   1          return FAIL;
+  78   1        delay_ms(10);
+  79   1        if( !WIFI_SendAndWait(p, "OK", 300))      //发送内容
+  80   1          return FAIL;
+  81   1        return SUCCESS;
+  82   1      }
+  83          /****************************************************************************************
+  84            * @brief: esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
+  85                调用函数以后，如果TimeOutSet2 时间内接收不到新字节
+  86                接收块结束，返回接收到的字节数，本函数为阻塞函数  
+  87            * @param: none
+  88            * @retval:  返回接收到的字节数，接收到的块存在缓存RX2_Buffer
+  89          *****************************************************************************************/
+  90          u8 wifi_receive()
+  91          {
+  92   1        COM2.B_RX_EN=1;
+  93   1        COM2.RX_Cnt=0;
+  94   1        COM2.B_RX_OK=0;
+  95   1        COM2.RX_TimeOut=TimeOutSet2;
+  96   1        while(COM2.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
+  97   1        if(COM2.B_RX_OK)
+  98   1        {
+  99   2          COM2.B_RX_EN=0;
+ 100   2          return COM2.RX_Cnt;
+ 101   2        }
+ 102   1        return NULL;
+ 103   1      }
+ 104          
+ 105          /****************************************************************************************
+ 106            * @brief: 给esp8266 发送命令，并匹配缓冲区当中的字符        
+ 107            * @param: send: 要发送的命令
+ 108                match:  要匹配的字符串
+ 109                timeout_ticks:  设置超时的ticks
+ 110            * @retval:  如果与match 匹配，则返回匹配指针，否则返回NULL
+ 111          *****************************************************************************************/
  112          
- 113          u8 WIFI_Set_AP_mode(void)
+ 113          u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
  114          {
- 115   1        /*
- 116   1        if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
-C51 COMPILER V9.56.0.0   WIFI                                                              07/01/2020 21:58:35 PAGE 3   
+ 115   1        u8 *p;
+ 116   1        u16 i;
+C51 COMPILER V9.56.0.0   WIFI                                                              07/07/2020 17:06:29 PAGE 3   
 
- 117   1          return FAIL;
- 118   1        delay_s(5);
- 119   1        */
- 120   1        if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
- 121   1          return FAIL;
- 122   1        if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
- 123   1        {
- 124   2          delay_s(2);
- 125   2          return FAIL;
- 126   2        }
- 127   1        if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
- 128   1          return FAIL;
- 129   1        delay_s(5);
- 130   1        if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
- 131   1          return FAIL;
- 132   1        if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))
- 133   1          return FAIL;
- 134   1        if( !WIFI_SendAndWait(AP_Para6.send, AP_Para6.match, AP_Para6.timeout_ticks))
- 135   1          return FAIL;
- 136   1        return SUCCESS;
- 137   1      }
- 138          
- 139          /*
- 140          u8 WIFI_Set_Client_mode(void)
- 141          {
- 142            
- 143          
- 144          }
- 145          */
- 146          
+ 117   1        for(i = timeout_ticks/TimeOutSet2; i>0; i--)
+ 118   1        {
+ 119   2          Usart2SendString(send);
+ 120   2          debug(">>>>");
+ 121   2          debug(send);
+ 122   2          if(wifi_receive())
+ 123   2          {
+ 124   3            debug(RX2_Buffer);
+ 125   3            if(p=strstr(RX2_Buffer,match))
+ 126   3              return 1;
+ 127   3          }
+ 128   2        }
+ 129   1        return 0;
+ 130   1      }
+ 131          
+ 132          u8 WIFI_Set_AP_mode(void)
+ 133          {
+ 134   1        /*
+ 135   1        if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
+ 136   1          return FAIL;
+ 137   1        delay_s(5);
+ 138   1        */
+ 139   1        if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
+ 140   1          return FAIL;
+ 141   1        if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
+ 142   1        {
+ 143   2          delay_s(2);
+ 144   2          return FAIL;
+ 145   2        }
+ 146   1        if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
+ 147   1          return FAIL;
+ 148   1        delay_s(5);
+ 149   1        if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
+ 150   1          return FAIL;
+ 151   1        if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))
+ 152   1          return FAIL;
+ 153   1        if( !WIFI_SendAndWait(AP_Para6.send, AP_Para6.match, AP_Para6.timeout_ticks))
+ 154   1          return FAIL;
+ 155   1        return SUCCESS;
+ 156   1      }
+ 157          
+ 158          /*
+ 159          u8 WIFI_Set_Client_mode(void)
+ 160          {
+ 161            
+ 162          
+ 163          }
+ 164          */
+ 165          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    577    ----
-   CONSTANT SIZE    =    128    ----
-   XDATA SIZE       =     49      15
+   CODE SIZE        =    678    ----
+   CONSTANT SIZE    =    146    ----
+   XDATA SIZE       =     56      18
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
