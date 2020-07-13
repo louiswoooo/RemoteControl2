@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   DEBUG                                                             06/24/2020 17:05:36 PAGE 1   
+C51 COMPILER V9.56.0.0   DEBUG                                                             07/08/2020 20:40:59 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DEBUG
 OBJECT MODULE PLACED IN .\Objects\debug.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\debug.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;
-                    -.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\debug.lst) TABS(2) OBJECT(.\Objects\debug.obj)
+COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE APP\debug.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBU
+                    -G OBJECTEXTEND PRINT(.\Listings\debug.lst) TABS(2) OBJECT(.\Objects\debug.obj)
 
 line level    source
 
@@ -25,25 +25,23 @@ line level    source
   15            * @param: var: u16±‰¡ø
   16            * @retval:  none
   17          *****************************************************************************************/
-  18          /*
-  19          void DebugVar(u16 var)
-  20          {
-  21            u8 num[6];
-  22            num[0]=var/10000+0x30;
-  23            num[1]=var%10000/1000+0x30;
-  24            num[2]=var%1000/100+0x30;
-  25            num[3]=var%100/10+0x30;
-  26            num[4]=var%10+0x30;
-  27            num[5]='\0';
-  28            debug(num);
-  29          }
-  30          */
+  18          void DebugVar(u16 var)
+  19          {
+  20   1        u8 num[6];
+  21   1        num[0]=var/10000+0x30;
+  22   1        num[1]=var%10000/1000+0x30;
+  23   1        num[2]=var%1000/100+0x30;
+  24   1        num[3]=var%100/10+0x30;
+  25   1        num[4]=var%10+0x30;
+  26   1        num[5]='\0';
+  27   1        debug(num);
+  28   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   ----    ----
+   CODE SIZE        =    133    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =   ----    ----
+   XDATA SIZE       =   ----       6
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

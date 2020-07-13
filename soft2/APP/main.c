@@ -25,8 +25,7 @@ _t_status Status;
 void main(void)
 {
 	u8 *p;
-	Status = 1;
-		
+	Status = ap;
 	bsp();
 	while(1)
 	{
@@ -37,7 +36,8 @@ void main(void)
 				{
 					debug(WIFI_RBUF);
 					p = strstr(WIFI_RBUF, PORTAL_KEYWORD);
-					wifi_send(PORTAL_PAGE);
+					if(p)
+						wifi_send(PORTAL_PAGE);
 				}
 				break;
 			case client:

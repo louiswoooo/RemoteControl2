@@ -5,6 +5,7 @@
 ".\Objects\wifi.obj",
 ".\Objects\sys.obj",
 ".\Objects\http_ap.obj",
+".\Objects\debug.obj",
 ".\Objects\GPIO.obj",
 ".\Objects\PCA.obj",
 ".\Objects\USART.obj" 

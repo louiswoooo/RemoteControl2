@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 17:08:07 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 20:29:01 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
 OBJECT MODULE PLACED IN .\Objects\USART.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(
-                    -.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
+COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) 
+                    -DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52   2        }
   53   1      }
   54          
-C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 17:08:07 PAGE 2   
+C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 20:29:01 PAGE 2   
 
   55          
   56          void Usart4SendString(u8 *puts)
@@ -126,7 +126,7 @@ line level    source
  114   3            if(COM2.RX_Cnt >= COM_RX2_Lenth)  COM2.RX_Cnt = 0;  //»º³åÇøÒç³öå£¿
  115   3            RX2_Buffer[COM2.RX_Cnt++] = S2BUF;          //ÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
  116   3            COM2.RX_TimeOut = TimeOutSet2;            //ÖØÐÂÉèÖÃ³¬Ê±¼ÆÊ±Æ÷
-C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 17:08:07 PAGE 3   
+C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 20:29:01 PAGE 3   
 
  117   3          }
  118   2        }

@@ -24,8 +24,10 @@
 #define KEYWORD_TEMP		"TEMP"
 #define KEYWORD_HUMI		"HUMI"
 #define KEYWORD_SETWIFI	"SETWIFI"
-#define LIGHT1_ID	PCA0
-#define LIGHT2_ID	PCA2
+#define PCA_LIGHT1	PCA2
+#define PCA_LIGHT2	7
+#define LIGHT1_ID	PCA2
+#define LIGHT2_ID	7
 
 #define LIGHT_POWER_MAX	0xff
 #define LIGHT_POWER_MIN	0x00
@@ -309,18 +311,22 @@ void DevicesInit(void)
 	PCA_InitTypeDef pca_init;
 
 	switch_pin_init.Mode=GPIO_OUT_PP;
-	switch_pin_init.Pin=SWITCH1_GPIO_PIN|SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
+	switch_pin_init.Pin=SWITCH1_GPIO_PIN;
 	GPIO_Inilize(SWITCH1_GPIO_PORT,&switch_pin_init);
+	switch_pin_init.Pin=SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
+	GPIO_Inilize(SWITCH2_GPIO_PORT,&switch_pin_init);
 
 	dh_pin_init.Mode=GPIO_PullUp;
 	dh_pin_init.Pin=DH_GPIO_PIN;
 	GPIO_Inilize(DH_GPIO_PORT, &dh_pin_init);
 
 	light_pin_init.Mode=GPIO_OUT_PP;
-	light_pin_init.Pin=LIGHT1_GPIO_PIN | LIGHT2_GPIO_PIN;
+	light_pin_init.Pin=LIGHT1_GPIO_PIN;
 	GPIO_Inilize(LIGHT1_GPIO_PORT, &light_pin_init);
+	light_pin_init.Pin=LIGHT2_GPIO_PIN;
+	GPIO_Inilize(LIGHT2_GPIO_PORT, &light_pin_init);
 	
-	pca_init.PCA_IoUse = PCA_P24_P25_P26_P27;
+	pca_init.PCA_IoUse = PCA_P12_P11_P10_P37;
 	pca_init.PCA_Clock = PCA_Clock_12T;
 	pca_init.PCA_Mode = PCA_Mode_PWM;
 	pca_init.PCA_PWM_Wide = PCA_PWM_8bit;
@@ -329,16 +335,16 @@ void DevicesInit(void)
 	pca_init.PCA_Value = 0;
 
 	PCA_Init(PCA_Counter, &pca_init);
-	PCA_Init(PCA0, &pca_init);
-	PCA_Init(PCA1, &pca_init);
+	PCA_Init(PCA_LIGHT1, &pca_init);
+	PCA_Init(PCA_LIGHT2, &pca_init);
 
 	SWITCH1_OFF();
 	SWITCH2_OFF();
 	SWITCH3_OFF();
 	SWITCH4_OFF();
 
-	LightOff(LIGHT1_ID);
-	LightOff(LIGHT2_ID);
+	LightOff(PCA_LIGHT1);
+	LightOff(PCA_LIGHT2);
 
 	Light1Power=0;
 	Light2Power=0;

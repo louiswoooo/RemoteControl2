@@ -1,12 +1,18 @@
 #include "http_ap.h"
 
-u8 const PORTAL_PAGE[]	=	"<head>\
-    <meta charset=\"UTF-8\">\
-    <title>天才</title>\
-</head>\
-<body>\
-    我是一个天才！\
-</body>\
+u8 const PORTAL_PAGE[]	=	"HTTP/1.1 200 OK\r\n\
+Content-Type: text/html\r\n\
+Content-Length:152\r\n\
+\r\n\
+<!DOCTYPE html>\r\n\
+<html lang=\"en\">\r\n\
+<head>\r\n\
+    <meta charset=\"UTF-8\">\r\n\
+    <title>天才</title>\r\n\
+</head>\r\n\
+<body>\r\n\
+    <h1>我是天才</h1>\r\n\
+</body>\r\n\
 </html>";
 
 

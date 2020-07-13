@@ -1,54 +1,55 @@
-C51 COMPILER V9.56.0.0   BSP                                                               07/07/2020 17:04:09 PAGE 1   
+C51 COMPILER V9.56.0.0   BSP                                                               07/08/2020 20:46:51 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE BSP
 OBJECT MODULE PLACED IN .\Objects\bsp.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\bsp.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_
-                    -LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\bsp.lst) TABS(2) OBJECT(.\Objects\bsp.obj)
+COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE APP\bsp.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\bsp.lst) TABS(2) OBJECT(.\Objects\bsp.obj)
 
 line level    source
 
    1          #include "bsp.h"
    2          #include "sys.h"
    3          #include "string.h"
-   4          
-   5          void bsp(void)
-   6          {
-   7   1      
-   8   1        EA=0;
-   9   1        Usart2Init();
-  10   1        S2_Int_en();
-  11   1        
-  12   1        debug_init();
-  13   1        S4_Int_en();
-  14   1      
-  15   1        IP=0x00;
-  16   1        IP2=0x00;
-  17   1        IP2 |=0x01;     //设置串口2 优先级高
-  18   1        
+   4          #include "wifi.h"
+   5          #include "http_ap.h"
+   6          void bsp(void)
+   7          {
+   8   1      
+   9   1        EA=0;
+  10   1        Usart2Init();
+  11   1        S2_Int_en();
+  12   1        
+  13   1        debug_init();
+  14   1        S4_Int_en();
+  15   1      
+  16   1        IP=0x00;
+  17   1        IP2=0x00;
+  18   1        IP2 |=0x01;     //设置串口2 优先级高
   19   1        
-  20   1        sys_tick_init();
-  21   1      
-  22   1        EA=1;
-  23   1        debug("sys start\r\n");
-  24   1        DevicesInit();
-  25   1      
-  26   1        memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
-  27   1      
-  28   1        while(1)
-  29   1        {
-  30   2          debug("wifi reset\r\n");
-  31   2          wifi_reset();
-  32   2          if(WIFI_Set_AP_mode())
-  33   2          {
-  34   3            debug("wifi set ap sucess\r\n");
-  35   3            break;
-  36   3          }
-  37   2        }   
-  38   1      
-  39   1      }
-  40          
+  20   1        
+  21   1        sys_tick_init();
+  22   1      
+  23   1        EA=1;
+  24   1        debug("sys start\r\n");
+  25   1        DevicesInit();
+  26   1      
+  27   1        memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
+  28   1      
+  29   1        while(1)
+  30   1        {
+  31   2          debug("wifi reset\r\n");
+  32   2          wifi_reset();
+  33   2          if(WIFI_Set_AP_mode())
+  34   2          {
+  35   3            debug("wifi set ap sucess\r\n");
+  36   3            break;
+  37   3          }
+  38   2        }   
+  39   1      
+  40   1      }
   41          
+  42          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

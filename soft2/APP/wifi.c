@@ -10,7 +10,6 @@
 #include "gpio.h"
 #include "sys.h"
 #include "wifi.h"
-
 #define SERVER_ADDR		"119.3.233.56"
 #define SERVER_PORT		8000
 
@@ -39,14 +38,32 @@ const _t_WIFI_CMD_Info	AP_Para5={"AT+CIPSERVER=1,5000\r\n", "OK", 300};
 const _t_WIFI_CMD_Info	AP_Para6={"AT+CIFSR\r\n", "OK", 300};        
 
 //ap模式下的发送命令
-const _t_WIFI_CMD_Info 	AP_Send_Para= {"AT+CIPSEND=0,10\r\n", "OK", 300};
+_t_WIFI_CMD_Info 	AP_Send_Para= {"AT+CIPSEND=0,170\r\n", "OK", 300};
 
 
-#define WIFI_GPIO_PORT		GPIO_P4
-#define WIFI_GPIO_PIN		GPIO_Pin_2
+#define WIFI_GPIO_PORT		GPIO_P5
+#define WIFI_GPIO_PIN		GPIO_Pin_3
 
 #define	wifi_reset_pin_low()		GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
 #define	wifi_reset_pin_high()		GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+
+u8 *int_to_str(u16 num)
+{
+	u8 *p;
+	static u8 str[6];
+	str[0] = num/10000+0x30;
+	str[1] = num%10000/1000+0x30;
+	str[2] = num%1000/100+0x30;
+	str[3] = num%100/10+0x30;
+	str[4] = num%10+0x30;
+	str[5] = '\0';
+	p=str;
+	while(*p == '0')
+		p++;
+	if(*p == 0)
+		p++;
+	return p;
+}
 
 //esp8266硬件重启
 void wifi_reset(void)
@@ -73,9 +90,21 @@ void wifi_reset(void)
 *****************************************************************************************/
 u8 wifi_send(u8 *p)
 {
+	u8 *temp;
+	u8 cmd[30]="AT+CIPSEND=0,";
+	u8 *str;
+	str = int_to_str((u16)strlen(p));
+	strcat(cmd, str);
+	strcat(cmd, "\r\n");
+	debug("------------>>>>");
+	debug(cmd);
+	debug("$$$$$$$$$$$$$$$$$$$$$$$\r\n");
+	AP_Send_Para.send = cmd;
+	AP_Send_Para.match = "OK";
+	AP_Send_Para.timeout_ticks = 300;
 	if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))		//发送发送命令
 		return FAIL;
-	delay_ms(10);
+	delay_ms(1);
 	if( !WIFI_SendAndWait(p, "OK", 300))			//发送内容
 		return FAIL;
 	return SUCCESS;
@@ -117,8 +146,6 @@ u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
 	for(i = timeout_ticks/TimeOutSet2; i>0; i--)
 	{
 		Usart2SendString(send);
-		debug(">>>>");
-		debug(send);
 		if(wifi_receive())
 		{
 			debug(RX2_Buffer);
@@ -130,8 +157,7 @@ u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
 }
 
 u8 WIFI_Set_AP_mode(void)
-{
-	/*
+{/*
 	if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
 		return FAIL;
 	delay_s(5);
