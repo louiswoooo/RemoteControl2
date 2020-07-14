@@ -1,8 +1,10 @@
 #include "http_ap.h"
 
-u8 const PORTAL_PAGE[]	=	"HTTP/1.1 200 OK\r\n\
-Content-Type: text/html\r\n\
-Content-Length:152\r\n\
+u8 const PORTAL_PAGE[]	=	"HTTP/1.0 200 OK\r\n\
+Content-Type: text/html; charset=utf-8\r\n\
+Content-Length: 149\r\n\
+Server: Werkzeug/1.0.1 Python/3.8.1\r\n\
+Date: Tue, 14 Jul 2020 09:12:38 GMT\r\n\
 \r\n\
 <!DOCTYPE html>\r\n\
 <html lang=\"en\">\r\n\
@@ -11,7 +13,7 @@ Content-Length:152\r\n\
     <title>天才</title>\r\n\
 </head>\r\n\
 <body>\r\n\
-    <h1>我是天才</h1>\r\n\
+    我是一个天才！\r\n\
 </body>\r\n\
 </html>";
 

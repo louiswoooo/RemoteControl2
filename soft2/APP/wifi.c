@@ -22,22 +22,24 @@ typedef	struct
 _t_WIFI_CMD_Info;
 
 /*****************************************************************************
-变量说明:
-@AP_Para1:	配置ESP8266模块为AP模式，开启wifi热点。
-@AP_Para2:	重启模块使AP模式生效
-@AP_Para3:	启动多连接，ESP8266作为服务器最多
-			支持5个客户端的链接，id分配顺序是0-4。
-@AP_Para4:	模块开启服务器模式，端口号5000
+ESP8266配置变量
 *******************************************************************************/
+//恢复出厂设置
 const _t_WIFI_CMD_Info	AP_Para0={"AT+RESTORE\r\n", "OK", 300};                
-const _t_WIFI_CMD_Info	AP_Para1={"AT+CWMODE=2\r\n", "OK", 300};                
+//##配置ESP8266模块为AP模式，开启wifi热点。
+const _t_WIFI_CMD_Info	AP_Para1={"AT+CWMODE=2\r\n", "OK", 300};   
+//wifi名：ESP8266。密码：123456。4是加密方式。4是信道
 const _t_WIFI_CMD_Info	AP_Para2={"AT+CWSAP=\"AI_Lab\",\"1234567890\",4,4\r\n", "OK", 300};                
+//##重启模块使AP模式生效
 const _t_WIFI_CMD_Info	AP_Para3={"AT+RST\r\n", "OK", 300};                      
+//##启动多连接，这里强调一下，ESP8266作为服务器做多支持5个客户端的链接，id分配顺序是0-4。
 const _t_WIFI_CMD_Info	AP_Para4={"AT+CIPMUX=1\r\n", "OK", 300};                
+//##模块开启服务器模式，端口号8080
 const _t_WIFI_CMD_Info	AP_Para5={"AT+CIPSERVER=1,5000\r\n", "OK", 300};        
+//##查看一下ESP8266的IP
 const _t_WIFI_CMD_Info	AP_Para6={"AT+CIFSR\r\n", "OK", 300};        
 
-//ap模式下的发送命令
+//ap模式下的发送命令，0连接客户端，170发送字节长度
 _t_WIFI_CMD_Info 	AP_Send_Para= {"AT+CIPSEND=0,170\r\n", "OK", 300};
 
 
