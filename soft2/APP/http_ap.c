@@ -10,10 +10,10 @@ Date: Tue, 14 Jul 2020 09:12:38 GMT\r\n\
 <html lang=\"en\">\r\n\
 <head>\r\n\
     <meta charset=\"UTF-8\">\r\n\
-    <title>天才</title>\r\n\
+    <title>Geni</title>\r\n\
 </head>\r\n\
 <body>\r\n\
-    我是一个天才！\r\n\
+    i am a Genius!!!\r\n\
 </body>\r\n\
 </html>";
 

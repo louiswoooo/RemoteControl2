@@ -32,7 +32,8 @@ const _t_WIFI_CMD_Info	AP_Para1={"AT+CWMODE=2\r\n", "OK", 300};
 const _t_WIFI_CMD_Info	AP_Para2={"AT+CWSAP=\"AI_Lab\",\"1234567890\",4,4\r\n", "OK", 300};                
 //##重启模块使AP模式生效
 const _t_WIFI_CMD_Info	AP_Para3={"AT+RST\r\n", "OK", 300};                      
-//##启动多连接，这里强调一下，ESP8266作为服务器做多支持5个客户端的链接，id分配顺序是0-4。
+//## 1启动多连接，0关闭
+//这里强调一下，ESP8266作为服务器做多支持5个客户端的链接，id分配顺序是0-4。
 const _t_WIFI_CMD_Info	AP_Para4={"AT+CIPMUX=1\r\n", "OK", 300};                
 //##模块开启服务器模式，端口号8080
 const _t_WIFI_CMD_Info	AP_Para5={"AT+CIPSERVER=1,5000\r\n", "OK", 300};        
@@ -92,7 +93,6 @@ void wifi_reset(void)
 *****************************************************************************************/
 u8 wifi_send(u8 *p)
 {
-	u8 *temp;
 	u8 cmd[30]="AT+CIPSEND=0,";
 	u8 *str;
 	str = int_to_str((u16)strlen(p));
@@ -102,11 +102,10 @@ u8 wifi_send(u8 *p)
 	debug(cmd);
 	debug("$$$$$$$$$$$$$$$$$$$$$$$\r\n");
 	AP_Send_Para.send = cmd;
-	AP_Send_Para.match = "OK";
+	AP_Send_Para.match = "> ";
 	AP_Send_Para.timeout_ticks = 300;
 	if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))		//发送发送命令
 		return FAIL;
-	delay_ms(1);
 	if( !WIFI_SendAndWait(p, "OK", 300))			//发送内容
 		return FAIL;
 	return SUCCESS;
