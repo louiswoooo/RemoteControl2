@@ -124,9 +124,9 @@ u8 wifi_receive()
 	COM2.B_RX_OK=0;
 	COM2.RX_TimeOut=TimeOutSet2;
 	while(COM2.RX_TimeOut>0);			//每次串口接收不到字节产生超时，判定为一次块接收完成
+	COM2.B_RX_EN=0;
 	if(COM2.B_RX_OK)
 	{
-		COM2.B_RX_EN=0;
 		return COM2.RX_Cnt;
 	}
 	return NULL;

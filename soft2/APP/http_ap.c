@@ -1,19 +1,47 @@
 #include "http_ap.h"
 
-u8 const PORTAL_PAGE[]	=	"HTTP/1.0 200 OK\r\n\
+u8 const HTTP_H1[]="HTTP/1.0 200 OK\r\n\
 Content-Type: text/html; charset=utf-8\r\n\
-Content-Length: 149\r\n\
-Server: Werkzeug/1.0.1 Python/3.8.1\r\n\
-Date: Tue, 14 Jul 2020 09:12:38 GMT\r\n\
-\r\n\
-<!DOCTYPE html>\r\n\
+Content-Length: ";
+
+u8 const HTTP_PORTAL[]	=	"<!DOCTYPE html>\r\n\
 <html lang=\"en\">\r\n\
 <head>\r\n\
     <meta charset=\"UTF-8\">\r\n\
-    <title>Geni</title>\r\n\
+    <title>Genius AI Lab</title>\r\n\
+    <style>\r\n\
+        h1{font-size:600%;text-align:center}\r\n\
+        .wd{font-size:300%;margin-left:40px}\r\n\
+        button{type:submit;margin-left:40px;width:120px;height:120px;border-radius:60px;padding:20px}\r\n\
+        .sw1{background:#ff9953;value:ON}\r\n\
+        .sw2{background:darkgray;value:OFF}\r\n\
+    </style>\r\n\
 </head>\r\n\
 <body>\r\n\
-    i am a Genius!!!\r\n\
+    <div style=\"width:1000px\">\r\n\
+        <div style=\"background-color:slategray\">\r\n\
+            <h1>Genius AI Lab</h1>\r\n\
+        </div>\r\n\
+        <br>\r\n\
+            <form name=\"sw\" action=\"table\" method=\"post\">\r\n\
+                <span class=\"wd\">SWITCH1:</span>\r\n\
+                <button class=\"sw1\" name=\"SWITCH1\">ON</button>\r\n\
+                <button class=\"sw2\" name=\"SWITCH1\">OFF</button>\r\n\
+                <br>\r\n\
+                <span class=\"wd\">SWITCH2:</span>\r\n\
+                <button class=\"sw1\" name=\"SWITCH2\">ON</button>\r\n\
+                <button class=\"sw2\" name=\"SWITCH2\">OFF</button><br>\r\n\
+                <span class=\"wd\">SWITCH3:</span>\r\n\
+                <button class=\"sw1\" name=\"SWITCH3\">ON</button>\r\n\
+                <button class=\"sw2\" name=\"SWITCH3\">OFF</button><br>\r\n\
+                <span class=\"wd\">SWITCH4:</span>\r\n\
+                <button class=\"sw1\" name=\"SWITCH4\">ON</button>\r\n\
+                <button class=\"sw2\" name=\"SWITCH4\">OFF</button>\r\n\
+            </form>\r\n\
+            <br>\r\n\
+            <hr>\r\n\
+    </div>\r\n\
+    <br>\r\n\
 </body>\r\n\
 </html>";
 
@@ -51,49 +79,21 @@ Content-Length:77
 </body>
 </html>";
 
-u8 const PORTAL_PAGE[]	=	"<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>天才AI实验平台</title>
-    <style>
-        h1{font-size: 600%;text-align: center}
-        .wd{font-size: 300%;margin-left: 40px}
-        .sw1,.sw2{margin-left: 40px;width: 120px;height: 120px;background: #ff9953;border-radius: 60px;padding: 20px}
-        .sw2{background: darkgray}
-        .l1,.l2,.l3,.l4{margin-left: 40px;width: 120px;height: 120px;background: #ff9953;border-radius: 30px;padding: 20px}
-        .l2{background: #ffd689}
-        .l3{background: #d8c3ed}
-        .l4{background: darkgray}
-
-    </style>
-</head>
-<body>
-    <div id="container" style="width: 1000px">
-        <div id="header" style="background-color: slategray">
-            <h1 style="margin-bottom:0;">天才AI实验平台</h1>
-        </div>
-        <div id="content" style="background-color: #EEEEEE;height: 1200px;width: 1000px;float: left;">
-        <br>
-            <form name="sw" action="table" method="get">
-                <span class="wd">1号开关:</span>
-                <button class="sw1" type="submit" name="SWITCH1" value="ON">开</button>
-                <button class="sw2" type="submit" name="SWITCH1" value="OFF">关</button>
-                <br>
-                <span class="wd">2号开关:</span>
-                <button class="sw1" type="submit" name="SWITCH2" value="ON">开</button>
-                <button class="sw2" type="submit" name="SWITCH2" value="OFF">关</button><br>
-                <span class="wd">3号开关:</span>
-                <button class="sw1" type="submit" name="SWITCH3" value="ON">开</button>
-                <button class="sw2" type="submit" name="SWITCH3" value="OFF">关</button><br>
-                <span class="wd">4号开关:</span>
-                <button class="sw1" type="submit" name="SWITCH4" value="ON">开</button>
-                <button class="sw2" type="submit" name="SWITCH4" value="OFF">关</button>
-            </form>
-            <br>
-            <hr>
-        </div>
-    </div>
-    <br>
-</body>
+u8 const PORTAL_PAGE[]	=	"HTTP/1.0 200 OK\r\n\
+Content-Type: text/html; charset=utf-8\r\n\
+Content-Length: 149\r\n\
+Server: Werkzeug/1.0.1 Python/3.8.1\r\n\
+Date: Tue, 14 Jul 2020 09:12:38 GMT\r\n\
+\r\n\
+<!DOCTYPE html>\r\n\
+<html lang=\"en\">\r\n\
+<head>\r\n\
+    <meta charset=\"UTF-8\">\r\n\
+    <title>Geni</title>\r\n\
+</head>\r\n\
+<body>\r\n\
+    i am a Genius!!!\r\n\
+</body>\r\n\
 </html>";
+
 */
