@@ -10,14 +10,17 @@
 #include "gpio.h"
 #include "sys.h"
 #include "wifi.h"
+#include "http_ap.h"
 #define SERVER_ADDR		"119.3.233.56"
 #define SERVER_PORT		8000
+
+
 
 typedef	struct	
 {
 	u8 *send;			//命令
 	u8 *match;			//匹配
-	u8 timeout_ticks;	//超时
+	u16 timeout_ticks;	//超时
 }
 _t_WIFI_CMD_Info;
 
@@ -50,10 +53,14 @@ _t_WIFI_CMD_Info 	AP_Send_Para= {"AT+CIPSEND=0,170\r\n", "OK", 300};
 #define	wifi_reset_pin_low()		GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
 #define	wifi_reset_pin_high()		GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
 
-u8 *int_to_str(u16 num)
+/*
+  * @brief:	字符串计数函数，以字符串方式返回字符串个数
+  * @param:	str 要计算长度的字符串，num_str 接收长度的字符串，按u16 计算65535 需要长度至少为6
+  * @retval:	返回接收到的字节数，接收到的块存在缓存RX2_Buffer
+*/
+u8 *int_to_str( u8 *str,u16 num)
 {
 	u8 *p;
-	static u8 str[6];
 	str[0] = num/10000+0x30;
 	str[1] = num%10000/1000+0x30;
 	str[2] = num%1000/100+0x30;
@@ -68,6 +75,28 @@ u8 *int_to_str(u16 num)
 	return p;
 }
 
+/*
+u8 *count_string(u8 *str_to_count, u8 *str)
+{
+	u8 *p;
+	u16 num = strlen(str_to_count);
+	str[0] = num/10000+0x30;
+	str[1] = num%10000/1000+0x30;
+	str[2] = num%1000/100+0x30;
+	str[3] = num%100/10+0x30;
+	str[4] = num%10+0x30;
+	str[5] = '\0';
+	p=str;
+	while(*p == '0')
+		p++;
+	if(*p == 0)
+		p++;
+	return p;
+}
+
+
+*/
+
 //esp8266硬件重启
 void wifi_reset(void)
 {
@@ -81,7 +110,7 @@ void wifi_reset(void)
 	wifi_reset_pin_low();
 	delay_ms(100);
 	wifi_reset_pin_high();
-	delay_s(5);
+	delay_s(2);
 }
 /****************************************************************************************
   * @brief:	esp8266 发送函数，先发送准备发送的命令，AT+CIPSEND=clientid,length	，
@@ -93,23 +122,48 @@ void wifi_reset(void)
 *****************************************************************************************/
 u8 wifi_send(u8 *p)
 {
+	u8 temp[6];
 	u8 cmd[30]="AT+CIPSEND=0,";
 	u8 *str;
-	str = int_to_str((u16)strlen(p));
+	u16 send_len = strlen(p);
+	str = int_to_str(temp, send_len);
 	strcat(cmd, str);
 	strcat(cmd, "\r\n");
-	debug("------------>>>>");
-	debug(cmd);
-	debug("$$$$$$$$$$$$$$$$$$$$$$$\r\n");
 	AP_Send_Para.send = cmd;
 	AP_Send_Para.match = "> ";
 	AP_Send_Para.timeout_ticks = 300;
+
 	if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))		//发送发送命令
 		return FAIL;
 	if( !WIFI_SendAndWait(p, "OK", 300))			//发送内容
 		return FAIL;
+
 	return SUCCESS;
 }
+
+u8 http_send(u8 *content)
+{
+	u8 http_content_lenth_string[10];
+	u8 temp[6];
+	u8 *p;
+	u16 content_size = strlen(content);
+	
+	memset(http_content_lenth_string, 0, sizeof(http_content_lenth_string));
+	if(!wifi_send(HTTP_H1) )		//发送http 头，不包括content_length
+		return FAIL;
+	
+	p = int_to_str( temp, content_size);			//发送content_length和两个换行符
+	strcat(http_content_lenth_string, p);
+	strcat(http_content_lenth_string,"\r\n\r\n");
+	if(!wifi_send(http_content_lenth_string))
+		return FAIL;
+	
+	if(!wifi_send(content))		//发送内容
+		return FAIL;
+	return SUCCESS;
+
+}
+
 /****************************************************************************************
   * @brief:	esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
 			调用函数以后，如果TimeOutSet2 时间内接收不到新字节

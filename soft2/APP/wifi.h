@@ -9,9 +9,10 @@
 extern u8 	xdata RX2_Buffer[COM_RX2_Lenth];	//Ω” ’ª∫≥Â
 
 void wifi_reset(void);
-u8 wifi_send(u8 *p);
 u8 wifi_receive();
 u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks);
 u8 WIFI_Set_AP_mode(void);
+u8 http_send(u8 *content);
+u8 wifi_send(u8 *p);
 
 #endif

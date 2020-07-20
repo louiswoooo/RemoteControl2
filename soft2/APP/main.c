@@ -13,6 +13,7 @@
 #include "bsp.h"
 #include "http_ap.h"
 #include "string.h"
+#include "http_ap.h"
 
 typedef enum _t_status_
 {
@@ -37,7 +38,7 @@ void main(void)
 					debug(WIFI_RBUF);
 					p = strstr(WIFI_RBUF, PORTAL_KEYWORD);
 					if(p)
-						wifi_send(PORTAL_PAGE);
+						http_send(HTTP_PORTAL_CONTENT);
 				}
 				break;
 			case client:

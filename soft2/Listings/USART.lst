@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 20:29:01 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             07/18/2020 19:06:03 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
 OBJECT MODULE PLACED IN .\Objects\USART.obj
-COMPILER INVOKED BY: d:\Keil_C51\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) 
-                    -DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(
+                    -.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
 
 line level    source
 
@@ -22,155 +22,260 @@ line level    source
   12                  È»ºóÆô¶¯´¥·¢ÖÐ¶Ï°´ÕÕ·¢ËÍ¶ÁÖ¸Õë½øÐÐ·¢ËÍ£¬Èç¹û¶ÁÖ¸ÕëµÈÓÚÐ´Ö¸Õë£¬Ôò»º³åÇøÊý¾Ý·¢ËÍ½áÊø
   13          *******************************************************************************/
   14          #include "USART.h"
-  15          
-  16          COMx_Define COM2,COM4;
-  17          u8  xdata TX2_Buffer[COM_TX2_Lenth];  //·¢ËÍ»º³å
-  18          u8  xdata RX2_Buffer[COM_RX2_Lenth];  //½ÓÊÕ»º³å
-  19          u8  xdata TX4_Buffer[COM_TX4_Lenth];  //·¢ËÍ»º³å
-  20          u8  xdata RX4_Buffer[COM_RX4_Lenth];  //½ÓÊÕ»º³å
-  21          
-  22          /****************************************************************************************
-  23            * @brief: ´®¿Ú2×Ö·û·¢ËÍ³ÌÐò£¬ÏÈ°Ñ×Ö·û´æÈë»º³åÇø£¬
-  24                  È»ºóÅÐ¶ÏÊÇ·ñ´®¿ÚÕýÔÚ·¢ËÍ£¬Èç¹ûÃ»ÓÐ£¬Ôò´¥·¢´®¿Ú·¢ËÍ
-  25            * @param: dat
-  26            * @retval:  none
-  27          *****************************************************************************************/
-  28          void TX2_write2buff(u8 dat)
-  29          {
-  30   1        S2BUF = dat;
-  31   1        while(!TI2);
-  32   1        CLR_TI2();
-  33   1      }
-  34          /****************************************************************************************
-  35            * @brief: ´®¿Ú2×Ö·û´®·¢ËÍ³ÌÐò£¬Óöµ½0½áÊø
-  36            * @param: puts
-  37            * @retval:  none
-  38          *****************************************************************************************/
-  39          void Usart2SendString(u8 *puts)
-  40          {
-  41   1          for (; *puts != 0;  puts++)  TX2_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
-  42   1      }
-  43          void TX4_write2buff(u8 dat) //Ð´Èë·¢ËÍ»º³å£¬Ö¸Õë+1
-  44          {
-  45   1        TX4_Buffer[COM4.TX_write] = dat;  //×°·¢ËÍ»º³å
-  46   1        if(++COM4.TX_write >= COM_TX4_Lenth)  COM4.TX_write = 0;
-  47   1      
-  48   1        if(COM4.B_TX_busy == 0)   //¿ÕÏÐ
-  49   1        {  
-  50   2          COM4.B_TX_busy = 1;   //±êÖ¾Ã¦
-  51   2          SET_TI4();        //´¥·¢·¢ËÍÖÐ¶Ï
-  52   2        }
-  53   1      }
-  54          
-C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 20:29:01 PAGE 2   
+  15          #include "debug.h"
+  16          
+  17          COMx_Define COM2;
+  18          u8  xdata TX2_Buffer[COM_TX2_Lenth];  //·¢ËÍ»º³å
+  19          u8  xdata RX2_Buffer[COM_RX2_Lenth];  //½ÓÊÕ»º³å
+  20          
+  21          #if DEBUG_PORT==USART4
+              COMx_Define COM4;
+              u8  xdata TX4_Buffer[COM_TX4_Lenth];  //·¢ËÍ»º³å
+              u8  xdata RX4_Buffer[COM_RX4_Lenth];  //½ÓÊÕ»º³å
+              #else
+  26          COMx_Define COM1;
+  27          u8  xdata TX1_Buffer[COM_TX1_Lenth];  //·¢ËÍ»º³å
+  28          u8  xdata RX1_Buffer[COM_RX1_Lenth];  //½ÓÊÕ»º³å
+  29          #endif
+  30          
+  31          
+  32          //´®¿Ú2³õÊ¼»¯
+  33          void Usart2Init(void)   //115200bps@22.1184MHz
+  34          {
+  35   1        S2CON = 0x50;   //8Î»Êý¾Ý,¿É±ä²¨ÌØÂÊ
+  36   1        AUXR |= 0x04;   //¶¨Ê±Æ÷2Ê±ÖÓÎªFosc,¼´1T
+  37   1        T2L = 0xD0;   //Éè¶¨¶¨Ê±³õÖµ
+  38   1        T2H = 0xFF;   //Éè¶¨¶¨Ê±³õÖµ
+  39   1        AUXR |= 0x10;   //Æô¶¯¶¨Ê±Æ÷2
+  40   1        
+  41   1        COM2.id = 2;
+  42   1        COM2.TX_read    = 0;
+  43   1        COM2.TX_write   = 0;
+  44   1        COM2.B_TX_busy  = 0;
+  45   1        COM2.RX_Cnt     = 0;
+  46   1        COM2.RX_TimeOut = 0;
+  47   1        COM2.B_RX_EN    = 0;
+  48   1        COM2.B_RX_OK    = 0;
+  49   1      }
+  50          
+  51          
+  52          /****************************************************************************************
+  53            * @brief: ´®¿Ú2×Ö·û·¢ËÍ³ÌÐò£¬ÏÈ°Ñ×Ö·û´æÈë»º³åÇø£¬
+  54                  È»ºóÅÐ¶ÏÊÇ·ñ´®¿ÚÕýÔÚ·¢ËÍ£¬Èç¹ûÃ»ÓÐ£¬Ôò´¥·¢´®¿Ú·¢ËÍ
+C51 COMPILER V9.56.0.0   USART                                                             07/18/2020 19:06:03 PAGE 2   
 
-  55          
-  56          void Usart4SendString(u8 *puts)
-  57          {
-  58   1          for (; *puts != 0;  puts++)  TX4_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
-  59   1      }
-  60          
-  61          //´®¿Ú2³õÊ¼»¯
-  62          void Usart2Init(void)   //115200bps@22.1184MHz
-  63          {
-  64   1        S2CON = 0x50;   //8Î»Êý¾Ý,¿É±ä²¨ÌØÂÊ
-  65   1        AUXR |= 0x04;   //¶¨Ê±Æ÷2Ê±ÖÓÎªFosc,¼´1T
-  66   1        T2L = 0xD0;   //Éè¶¨¶¨Ê±³õÖµ
-  67   1        T2H = 0xFF;   //Éè¶¨¶¨Ê±³õÖµ
-  68   1        AUXR |= 0x10;   //Æô¶¯¶¨Ê±Æ÷2
-  69   1        
-  70   1        COM2.id = 2;
-  71   1        COM2.TX_read    = 0;
-  72   1        COM2.TX_write   = 0;
-  73   1        COM2.B_TX_busy  = 0;
-  74   1        COM2.RX_Cnt     = 0;
-  75   1        COM2.RX_TimeOut = 0;
-  76   1        COM2.B_RX_EN    = 0;
-  77   1        COM2.B_RX_OK    = 0;
-  78   1      }
-  79          //´®¿Ú4³õÊ¼»¯
-  80          void Usart4Init(void)   //115200bps@22.1184MHz
-  81          {
-  82   1        S4CON = 0x10;   //8???,?????
-  83   1        S4CON |= 0x40;    //??4?????4???????
-  84   1        T4T3M |= 0x20;    //???4???Fosc,?1T
-  85   1        T4L = 0xD0;   //??????
-  86   1        T4H = 0xFF;   //??????
-  87   1        T4T3M |= 0x80;    //?????4
-  88   1      
-  89   1        COM4.id = 4;
-  90   1        COM4.TX_read    = 0;
-  91   1        COM4.TX_write   = 0;
-  92   1        COM4.B_TX_busy  = 0;
-  93   1        COM4.RX_Cnt     = 0;
-  94   1        COM4.RX_TimeOut = 0;
-  95   1        COM4.B_RX_EN    = 0;
-  96   1        COM4.B_RX_OK    = 0;
-  97   1      
-  98   1      }
-  99          
- 100          /****************************************************************************************
- 101            * @brief: ´®¿Ú2ÖÐ¶Ï³ÌÐò£¬¸ù¾Ý½ÓÊÕ×´Ì¬£¬½ÓÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
- 102                  ²¢ÇÒÖØÐÂÉèÖÃ½ÓÊÕ¼ÆÊ±Æ÷
- 103                  ·¢ËÍÖÐ¶Ï¸ù¾Ý¶ÁÐ´Ö¸ÕëÅÐ¶ÏÊÇ·ñ·¢ËÍÍê³É£¬Èç¹ûÍê³ÉÇåÃ¦±êÖ¾
- 104            * @param: none
- 105            * @retval:  none
- 106          *****************************************************************************************/
- 107          void UART2_int (void) interrupt UART2_VECTOR    using 2
- 108          {
- 109   1        if(RI2)
- 110   1        {
- 111   2          CLR_RI2();
- 112   2          if(COM2.B_RX_EN == 1)   //Èç¹ûÔÊÐí½ÓÊÕ
- 113   2          {
- 114   3            if(COM2.RX_Cnt >= COM_RX2_Lenth)  COM2.RX_Cnt = 0;  //»º³åÇøÒç³öå£¿
- 115   3            RX2_Buffer[COM2.RX_Cnt++] = S2BUF;          //ÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
- 116   3            COM2.RX_TimeOut = TimeOutSet2;            //ÖØÐÂÉèÖÃ³¬Ê±¼ÆÊ±Æ÷
-C51 COMPILER V9.56.0.0   USART                                                             07/07/2020 20:29:01 PAGE 3   
+  55            * @param: dat
+  56            * @retval:  none
+  57          *****************************************************************************************/
+  58          void TX2_write2buff(u8 dat)
+  59          {
+  60   1        S2BUF = dat;
+  61   1        while(!TI2);
+  62   1        CLR_TI2();
+  63   1      }
+  64          /****************************************************************************************
+  65            * @brief: ´®¿Ú2×Ö·û´®·¢ËÍ³ÌÐò£¬Óöµ½0½áÊø
+  66            * @param: puts
+  67            * @retval:  none
+  68          *****************************************************************************************/
+  69          void Usart2SendString(u8 *puts)
+  70          {
+  71   1          for (; *puts != 0;  puts++)  TX2_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
+  72   1      }
+  73          
+  74          /****************************************************************************************
+  75            * @brief: ´®¿Ú2ÖÐ¶Ï³ÌÐò£¬¸ù¾Ý½ÓÊÕ×´Ì¬£¬½ÓÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
+  76                  ²¢ÇÒÖØÐÂÉèÖÃ½ÓÊÕ¼ÆÊ±Æ÷
+  77                  ·¢ËÍÖÐ¶Ï¸ù¾Ý¶ÁÐ´Ö¸ÕëÅÐ¶ÏÊÇ·ñ·¢ËÍÍê³É£¬Èç¹ûÍê³ÉÇåÃ¦±êÖ¾
+  78            * @param: none
+  79            * @retval:  none
+  80          *****************************************************************************************/
+  81          void UART2_int (void) interrupt UART2_VECTOR    using 2
+  82          {
+  83   1        if(RI2)
+  84   1        {
+  85   2          CLR_RI2();
+  86   2          if(COM2.B_RX_EN == 1)   //Èç¹ûÔÊÐí½ÓÊÕ
+  87   2          {
+  88   3            if(COM2.RX_Cnt >= COM_RX2_Lenth)  COM2.RX_Cnt = 0;  //»º³åÇøÒç³öå£¿
+  89   3            RX2_Buffer[COM2.RX_Cnt++] = S2BUF;          //ÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
+  90   3            COM2.RX_TimeOut = TimeOutSet2;            //ÖØÐÂÉèÖÃ³¬Ê±¼ÆÊ±Æ÷
+  91   3          }
+  92   2        }
+  93   1      }
+  94          
+  95          #if DEBUG_PORT == USART4
+              
+              //´®¿Ú4³õÊ¼»¯
+              void Usart4Init(void)   //115200bps@22.1184MHz
+              {
+                S4CON = 0x10;   //8???,?????
+                S4CON |= 0x40;    //??4?????4???????
+                T4T3M |= 0x20;    //???4???Fosc,?1T
+                T4L = 0xD0;   //??????
+                T4H = 0xFF;   //??????
+                T4T3M |= 0x80;    //?????4
+              
+                COM4.id = 4;
+                COM4.TX_read    = 0;
+                COM4.TX_write   = 0;
+                COM4.B_TX_busy  = 0;
+                COM4.RX_Cnt     = 0;
+                COM4.RX_TimeOut = 0;
+                COM4.B_RX_EN    = 0;
+                COM4.B_RX_OK    = 0;
+              
+                S4_Int_en();
+C51 COMPILER V9.56.0.0   USART                                                             07/18/2020 19:06:03 PAGE 3   
 
- 117   3          }
- 118   2        }
- 119   1      }
- 120          /****************************************************************************************
- 121            * @brief: ´®¿Ú4ÖÐ¶Ï³ÌÐò£¬¸ù¾Ý½ÓÊÕ×´Ì¬£¬½ÓÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
- 122                  ²¢ÇÒÖØÐÂÉèÖÃ½ÓÊÕ¼ÆÊ±Æ÷
- 123                  ·¢ËÍÖÐ¶Ï¸ù¾Ý¶ÁÐ´Ö¸ÕëÅÐ¶ÏÊÇ·ñ·¢ËÍÍê³É£¬Èç¹ûÍê³ÉÇåÃ¦±êÖ¾
- 124            * @param: none
- 125            * @retval:  none
- 126          *****************************************************************************************/
- 127          void UART4_int (void) interrupt UART4_VECTOR  using 3
- 128          {
- 129   1        if(RI4)
- 130   1        {
- 131   2          CLR_RI4();
- 132   2          if(COM4.B_RX_EN == 1)
- 133   2          {
- 134   3            if(COM4.RX_Cnt >= COM_RX2_Lenth)  COM4.RX_Cnt = 0;
- 135   3            RX4_Buffer[COM4.RX_Cnt++] = S4BUF;
- 136   3            COM4.RX_TimeOut = TimeOutSet4;
- 137   3          }
- 138   2        }
- 139   1      
- 140   1        if(TI4)
- 141   1        {
- 142   2          CLR_TI4();
- 143   2          if(COM4.TX_read != COM4.TX_write)
- 144   2          {
- 145   3            S4BUF = TX4_Buffer[COM4.TX_read];
- 146   3            if(++COM4.TX_read >= COM_TX4_Lenth)   COM4.TX_read = 0;
- 147   3          }
- 148   2          else  COM4.B_TX_busy = 0;
- 149   2        }
- 150   1      
- 151   1      }
- 152          
- 153          
+              
+              
+              }
+              
+              void TX4_write2buff(u8 dat) //Ð´Èë·¢ËÍ»º³å£¬Ö¸Õë+1
+              {
+                TX4_Buffer[COM4.TX_write] = dat;  //×°·¢ËÍ»º³å
+                if(++COM4.TX_write >= COM_TX4_Lenth)  COM4.TX_write = 0;
+              
+                if(COM4.B_TX_busy == 0)   //¿ÕÏÐ
+                {  
+                  COM4.B_TX_busy = 1;   //±êÖ¾Ã¦
+                  SET_TI4();        //´¥·¢·¢ËÍÖÐ¶Ï
+                }
+              }
+              
+              void Usart4SendString(u8 *puts)
+              {
+                  for (; *puts != 0;  puts++)  TX4_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
+              }
+              
+              
+              
+              /****************************************************************************************
+                * @brief: ´®¿Ú4ÖÐ¶Ï³ÌÐò£¬¸ù¾Ý½ÓÊÕ×´Ì¬£¬½ÓÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
+                      ²¢ÇÒÖØÐÂÉèÖÃ½ÓÊÕ¼ÆÊ±Æ÷
+                      ·¢ËÍÖÐ¶Ï¸ù¾Ý¶ÁÐ´Ö¸ÕëÅÐ¶ÏÊÇ·ñ·¢ËÍÍê³É£¬Èç¹ûÍê³ÉÇåÃ¦±êÖ¾
+                * @param: none
+                * @retval:  none
+              *****************************************************************************************/
+              void UART4_int (void) interrupt UART4_VECTOR  using 3
+              {
+                if(RI4)
+                {
+                  CLR_RI4();
+                  if(COM4.B_RX_EN == 1)
+                  {
+                    if(COM4.RX_Cnt >= COM_RX4_Lenth)  COM4.RX_Cnt = 0;
+                    RX4_Buffer[COM4.RX_Cnt++] = S4BUF;
+                    COM4.RX_TimeOut = TimeOutSet4;
+                  }
+                }
+              
+                if(TI4)
+                {
+                  CLR_TI4();
+                  if(COM4.TX_read != COM4.TX_write)
+                  {
+                    S4BUF = TX4_Buffer[COM4.TX_read];
+                    if(++COM4.TX_read >= COM_TX4_Lenth)   COM4.TX_read = 0;
+                  }
+                  else  COM4.B_TX_busy = 0;
+                }
+              
+              }
+              
+              #endif
+ 174          
+ 175          #if DEBUG_PORT == USART1
+ 176          
+ 177          //´®¿Ú1³õÊ¼»¯
+ 178          void Usart1Init(void)   //115200bps@22.1184MHz
+C51 COMPILER V9.56.0.0   USART                                                             07/18/2020 19:06:03 PAGE 4   
+
+ 179          {
+ 180   1        SCON = 0x50;    //8???,?????
+ 181   1        AUXR |= 0x40;   //???1???Fosc,?1T
+ 182   1        AUXR &= 0xFE;   //??1?????1???????
+ 183   1        TMOD &= 0x0F;   //?????1?16???????
+ 184   1        TL1 = 0xD0;   //??????
+ 185   1        TH1 = 0xFF;   //??????
+ 186   1        ET1 = 0;    //?????1??
+ 187   1        TR1 = 1;    //?????1
+ 188   1        
+ 189   1        COM1.id = 1;
+ 190   1        COM1.TX_read    = 0;
+ 191   1        COM1.TX_write   = 0;
+ 192   1        COM1.B_TX_busy  = 0;
+ 193   1        COM1.RX_Cnt     = 0;
+ 194   1        COM1.RX_TimeOut = 0;
+ 195   1        COM1.B_RX_EN    = 0;
+ 196   1        COM1.B_RX_OK    = 0;
+ 197   1      
+ 198   1        ES =1;
+ 199   1      
+ 200   1      }
+ 201          
+ 202          void TX1_write2buff(u8 dat) //Ð´Èë·¢ËÍ»º³å£¬Ö¸Õë+1
+ 203          {
+ 204   1        TX1_Buffer[COM1.TX_write] = dat;  //×°·¢ËÍ»º³å
+ 205   1        if(++COM1.TX_write >= COM_TX1_Lenth)  COM1.TX_write = 0;
+ 206   1      
+ 207   1        if(COM1.B_TX_busy == 0)   //¿ÕÏÐ
+ 208   1        {  
+ 209   2          COM1.B_TX_busy = 1;   //±êÖ¾Ã¦
+ 210   2          TI=1;       //´¥·¢·¢ËÍÖÐ¶Ï
+ 211   2        }
+ 212   1      }
+ 213          
+ 214          void Usart1SendString(u8 *puts)
+ 215          {
+ 216   1          for (; *puts != 0;  puts++)  TX1_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
+ 217   1      }
+ 218          
+ 219          
+ 220          
+ 221          /****************************************************************************************
+ 222            * @brief: ´®¿Ú4ÖÐ¶Ï³ÌÐò£¬¸ù¾Ý½ÓÊÕ×´Ì¬£¬½ÓÊÕµ½µÄ×Ö·û·ÅÈë»º³åÇø
+ 223                  ²¢ÇÒÖØÐÂÉèÖÃ½ÓÊÕ¼ÆÊ±Æ÷
+ 224                  ·¢ËÍÖÐ¶Ï¸ù¾Ý¶ÁÐ´Ö¸ÕëÅÐ¶ÏÊÇ·ñ·¢ËÍÍê³É£¬Èç¹ûÍê³ÉÇåÃ¦±êÖ¾
+ 225            * @param: none
+ 226            * @retval:  none
+ 227          *****************************************************************************************/
+ 228          void UART1_int (void) interrupt UART1_VECTOR  using 3
+ 229          {
+ 230   1        if(RI)
+ 231   1        {
+ 232   2          RI=0;
+ 233   2          if(COM1.B_RX_EN == 1)
+ 234   2          {
+ 235   3            if(COM1.RX_Cnt >= COM_RX1_Lenth)  COM1.RX_Cnt = 0;
+ 236   3            RX1_Buffer[COM1.RX_Cnt++] = SBUF;
+ 237   3            COM1.RX_TimeOut = TimeOutSet1;
+ 238   3          }
+ 239   2        }
+ 240   1      
+C51 COMPILER V9.56.0.0   USART                                                             07/18/2020 19:06:03 PAGE 5   
+
+ 241   1        if(TI)
+ 242   1        {
+ 243   2          TI=0;
+ 244   2          if(COM1.TX_read != COM1.TX_write)
+ 245   2          {
+ 246   3            SBUF = TX1_Buffer[COM1.TX_read];
+ 247   3            if(++COM1.TX_read >= COM_TX1_Lenth)   COM1.TX_read = 0;
+ 248   3          }
+ 249   2          else  COM1.B_TX_busy = 0;
+ 250   2        }
+ 251   1      
+ 252   1      }
+ 253          
+ 254          #endif
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    403    ----
+   CODE SIZE        =    443    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =   3346    ----
+   XDATA SIZE       =   3350    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

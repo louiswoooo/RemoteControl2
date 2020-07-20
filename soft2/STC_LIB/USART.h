@@ -4,15 +4,19 @@
 
 #include	"config.h"
 
+
 #define	COM_TX2_Lenth	128
 #define	COM_RX2_Lenth	2048
+
+#define	COM_TX1_Lenth	1024
+#define	COM_RX1_Lenth	128
 
 #define	COM_TX4_Lenth	1024
 #define	COM_RX4_Lenth	128
 
-//#define	USART1	1
+#define	USART1	1
 #define	USART2	2
-//#define	USART3	3
+#define	USART3	3
 #define	USART4	4
 
 #define	UART_ShiftRight	0		//同步移位输出
@@ -45,7 +49,7 @@ typedef struct
 	u8	B_TX_busy;		//忙标志
 
 	u16 	RX_Cnt;			//接收字节计数
-	u16	RX_TimeOut;		//接收超时
+	u8	RX_TimeOut;		//接收超时
 	u8	B_RX_EN;		//允许接收块
 	u8	B_RX_OK;		//允许接收块
 	
@@ -74,12 +78,18 @@ extern	COMx_Define	COM4;
 extern	u8	xdata TX4_Buffer[COM_TX4_Lenth];	//发送缓冲
 extern	u8 	xdata RX4_Buffer[COM_RX4_Lenth];	//接收缓冲
 
+extern	COMx_Define	COM1;
+extern	u8	xdata TX1_Buffer[COM_TX1_Lenth];	//发送缓冲
+extern	u8 	xdata RX1_Buffer[COM_RX1_Lenth];	//接收缓冲
 
 /************************Below is personal adding drives*********************************/
 void Usart2Init (void);
-void Usart4Init(void);
 void Usart2SendString(u8 *puts);
+
+void Usart4Init(void);
 void Usart4SendString(u8 *puts);
+void Usart1Init(void);
+void Usart1SendString(u8 *puts);
 
 #endif
 

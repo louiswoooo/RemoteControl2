@@ -1,10 +1,10 @@
 #include "http_ap.h"
 
-u8 const HTTP_H1[]="HTTP/1.0 200 OK\r\n\
+u8 code HTTP_H1[]="HTTP/1.0 200 OK\r\n\
 Content-Type: text/html; charset=utf-8\r\n\
 Content-Length: ";
 
-u8 const HTTP_PORTAL[]	=	"<!DOCTYPE html>\r\n\
+u8 code HTTP_PORTAL_CONTENT[]	=	"<!DOCTYPE html>\r\n\
 <html lang=\"en\">\r\n\
 <head>\r\n\
     <meta charset=\"UTF-8\">\r\n\
@@ -44,6 +44,7 @@ u8 const HTTP_PORTAL[]	=	"<!DOCTYPE html>\r\n\
     <br>\r\n\
 </body>\r\n\
 </html>";
+
 
 
 

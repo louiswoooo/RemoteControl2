@@ -11,7 +11,6 @@ void bsp(void)
 	S2_Int_en();
 	
 	debug_init();
-	S4_Int_en();
 
 	IP=0x00;
 	IP2=0x00;

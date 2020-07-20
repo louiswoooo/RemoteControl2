@@ -4,6 +4,7 @@
 #include "config.h"
 #define PORTAL_KEYWORD		"GET / " 
 
-extern u8 const PORTAL_PAGE[];
+extern u8 code HTTP_H1[];
+extern u8 code HTTP_PORTAL_CONTENT[];
 
 #endif
