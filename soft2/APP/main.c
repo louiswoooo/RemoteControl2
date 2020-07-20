@@ -36,9 +36,20 @@ void main(void)
 				if(wifi_receive())
 				{
 					debug(WIFI_RBUF);
-					p = strstr(WIFI_RBUF, PORTAL_KEYWORD);
+					p = strstr(WIFI_RBUF, HTTP_REQUEST_INDEX);
 					if(p)
-						http_send(HTTP_PORTAL_CONTENT);
+						http_send(HTTP_INDEX_CONTENT);
+					else
+					{
+						p = strstr(WIFI_RBUF, HTTP_REQUEST_CONTROL);
+						if(p)
+						{
+							if(DevicesControl(p) == 1)
+								http_send(HTTP_INDEX_CONTENT);
+							else
+								http_send("Devices control Fail !!!");
+						}
+					}
 				}
 				break;
 			case client:

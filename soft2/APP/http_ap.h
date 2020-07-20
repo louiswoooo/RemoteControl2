@@ -2,9 +2,10 @@
 #define _HTTP_AP_H_
 
 #include "config.h"
-#define PORTAL_KEYWORD		"GET / " 
+#define HTTP_REQUEST_INDEX		"GET / " 
+#define HTTP_REQUEST_CONTROL		"GET /?" 
 
 extern u8 code HTTP_H1[];
-extern u8 code HTTP_PORTAL_CONTENT[];
+extern u8 code HTTP_INDEX_CONTENT[];
 
 #endif

@@ -30,7 +30,7 @@
 
 #define DH_Pin	P50   //定义数据线
 
-void DevicesControl(u8 *cmd);
+u8 DevicesControl(u8 *cmd);
 void DevicesInit(void);
 
 #endif

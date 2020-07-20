@@ -101,7 +101,6 @@ static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
 static u8 SwitchControl(u8 *buf)
 {
 	u8 *cmd=buf;
-//	debug(cmd);
 	switch(*(cmd+sizeof(KEYWORD_SWITCH)))
 	{
 		case '1':
@@ -350,19 +349,15 @@ void DevicesInit(void)
 	Light2Power=0;
 }
 
-void DevicesControl(u8 *cmd)
+u8 DevicesControl(u8 *cmd)
 {
 	u8 *p;
-	p=strstr(cmd, KEYWORD_SETWIFI);
-	if(p)
-	{
-	}
-	else if(p=strstr(cmd, KEYWORD_SWITCH))
+	if(p=strstr(cmd, KEYWORD_SWITCH))
 	{
 		if(SwitchControl(p))
-			wifi_send("OK");
+			return 1;
 		else
-			wifi_send("FAIL");
+			return 0;
 	}
 	else if(p=strstr(cmd, KEYWORD_LIGHT))
 		LightControl(p);

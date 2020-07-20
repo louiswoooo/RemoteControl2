@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   WIFI                                                              07/18/2020 21:00:06 PAGE 1   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/20/2020 16:40:34 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE WIFI
@@ -62,7 +62,7 @@ line level    source
   52          
   53          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
   54          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
-C51 COMPILER V9.56.0.0   WIFI                                                              07/18/2020 21:00:06 PAGE 2   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/20/2020 16:40:34 PAGE 2   
 
   55          
   56          /*
@@ -126,7 +126,7 @@ line level    source
  114   1      }
  115          /****************************************************************************************
  116            * @brief: esp8266 发送函数，先发送准备发送的命令，AT+CIPSEND=clientid,length  ，
-C51 COMPILER V9.56.0.0   WIFI                                                              07/18/2020 21:00:06 PAGE 3   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/20/2020 16:40:34 PAGE 3   
 
  117                  参数是client的号（0-4），和发送数据的长度，然后才是内容，
  118                  如果length大于实际发送的数据长度，则此次发送不发生，
@@ -190,7 +190,7 @@ line level    source
  176   1        COM2.B_RX_EN=1;
  177   1        COM2.RX_Cnt=0;
  178   1        COM2.B_RX_OK=0;
-C51 COMPILER V9.56.0.0   WIFI                                                              07/18/2020 21:00:06 PAGE 4   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/20/2020 16:40:34 PAGE 4   
 
  179   1        COM2.RX_TimeOut=TimeOutSet2;
  180   1        while(COM2.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
@@ -216,57 +216,56 @@ line level    source
  200   1        u16 i;
  201   1        for(i = timeout_ticks/TimeOutSet2; i>0; i--)
  202   1        {
- 203   2          debug(send);
- 204   2          Usart2SendString(send);
- 205   2          if(wifi_receive())
- 206   2          {
- 207   3            debug(RX2_Buffer);
- 208   3            if(p=strstr(RX2_Buffer,match))
- 209   3              return 1;
- 210   3          }
- 211   2        }
- 212   1        return 0;
- 213   1      }
- 214          
- 215          u8 WIFI_Set_AP_mode(void)
- 216          {/*
- 217   1        if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
- 218   1          return FAIL;
- 219   1        delay_s(5);
- 220   1        */
- 221   1        if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
- 222   1          return FAIL;
- 223   1        if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
- 224   1        {
- 225   2          delay_s(2);
- 226   2          return FAIL;
- 227   2        }
- 228   1        if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
- 229   1          return FAIL;
- 230   1        delay_s(5);
- 231   1        if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
- 232   1          return FAIL;
- 233   1        if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))
- 234   1          return FAIL;
- 235   1        if( !WIFI_SendAndWait(AP_Para6.send, AP_Para6.match, AP_Para6.timeout_ticks))
- 236   1          return FAIL;
- 237   1        return SUCCESS;
- 238   1      }
- 239          
- 240          /*
-C51 COMPILER V9.56.0.0   WIFI                                                              07/18/2020 21:00:06 PAGE 5   
+ 203   2          Usart2SendString(send);
+ 204   2          if(wifi_receive())
+ 205   2          {
+ 206   3            debug(RX2_Buffer);
+ 207   3            if(p=strstr(RX2_Buffer,match))
+ 208   3              return 1;
+ 209   3          }
+ 210   2        }
+ 211   1        return 0;
+ 212   1      }
+ 213          
+ 214          u8 WIFI_Set_AP_mode(void)
+ 215          {/*
+ 216   1        if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
+ 217   1          return FAIL;
+ 218   1        delay_s(5);
+ 219   1        */
+ 220   1        if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
+ 221   1          return FAIL;
+ 222   1        if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
+ 223   1        {
+ 224   2          delay_s(2);
+ 225   2          return FAIL;
+ 226   2        }
+ 227   1        if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
+ 228   1          return FAIL;
+ 229   1        delay_s(5);
+ 230   1        if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
+ 231   1          return FAIL;
+ 232   1        if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))
+ 233   1          return FAIL;
+ 234   1        if( !WIFI_SendAndWait(AP_Para6.send, AP_Para6.match, AP_Para6.timeout_ticks))
+ 235   1          return FAIL;
+ 236   1        return SUCCESS;
+ 237   1      }
+ 238          
+ 239          /*
+ 240          u8 WIFI_Set_Client_mode(void)
+C51 COMPILER V9.56.0.0   WIFI                                                              07/20/2020 16:40:34 PAGE 5   
 
- 241          u8 WIFI_Set_Client_mode(void)
- 242          {
- 243            
- 244          
- 245          }
- 246          */
- 247          
+ 241          {
+ 242            
+ 243          
+ 244          }
+ 245          */
+ 246          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1259    ----
+   CODE SIZE        =   1245    ----
    CONSTANT SIZE    =    183    ----
    XDATA SIZE       =     64      86
    PDATA SIZE       =   ----    ----

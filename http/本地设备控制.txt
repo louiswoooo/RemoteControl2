@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Genius AI Lab</title>
+    <style>
+        h1{font-size:600%;text-align:center}
+        span{font-size:300%;margin-left:40px}
+        button{type:button;margin-left:40px;width:120px;height:120px;border-radius:60px;padding:20px}
+        .ss1{background:#ff9953}
+        .ss2{background:darkgray}
+        .ss3{background: #ffe0a0}
+        .ss4{background: #d6d6d6}
+        .ss5{border-radius:20px;height:60px}
+    </style>
+    <script>
+        function jp(a)
+        {window.location.href="/?"+a}
+    </script>
+</head>
+<body>
+    <div style="width:1000px">
+        <div style="background-color:slategray">
+            <h1>Genius AI Lab</h1>
+        </div>
+        <br>
+                <span>SWITCH1:</span>
+                <button class="ss1" onclick="jp('SWITCH1=ON')">ON</button>
+                <button class="ss2" onclick="jp('SWITCH1=OFF')">OFF</button>
+                <br>
+                <span>SWITCH2:</span>
+                <button class="ss1" onclick="jp('SWITCH2=ON')">ON</button>
+                <button class="ss2" onclick="jp('SWITCH2=OFF')">OFF</button><br>
+                <span>SWITCH3:</span>
+                <button class="ss1" onclick="jp('SWITCH3=ON')">ON</button>
+                <button class="ss2" onclick="jp('SWITCH3=OFF')">OFF</button><br>
+                <span>SWITCH4:</span>
+                <button class="ss1" onclick="jp('SWITCH4=ON')">ON</button>
+                <button class="ss2" onclick="jp('SWITCH4=OFF')">OFF</button>
+            <br>
+            <hr>
+        <br>
+        <span>LIGHT1:</span>
+        <button class="ss1" onclick="jp('LIGHT1=ON')">ON</button>
+        <button class="ss3" onclick="jp('LIGHT1=INC')">ADD</button>
+        <button class="ss4" onclick="jp('LIGHT1=DEC')">DEC</button>
+        <button class="ss2" onclick="jp('LIGHT1=OFF')">OFF</button><br>
+        <span>LIGHT2:</span>
+        <button class="ss1" onclick="jp('LIGHT2=ON')">ON</button>
+        <button class="ss3" onclick="jp('LIGHT2=INC')">ADD</button>
+        <button class="ss4" onclick="jp('LIGHT2=ON')">DEC</button>
+        <button class="ss2" onclick="jp('LIGHT2=DEC')">OFF</button><br>
+            <hr>
+        <br>
+        <span>Tempreture: </span><button class="ss5" onclick="jp('REFRESH')">Refresh</button><br>
+        <span>Humidity: </span><br>
+    </div>
+</body>
+</html>
