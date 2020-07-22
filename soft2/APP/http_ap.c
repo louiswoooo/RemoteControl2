@@ -1,9 +1,88 @@
 #include "http_ap.h"
+#include "wifi.h"
+#include "string.h"
+#include "debug.h"
+
+#define AP_MSG_KEYWORD	"+PID,"
 
 u8 code HTTP_H1[]="HTTP/1.0 200 OK\r\n\
 Content-Type: text/html; charset=utf-8\r\n\
 Content-Length: ";
 
+u8 code HTTP_INDEX_CONTENT[]	=	"<!DOCTYPE html>\r\n\
+<html lang=\"en\">\r\n\
+<head>\r\n\
+    <meta charset=\"UTF-8\">\r\n\
+    <title>Genius AI Lab</title>\r\n\
+    <style>\r\n\
+        h1{font-size:600%;text-align:center}\r\n\
+        span{font-size:300%;margin-left:40px}\r\n\
+        button{type:button;margin-left:40px;width:120px;height:120px;border-radius:60px;padding:20px}\r\n\
+        .ss1{background:#ff9953}\r\n\
+        .ss2{background:darkgray}\r\n\
+        .ss3{background: #ffe0a0}\r\n\
+        .ss4{background: #d6d6d6}\r\n\
+        .ss5{border-radius:20px;height:60px}\r\n\
+    </style>\r\n\
+    <script>\r\n\
+        function jp(a)\r\n\
+        {window.location.href=\"/?\"+a}\r\n\
+    </script>\r\n\
+</head>\r\n\
+<body>\r\n\
+    <div style=\"width:1000px\">\r\n\
+        <div style=\"background-color:slategray\">\r\n\
+            <h1>Genius AI Lab</h1>\r\n\
+        </div>\r\n\
+        <br>\r\n\
+                <span>SWITCH1:</span>\r\n\
+                <button class=\"ss1\" onclick=\"jp('SWITCH1=ON')\">ON</button>\r\n\
+                <button class=\"ss2\" onclick=\"jp('SWITCH1=OFF')\">OFF</button>\r\n\
+                <br>\r\n\
+                <span>SWITCH2:</span>\r\n\
+                <button class=\"ss1\" onclick=\"jp('SWITCH2=ON')\">ON</button>\r\n\
+                <button class=\"ss2\" onclick=\"jp('SWITCH2=OFF')\">OFF</button><br>\r\n\
+                <span>SWITCH3:</span>\r\n\
+                <button class=\"ss1\" onclick=\"jp('SWITCH3=ON')\">ON</button>\r\n\
+                <button class=\"ss2\" onclick=\"jp('SWITCH3=OFF')\">OFF</button><br>\r\n\
+                <span>SWITCH4:</span>\r\n\
+                <button class=\"ss1\" onclick=\"jp('SWITCH4=ON')\">ON</button>\r\n\
+                <button class=\"ss2\" onclick=\"jp('SWITCH4=OFF')\">OFF</button>\r\n\
+        <br>\r\n\
+    </div>\r\n\
+</body>\r\n\
+</html>";
+
+void AP_MSG_Handle(void)
+{
+	u8 *p;
+	u8 client_id[2];
+	debug(WIFI_RBUF);
+	if(strstr(WIFI_RBUF, AP_MSG_KEYWORD))
+	{
+		debug_vip(WIFI_RBUF + sizeof(AP_MSG_KEYWORD)-1);
+		client_id[0] = *(WIFI_RBUF + sizeof(AP_MSG_KEYWORD)-1);
+		client_id[1] = '\0';
+		p = strstr(WIFI_RBUF, HTTP_REQUEST_INDEX);
+		if(p)
+		{
+			http_send(client_id, HTTP_INDEX_CONTENT);
+		}
+		else
+		{
+			p = strstr(WIFI_RBUF, HTTP_REQUEST_CONTROL);
+			if(p)
+			{
+				if(DevicesControl(p) == 1)
+					http_send(HTTP_INDEX_CONTENT);
+				else
+					http_send("Devices control Fail !!!");
+			}
+		}
+	}
+}
+
+/**************************************************************************************
 u8 code HTTP_INDEX_CONTENT[]	=	"<!DOCTYPE html>\r\n\
 <html lang=\"en\">\r\n\
 <head>\r\n\
@@ -65,7 +144,7 @@ u8 code HTTP_INDEX_CONTENT[]	=	"<!DOCTYPE html>\r\n\
     </div>\r\n\
 </body>\r\n\
 </html>";
-
+*/
 /*
 u8 code HTTP_INDEX_CONTENT[]	=	"<!DOCTYPE html>\r\n\
 <html lang=\"en\">\r\n\

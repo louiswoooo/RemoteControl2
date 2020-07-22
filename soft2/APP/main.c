@@ -25,7 +25,6 @@ _t_status Status;
 
 void main(void)
 {
-	u8 *p;
 	Status = ap;
 	bsp();
 	while(1)
@@ -33,24 +32,7 @@ void main(void)
 		switch(Status)
 		{
 			case ap:
-				if(wifi_receive())
-				{
-					debug(WIFI_RBUF);
-					p = strstr(WIFI_RBUF, HTTP_REQUEST_INDEX);
-					if(p)
-						http_send(HTTP_INDEX_CONTENT);
-					else
-					{
-						p = strstr(WIFI_RBUF, HTTP_REQUEST_CONTROL);
-						if(p)
-						{
-							if(DevicesControl(p) == 1)
-								http_send(HTTP_INDEX_CONTENT);
-							else
-								http_send("Devices control Fail !!!");
-						}
-					}
-				}
+				AP_MSG_Handle();
 				break;
 			case client:
 				break;

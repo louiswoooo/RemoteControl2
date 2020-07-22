@@ -10,11 +10,14 @@
 	#if DEBUG_PORT==USART4
 		#define debug_init()			Usart4Init()
 		#define debug(x)				Usart4SendString(x)
-		#define debug_var(var)			DebugVar(var)
+		#define debug_var(var)		DebugVar(var)
+		#define debug_vip(x)			DebugVIP(x)
+
 	#else 
 		#define debug_init()			Usart1Init()
 		#define debug(x)				Usart1SendString(x)
-		#define debug_var(var)			DebugVar(var)
+		#define debug_var(var)		DebugVar(var)
+		#define debug_vip(x)			DebugVIP(x)
 	#endif
 #else
 		#define debug(x)	
@@ -25,5 +28,6 @@
 void Usart2Init(void);		
 void Usart2SendString(u8 *str);
 void DebugVar(u16 var);
+void DebugVIP(u8 *str);
 
 #endif

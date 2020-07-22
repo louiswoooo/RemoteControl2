@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   DEBUG                                                             07/18/2020 18:57:35 PAGE 1   
+C51 COMPILER V9.56.0.0   DEBUG                                                             07/22/2020 17:31:04 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DEBUG
@@ -36,12 +36,18 @@ line level    source
   26   1        num[5]='\0';
   27   1        debug(num);
   28   1      }
+  29          void DebugVIP(u8 *str)
+  30          {
+  31   1        debug("*************************"); 
+  32   1        debug(str);
+  33   1        debug("\r\n");
+  34   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    133    ----
-   CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =   ----       6
+   CODE SIZE        =    176    ----
+   CONSTANT SIZE    =     29    ----
+   XDATA SIZE       =   ----       9
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

@@ -120,12 +120,14 @@ void wifi_reset(void)
   * @param:	none
   * @retval:	返回接收到的字节数，接收到的块存在缓存RX2_Buffer
 *****************************************************************************************/
-u8 wifi_send(u8 *p)
+u8 wifi_send(u8 *client_id, u8 *p)
 {
 	u8 temp[6];
-	u8 cmd[30]="AT+CIPSEND=0,";
+	u8 cmd[30]="AT+CIPSEND=";
 	u8 *str;
 	u16 send_len = strlen(p);
+	strcat(cmd, client_id);
+	strcat(cmd, ",");
 	str = int_to_str(temp, send_len);
 	strcat(cmd, str);
 	strcat(cmd, "\r\n");
@@ -141,7 +143,7 @@ u8 wifi_send(u8 *p)
 	return SUCCESS;
 }
 
-u8 http_send(u8 *content)
+u8 http_send(u8 *client_id, u8 *content)
 {
 	u8 http_content_lenth_string[10];
 	u8 temp[6];
@@ -149,16 +151,16 @@ u8 http_send(u8 *content)
 	u16 content_size = strlen(content);
 	
 	memset(http_content_lenth_string, 0, sizeof(http_content_lenth_string));
-	if(!wifi_send(HTTP_H1) )		//发送http 头，不包括content_length
+	if(!wifi_send(client_id, HTTP_H1) )		//发送http 头，不包括content_length
 		return FAIL;
 	
 	p = int_to_str( temp, content_size);			//发送content_length和两个换行符
 	strcat(http_content_lenth_string, p);
 	strcat(http_content_lenth_string,"\r\n\r\n");
-	if(!wifi_send(http_content_lenth_string))
+	if(!wifi_send(client_id, http_content_lenth_string))
 		return FAIL;
 	
-	if(!wifi_send(content))		//发送内容
+	if(!wifi_send(client_id, content))		//发送内容
 		return FAIL;
 	return SUCCESS;
 

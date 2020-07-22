@@ -26,3 +26,9 @@ void DebugVar(u16 var)
 	num[5]='\0';
 	debug(num);
 }
+void DebugVIP(u8 *str)
+{
+	debug("*************************");	
+	debug(str);
+	debug("\r\n");
+}

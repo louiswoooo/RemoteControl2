@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 1   
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DEVICES
@@ -62,7 +62,7 @@ line level    source
   52   1      }
   53          
   54          static u8 DHT11_rec_byte(void)      //接收一个字节
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 2   
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 2   
 
   55          {   
   56   1        u8 i,dat=0;  
@@ -113,7 +113,7 @@ line level    source
  101          static u8 SwitchControl(u8 *buf)
  102          {
  103   1        u8 *cmd=buf;
- 104   1        switch(*(cmd+sizeof(KEYWORD_SWITCH)))
+ 104   1        switch(*(cmd+sizeof(KEYWORD_SWITCH)-1))
  105   1        {
  106   2          case '1':
  107   2            if(strstr((char *)cmd, "ON"))
@@ -126,7 +126,7 @@ line level    source
  114   3              SWITCH1_OFF();
  115   3              debug("1 off!\r\n");
  116   3            }
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 3   
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 3   
 
  117   2            break;
  118   2          case '2':
@@ -190,7 +190,7 @@ line level    source
  176   1          return 0;
  177   1      }
  178          static u8 LightOff(u8 light_id)
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 4   
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 4   
 
  179          {
  180   1        if (light_id==LIGHT1_ID)
@@ -254,7 +254,7 @@ line level    source
  238   2        }
  239   1        else 
  240   1          return 0;
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 5   
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 5   
 
  241   1      }
  242          
@@ -318,7 +318,7 @@ line level    source
  300   1        else
  301   1        {
  302   2          debug("invalid command111\r\n");
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 6   
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 6   
 
  303   2        }
  304   1        return 1;
@@ -372,30 +372,31 @@ line level    source
  352          u8 DevicesControl(u8 *cmd)
  353          {
  354   1        u8 *p;
- 355   1        if(p=strstr(cmd, KEYWORD_SWITCH))
- 356   1        {
- 357   2          if(SwitchControl(p))
- 358   2            return 1;
- 359   2          else
- 360   2            return 0;
- 361   2        }
- 362   1        else if(p=strstr(cmd, KEYWORD_LIGHT))
- 363   1          LightControl(p);
- 364   1        else if(p=strstr(cmd, KEYWORD_TEMP))
-C51 COMPILER V9.56.0.0   DEVICES                                                           07/20/2020 16:39:58 PAGE 7   
+ 355   1        p=strstr(cmd, KEYWORD_SWITCH);
+ 356   1        if(p)
+ 357   1        {
+ 358   2          if(SwitchControl(p))
+ 359   2            return 1;
+ 360   2          else
+ 361   2            return 0;
+ 362   2        }
+ 363   1        else if(p=strstr(cmd, KEYWORD_LIGHT))
+ 364   1          LightControl(p);
+C51 COMPILER V9.56.0.0   DEVICES                                                           07/22/2020 17:32:36 PAGE 7   
 
- 365   1          DHT11_Receive(p);
- 366   1        else if(p=strstr(cmd, KEYWORD_HUMI))
- 367   1          DHT11_Receive(p);
- 368   1        
- 369   1      }
- 370          
- 371          
-*** WARNING C291 IN LINE 369 OF APP\devices.c: not every exit path returns a value
+ 365   1        else if(p=strstr(cmd, KEYWORD_TEMP))
+ 366   1          DHT11_Receive(p);
+ 367   1        else if(p=strstr(cmd, KEYWORD_HUMI))
+ 368   1          DHT11_Receive(p);
+ 369   1        
+ 370   1        return 1;
+ 371   1      }
+ 372          
+ 373          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1949    ----
+   CODE SIZE        =   1953    ----
    CONSTANT SIZE    =    293    ----
    XDATA SIZE       =      2      44
    PDATA SIZE       =   ----    ----
@@ -405,4 +406,4 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

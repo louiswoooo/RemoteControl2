@@ -101,7 +101,7 @@ static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
 static u8 SwitchControl(u8 *buf)
 {
 	u8 *cmd=buf;
-	switch(*(cmd+sizeof(KEYWORD_SWITCH)))
+	switch(*(cmd+sizeof(KEYWORD_SWITCH)-1))
 	{
 		case '1':
 			if(strstr((char *)cmd, "ON"))
@@ -352,7 +352,8 @@ void DevicesInit(void)
 u8 DevicesControl(u8 *cmd)
 {
 	u8 *p;
-	if(p=strstr(cmd, KEYWORD_SWITCH))
+	p=strstr(cmd, KEYWORD_SWITCH);
+	if(p)
 	{
 		if(SwitchControl(p))
 			return 1;
@@ -366,6 +367,7 @@ u8 DevicesControl(u8 *cmd)
 	else if(p=strstr(cmd, KEYWORD_HUMI))
 		DHT11_Receive(p);
 	
+	return 1;
 }
 
 
