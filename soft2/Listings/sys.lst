@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 00:05:02 PAGE 1   
+C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 16:03:46 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE SYS
 OBJECT MODULE PLACED IN .\Objects\sys.obj
-COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\sys.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG O
-                    -BJECTEXTEND PRINT(.\Listings\sys.lst) TABS(2) OBJECT(.\Objects\sys.obj)
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\sys.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_
+                    -LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\sys.lst) TABS(2) OBJECT(.\Objects\sys.obj)
 
 line level    source
 
@@ -22,136 +22,135 @@ line level    source
   12          #include "config.h"
   13          #include "debug.h"
   14          #include "usart.h"
-  15          
+  15          #include "sys.h"
   16          
-  17          #define TICK_PER_SECOND 100     //定义每秒的时间片sys_tick数
-  18          u8 sys_tick;                    //时间片计数器
-  19          u8 second,minute,hour;          //时钟任务变量
-  20          
-  21          /****************************************************************************************
-  22            * @brief: 初始化时间片定时器t0，初始化时钟任务变量 
-  23            * @param: none
-  24            * @retval:  none
-  25          *****************************************************************************************/
-  26          void sys_tick_init(void)    //10毫秒@22.1184MHz
-  27          {
-  28   1        AUXR &= 0x7F;   //定时器时钟12T模式
-  29   1        TMOD &= 0xF0;   //设置定时器模式
-  30   1        TL0 = 0x00;   //设置定时初值
-  31   1        TH0 = 0xB8;   //设置定时初值
-  32   1        TF0 = 0;    //清除TF0标志
-  33   1        TR0 = 1;    //定时器0开始计时
-  34   1      
-  35   1        ET0=1;
-  36   1      
-  37   1        sys_tick=TICK_PER_SECOND;
-  38   1        second=0;
-  39   1        minute=0;
-  40   1        hour=0;
-  41   1      }
-  42          
-  43          /****************************************************************************************
-  44            * @brief: 时间片定时器中断服务程序，每个任务计数器-1
-  45                  对每个任务计时器-1
-  46                  对串口的接收超时时间-1
-  47            * @param: none
-  48            * @retval:  none
-  49          *****************************************************************************************/
-  50          void sys_tick_int(void) interrupt TIMER0_VECTOR using 1
-  51          {
-  52   1        if(sys_tick>0)
-  53   1        {
-  54   2          sys_tick--;
-C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 00:05:02 PAGE 2   
+  17          u8 sys_tick;                    //时间片计数器
+  18          u8 second,minute,hour;          //时钟任务变量
+  19          
+  20          /****************************************************************************************
+  21            * @brief: 初始化时间片定时器t0，初始化时钟任务变量 
+  22            * @param: none
+  23            * @retval:  none
+  24          *****************************************************************************************/
+  25          void sys_tick_init(void)    //10毫秒@22.1184MHz
+  26          {
+  27   1        AUXR &= 0x7F;   //定时器时钟12T模式
+  28   1        TMOD &= 0xF0;   //设置定时器模式
+  29   1        TL0 = 0x00;   //设置定时初值
+  30   1        TH0 = 0xB8;   //设置定时初值
+  31   1        TF0 = 0;    //清除TF0标志
+  32   1        TR0 = 1;    //定时器0开始计时
+  33   1      
+  34   1        ET0=1;
+  35   1      
+  36   1        sys_tick=TICK_PER_SECOND;
+  37   1        second=0;
+  38   1        minute=0;
+  39   1        hour=0;
+  40   1      }
+  41          
+  42          /****************************************************************************************
+  43            * @brief: 时间片定时器中断服务程序，每个任务计数器-1
+  44                  对每个任务计时器-1
+  45                  对串口的接收超时时间-1
+  46            * @param: none
+  47            * @retval:  none
+  48          *****************************************************************************************/
+  49          void sys_tick_int(void) interrupt TIMER0_VECTOR using 1
+  50          {
+  51   1        if(sys_tick>0)
+  52   1        {
+  53   2          sys_tick--;
+  54   2        }
+C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 16:03:46 PAGE 2   
 
-  55   2        }
-  56   1        
-  57   1        if(COM2.B_RX_EN)      //如果允许串口接收
-  58   1        {
-  59   2          if(COM2.RX_TimeOut>0)     //计时器大于0
-  60   2          {
-  61   3            COM2.RX_TimeOut--;    //计时器-1
-  62   3            if(0==COM2.RX_TimeOut)  //如果计时器倒计时完毕
-  63   3            {
-  64   4              COM2.B_RX_EN=0; //禁止接收
-  65   4              if(COM2.RX_Cnt>0) //如果收到数据
-  66   4              {
-  67   5                RX2_Buffer[COM2.RX_Cnt]='\0'; //添加0
-  68   5                COM2.B_RX_OK=1;       //设置块接收完毕标志
-  69   5              }
-  70   4            }
-  71   3          }
-  72   2        }
-  73   1      }
-  74          /****************************************************************************************
-  75            * @brief: 时钟任务，每隔1s打印时间
-  76            * @param: none
-  77            * @retval:  none
-  78          *****************************************************************************************/
-  79          /*void task0_Clock(void)
-  80          {
-  81            if(sys_tick == 0)
-  82            {
-  83              sys_tick=TICK_PER_SECOND;
-  84              second++;
-  85              if(second>=60)
-  86              {
-  87                second=0;
-  88                minute++;
-  89                if(minute>=60)
-  90                {
-  91                  minute=0;
-  92                  hour++;
-  93                }
-  94              }
-  95              debug("时间：");
-  96              debug_var((u16)hour);
-  97              debug(":");
-  98              debug_var((u16)minute);
-  99              debug(":");
- 100              debug_var((u16)second);
- 101              debug("\r\n");
- 102            }
- 103          }
- 104          //进入空闲
- 105          void sys_idle(void)
- 106          {
- 107            PCON = 0x01;
- 108          }
- 109          //进入睡眠
- 110          void sys_sleep(void)
- 111          {
- 112            PCON = 0x02;
- 113          }
- 114          
- 115          #define DOG_FLAG_MASK     0x80
- 116          #define DOG_ENABLE_MASK   0x20
-C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 00:05:02 PAGE 3   
+  55   1        
+  56   1        if(COM2.B_RX_EN)      //如果允许串口接收
+  57   1        {
+  58   2          if(COM2.RX_TimeOut>0)     //计时器大于0
+  59   2          {
+  60   3            COM2.RX_TimeOut--;    //计时器-1
+  61   3            if(0==COM2.RX_TimeOut)  //如果计时器倒计时完毕
+  62   3            {
+  63   4              COM2.B_RX_EN=0; //禁止接收
+  64   4              if(COM2.RX_Cnt>0) //如果收到数据
+  65   4              {
+  66   5                RX2_Buffer[COM2.RX_Cnt]='\0'; //添加0
+  67   5                COM2.B_RX_OK=1;       //设置块接收完毕标志
+  68   5              }
+  69   4            }
+  70   3          }
+  71   2        }
+  72   1      }
+  73          /****************************************************************************************
+  74            * @brief: 时钟任务，每隔1s打印时间
+  75            * @param: none
+  76            * @retval:  none
+  77          *****************************************************************************************/
+  78          /*void task0_Clock(void)
+  79          {
+  80            if(sys_tick == 0)
+  81            {
+  82              sys_tick=TICK_PER_SECOND;
+  83              second++;
+  84              if(second>=60)
+  85              {
+  86                second=0;
+  87                minute++;
+  88                if(minute>=60)
+  89                {
+  90                  minute=0;
+  91                  hour++;
+  92                }
+  93              }
+  94              debug("时间：");
+  95              debug_var((u16)hour);
+  96              debug(":");
+  97              debug_var((u16)minute);
+  98              debug(":");
+  99              debug_var((u16)second);
+ 100              debug("\r\n");
+ 101            }
+ 102          }
+ 103          //进入空闲
+ 104          void sys_idle(void)
+ 105          {
+ 106            PCON = 0x01;
+ 107          }
+ 108          //进入睡眠
+ 109          void sys_sleep(void)
+ 110          {
+ 111            PCON = 0x02;
+ 112          }
+ 113          
+ 114          #define DOG_FLAG_MASK     0x80
+ 115          #define DOG_ENABLE_MASK   0x20
+ 116          #define DOG_CLEAR_MASK    0x10
+C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 16:03:46 PAGE 3   
 
- 117          #define DOG_CLEAR_MASK    0x10
- 118          #define DOG_IDLECOUNT_MASK 0x08
- 119          #define DOG_PRESCALER_MASK      0xf8
- 120          #define DOG_PRESCALER     6
- 121          
- 122          //看门狗配置
- 123          //使能，清看门狗，空闲计数
- 124          void dog_init(void)
- 125          {
- 126            WDT_CONTR =0x00;
- 127            WDT_CONTR = DOG_ENABLE_MASK | DOG_CLEAR_MASK | DOG_IDLECOUNT_MASK;
- 128            WDT_CONTR |= DOG_PRESCALER;
- 129            
- 130          }
- 131          //清看门狗
- 132          void dog_clear(void)
- 133          {
- 134            WDT_CONTR |= DOG_CLEAR_MASK;
- 135          }
- 136          */
+ 117          #define DOG_IDLECOUNT_MASK 0x08
+ 118          #define DOG_PRESCALER_MASK      0xf8
+ 119          #define DOG_PRESCALER     6
+ 120          
+ 121          //看门狗配置
+ 122          //使能，清看门狗，空闲计数
+ 123          void dog_init(void)
+ 124          {
+ 125            WDT_CONTR =0x00;
+ 126            WDT_CONTR = DOG_ENABLE_MASK | DOG_CLEAR_MASK | DOG_IDLECOUNT_MASK;
+ 127            WDT_CONTR |= DOG_PRESCALER;
+ 128            
+ 129          }
+ 130          //清看门狗
+ 131          void dog_clear(void)
+ 132          {
+ 133            WDT_CONTR |= DOG_CLEAR_MASK;
+ 134          }
+ 135          */
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    122    ----
+   CODE SIZE        =    143    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      4    ----
    PDATA SIZE       =   ----    ----

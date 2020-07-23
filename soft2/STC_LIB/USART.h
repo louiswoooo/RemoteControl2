@@ -49,7 +49,7 @@ typedef struct
 	u8	B_TX_busy;		//忙标志
 
 	u16 	RX_Cnt;			//接收字节计数
-	u8	RX_TimeOut;		//接收超时
+	u16	RX_TimeOut;		//接收超时
 	u8	B_RX_EN;		//允许接收块
 	u8	B_RX_OK;		//允许接收块
 	

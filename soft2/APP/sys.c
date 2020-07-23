@@ -12,9 +12,8 @@
 #include "config.h"
 #include "debug.h"
 #include "usart.h"
+#include "sys.h"
 
-
-#define TICK_PER_SECOND	100			//定义每秒的时间片sys_tick数
 u8 sys_tick;										//时间片计数器
 u8 second,minute,hour;					//时钟任务变量
 
