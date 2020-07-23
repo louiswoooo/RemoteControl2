@@ -3,7 +3,7 @@
 #include "string.h"
 #include "debug.h"
 
-#define AP_MSG_KEYWORD	"+PID,"
+#define AP_MSG_KEYWORD	"+IPD,"
 
 u8 code HTTP_H1[]="HTTP/1.0 200 OK\r\n\
 Content-Type: text/html; charset=utf-8\r\n\
@@ -55,13 +55,17 @@ u8 code HTTP_INDEX_CONTENT[]	=	"<!DOCTYPE html>\r\n\
 
 void AP_MSG_Handle(void)
 {
-	u8 *p;
+	u8 *p, *temp;
 	u8 client_id[2];
-	debug(WIFI_RBUF);
-	if(strstr(WIFI_RBUF, AP_MSG_KEYWORD))
+	debug_vip(WIFI_RBUF);
+	temp = strstr(WIFI_RBUF, "HTTP");
+	*temp = 0x00;
+	p = strstr(WIFI_RBUF, AP_MSG_KEYWORD);
+	if(p)
 	{
-		debug_vip(WIFI_RBUF + sizeof(AP_MSG_KEYWORD)-1);
-		client_id[0] = *(WIFI_RBUF + sizeof(AP_MSG_KEYWORD)-1);
+		p = p + sizeof(AP_MSG_KEYWORD)-1;
+		debug_vip(p);
+		client_id[0] = *p;
 		client_id[1] = '\0';
 		p = strstr(WIFI_RBUF, HTTP_REQUEST_INDEX);
 		if(p)
@@ -74,9 +78,9 @@ void AP_MSG_Handle(void)
 			if(p)
 			{
 				if(DevicesControl(p) == 1)
-					http_send(HTTP_INDEX_CONTENT);
+					http_send(client_id, HTTP_INDEX_CONTENT);
 				else
-					http_send("Devices control Fail !!!");
+					http_send(client_id, "Devices control Fail !!!");
 			}
 		}
 	}

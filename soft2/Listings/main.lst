@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              07/22/2020 17:32:37 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              07/23/2020 00:05:01 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN .\Objects\main.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\main.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC
-                    -_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\main.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
 
 line level    source
 
@@ -42,28 +42,31 @@ line level    source
   32   2          switch(Status)
   33   2          {
   34   3            case ap:
-  35   3              AP_MSG_Handle();
-  36   3              break;
-  37   3            case client:
-  38   3              break;
-  39   3            default:
-  40   3              break;
-  41   3          }
-  42   2          
-  43   2        }
-  44   1      }
+  35   3              if(wifi_receive())
+  36   3              {
+  37   4                AP_MSG_Handle();
+  38   4              }
+  39   3              break;
+  40   3            case client:
+  41   3              break;
+  42   3            default:
+  43   3              break;
+  44   3          }
+  45   2          
+  46   2        }
+  47   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     21    ----
+   CODE SIZE        =     27    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      1    ----
    PDATA SIZE       =   ----    ----
+C51 COMPILER V9.56.0.0   MAIN                                                              07/23/2020 00:05:01 PAGE 2   
+
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
-C51 COMPILER V9.56.0.0   MAIN                                                              07/22/2020 17:32:37 PAGE 2   
-
 END OF MODULE INFORMATION.
 
 

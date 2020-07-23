@@ -101,6 +101,9 @@ static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
 static u8 SwitchControl(u8 *buf)
 {
 	u8 *cmd=buf;
+	debug(">>>>>>>>>>>>>>");
+	debug(cmd);
+	debug("\r\n");
 	switch(*(cmd+sizeof(KEYWORD_SWITCH)-1))
 	{
 		case '1':

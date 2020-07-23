@@ -33,7 +33,7 @@
 /*设置串口超时时间，以块为接收单位，如果在超时时间内
 没有接收到新的字节，则认为块接收结束*/
 #define	TimeOutSet1		5
-#define	TimeOutSet2		10
+#define	TimeOutSet2		5
 #define	TimeOutSet3		5
 #define	TimeOutSet4		5
 

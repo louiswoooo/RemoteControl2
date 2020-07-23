@@ -137,7 +137,7 @@ u8 wifi_send(u8 *client_id, u8 *p)
 
 	if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))		//·¢ËÍ·¢ËÍÃüÁî
 		return FAIL;
-	if( !WIFI_SendAndWait(p, "OK", 300))			//·¢ËÍÄÚÈÝ
+	if( !WIFI_SendAndWait(p, "SEND OK", 300))			//·¢ËÍÄÚÈÝ
 		return FAIL;
 
 	return SUCCESS;
@@ -207,7 +207,10 @@ u8 *WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ticks)
 		{
 			debug(RX2_Buffer);
 			if(p=strstr(RX2_Buffer,match))
+			{
+				debug_vip("match");
 				return 1;
+			}
 		}
 	}
 	return 0;

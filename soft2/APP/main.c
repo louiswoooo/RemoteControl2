@@ -32,7 +32,10 @@ void main(void)
 		switch(Status)
 		{
 			case ap:
-				AP_MSG_Handle();
+				if(wifi_receive())
+				{
+					AP_MSG_Handle();
+				}
 				break;
 			case client:
 				break;

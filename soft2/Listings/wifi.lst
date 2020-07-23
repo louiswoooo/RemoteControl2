@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   WIFI                                                              07/22/2020 17:32:37 PAGE 1   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/23/2020 00:13:03 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE WIFI
 OBJECT MODULE PLACED IN .\Objects\wifi.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\wifi.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC
-                    -_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\wifi.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG 
+                    -OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52          
   53          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
   54          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
-C51 COMPILER V9.56.0.0   WIFI                                                              07/22/2020 17:32:37 PAGE 2   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/23/2020 00:13:03 PAGE 2   
 
   55          
   56          /*
@@ -126,7 +126,7 @@ line level    source
  114   1      }
  115          /****************************************************************************************
  116            * @brief: esp8266 发送函数，先发送准备发送的命令，AT+CIPSEND=clientid,length  ，
-C51 COMPILER V9.56.0.0   WIFI                                                              07/22/2020 17:32:37 PAGE 3   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/23/2020 00:13:03 PAGE 3   
 
  117                  参数是client的号（0-4），和发送数据的长度，然后才是内容，
  118                  如果length大于实际发送的数据长度，则此次发送不发生，
@@ -151,7 +151,7 @@ line level    source
  137   1      
  138   1        if( !WIFI_SendAndWait(AP_Send_Para.send, AP_Para1.match, AP_Para1.timeout_ticks))   //发送发送命令
  139   1          return FAIL;
- 140   1        if( !WIFI_SendAndWait(p, "OK", 300))      //发送内容
+ 140   1        if( !WIFI_SendAndWait(p, "SEND OK", 300))     //发送内容
  141   1          return FAIL;
  142   1      
  143   1        return SUCCESS;
@@ -190,7 +190,7 @@ line level    source
  176          u8 wifi_receive()
  177          {
  178   1        COM2.B_RX_EN=1;
-C51 COMPILER V9.56.0.0   WIFI                                                              07/22/2020 17:32:37 PAGE 4   
+C51 COMPILER V9.56.0.0   WIFI                                                              07/23/2020 00:13:03 PAGE 4   
 
  179   1        COM2.RX_Cnt=0;
  180   1        COM2.B_RX_OK=0;
@@ -218,57 +218,61 @@ line level    source
  202   1        u16 i;
  203   1        for(i = timeout_ticks/TimeOutSet2; i>0; i--)
  204   1        {
- 205   2          Usart2SendString(send);
- 206   2          if(wifi_receive())
- 207   2          {
- 208   3            debug(RX2_Buffer);
- 209   3            if(p=strstr(RX2_Buffer,match))
- 210   3              return 1;
- 211   3          }
- 212   2        }
- 213   1        return 0;
- 214   1      }
- 215          
- 216          u8 WIFI_Set_AP_mode(void)
- 217          {/*
- 218   1        if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
- 219   1          return FAIL;
- 220   1        delay_s(5);
- 221   1        */
- 222   1        if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
+ 205   2          debug_vip(send);
+ 206   2          Usart2SendString(send);
+ 207   2          if(wifi_receive())
+ 208   2          {
+ 209   3            debug(RX2_Buffer);
+ 210   3            if(p=strstr(RX2_Buffer,match))
+ 211   3            {
+ 212   4              debug_vip("match");
+ 213   4              return 1;
+ 214   4            }
+ 215   3          }
+ 216   2        }
+ 217   1        return 0;
+ 218   1      }
+ 219          
+ 220          u8 WIFI_Set_AP_mode(void)
+ 221          {/*
+ 222   1        if( !WIFI_SendAndWait(AP_Para0.send, AP_Para0.match, AP_Para0.timeout_ticks))
  223   1          return FAIL;
- 224   1        if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
- 225   1        {
- 226   2          delay_s(2);
- 227   2          return FAIL;
- 228   2        }
- 229   1        if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
- 230   1          return FAIL;
- 231   1        delay_s(5);
- 232   1        if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
- 233   1          return FAIL;
- 234   1        if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))
- 235   1          return FAIL;
- 236   1        if( !WIFI_SendAndWait(AP_Para6.send, AP_Para6.match, AP_Para6.timeout_ticks))
+ 224   1        delay_s(5);
+ 225   1        */
+ 226   1        if( !WIFI_SendAndWait(AP_Para1.send, AP_Para1.match, AP_Para1.timeout_ticks))
+ 227   1          return FAIL;
+ 228   1        if( !WIFI_SendAndWait(AP_Para2.send, AP_Para2.match, AP_Para2.timeout_ticks))
+ 229   1        {
+ 230   2          delay_s(2);
+ 231   2          return FAIL;
+ 232   2        }
+ 233   1        if( !WIFI_SendAndWait(AP_Para3.send, AP_Para3.match, AP_Para3.timeout_ticks))
+ 234   1          return FAIL;
+ 235   1        delay_s(5);
+ 236   1        if( !WIFI_SendAndWait(AP_Para4.send, AP_Para4.match, AP_Para4.timeout_ticks))
  237   1          return FAIL;
- 238   1        return SUCCESS;
- 239   1      }
- 240          
-C51 COMPILER V9.56.0.0   WIFI                                                              07/22/2020 17:32:37 PAGE 5   
+ 238   1        if( !WIFI_SendAndWait(AP_Para5.send, AP_Para5.match, AP_Para5.timeout_ticks))
+ 239   1          return FAIL;
+ 240   1        if( !WIFI_SendAndWait(AP_Para6.send, AP_Para6.match, AP_Para6.timeout_ticks))
+C51 COMPILER V9.56.0.0   WIFI                                                              07/23/2020 00:13:03 PAGE 5   
 
- 241          /*
- 242          u8 WIFI_Set_Client_mode(void)
- 243          {
- 244            
- 245          
- 246          }
- 247          */
- 248          
+ 241   1          return FAIL;
+ 242   1        return SUCCESS;
+ 243   1      }
+ 244          
+ 245          /*
+ 246          u8 WIFI_Set_Client_mode(void)
+ 247          {
+ 248            
+ 249          
+ 250          }
+ 251          */
+ 252          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1346    ----
-   CONSTANT SIZE    =    185    ----
+   CODE SIZE        =   1370    ----
+   CONSTANT SIZE    =    199    ----
    XDATA SIZE       =     64      94
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
