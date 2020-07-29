@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 16:03:46 PAGE 1   
+C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 20:48:32 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE SYS
 OBJECT MODULE PLACED IN .\Objects\sys.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\sys.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_
-                    -LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\sys.lst) TABS(2) OBJECT(.\Objects\sys.obj)
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\sys.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG O
+                    -BJECTEXTEND PRINT(.\Listings\sys.lst) TABS(2) OBJECT(.\Objects\sys.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52   1        {
   53   2          sys_tick--;
   54   2        }
-C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 16:03:46 PAGE 2   
+C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 20:48:32 PAGE 2   
 
   55   1        
   56   1        if(COM2.B_RX_EN)      //如果允许串口接收
@@ -126,7 +126,7 @@ line level    source
  114          #define DOG_FLAG_MASK     0x80
  115          #define DOG_ENABLE_MASK   0x20
  116          #define DOG_CLEAR_MASK    0x10
-C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 16:03:46 PAGE 3   
+C51 COMPILER V9.56.0.0   SYS                                                               07/23/2020 20:48:32 PAGE 3   
 
  117          #define DOG_IDLECOUNT_MASK 0x08
  118          #define DOG_PRESCALER_MASK      0xf8

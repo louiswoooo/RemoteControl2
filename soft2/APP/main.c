@@ -34,7 +34,9 @@ void main(void)
 			case ap:
 				if(wifi_receive())
 				{
-					AP_MSG_Handle();
+					debug_vip(WIFI_RBUF);
+					if(strstr(WIFI_RBUF, "GET"))
+						AP_MSG_Handle();
 				}
 				break;
 			case client:

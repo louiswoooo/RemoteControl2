@@ -57,9 +57,10 @@ void AP_MSG_Handle(void)
 {
 	u8 *p, *temp;
 	u8 client_id[2];
-	debug_vip(WIFI_RBUF);
+	debug(">>>>>>>>>>>>>>>>>>>>AP_MSG_Handle\r\n");
 	temp = strstr(WIFI_RBUF, "HTTP");
-	*temp = 0x00;
+	if(temp)
+		*temp = 0x00;
 	p = strstr(WIFI_RBUF, AP_MSG_KEYWORD);
 	if(p)
 	{
