@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   BSP                                                               07/23/2020 20:48:31 PAGE 1   
+C51 COMPILER V9.56.0.0   BSP                                                               07/29/2020 22:02:59 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE BSP
@@ -39,9 +39,9 @@ line level    source
   29   1        {
   30   2          debug("wifi reset\r\n");
   31   2          wifi_reset();
-  32   2          if(WIFI_Set_AP_mode())
+  32   2          if(WIFI_Set_Client_mode())
   33   2          {
-  34   3            debug("wifi set ap sucess\r\n");
+  34   3            debug("wifi set Client sucess\r\n");
   35   3            break;
   36   3          }
   37   2        }   
@@ -49,11 +49,26 @@ line level    source
   39   1      }
   40          
   41          
+  42          /*
+  43            while(1)
+  44            {
+  45              debug("wifi reset\r\n");
+  46              wifi_reset();
+  47              if(WIFI_Set_AP_mode())
+  48              {
+  49                debug("wifi set ap sucess\r\n");
+  50                break;
+  51              }
+  52            }   
+  53          
+  54          */
+C51 COMPILER V9.56.0.0   BSP                                                               07/29/2020 22:02:59 PAGE 2   
+
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =     79    ----
-   CONSTANT SIZE    =     46    ----
+   CONSTANT SIZE    =     50    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

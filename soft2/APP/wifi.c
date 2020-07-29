@@ -14,10 +14,10 @@
 #define SERVER_ADDR		"119.3.233.56"
 #define SERVER_PORT		8000
 
-#define WIFI_CMD_TIMEOUT_MS	200
+#define WIFI_CMD_TIMEOUT_MS	3000
 #define WIFI_CMD_TRY_TIMES		5
 
-#define WIFI_SEND_TIMEOUT_MS	500
+#define WIFI_SEND_TIMEOUT_MS	3000
 #define WIFI_SEND_TRY_TIMES	3
 
 typedef	struct	
@@ -28,7 +28,8 @@ typedef	struct
 _t_WIFI_CMD_Info;
 
 /*****************************************************************************
-ESP8266配置变量
+设置ESP8266 服务端模式命令和答复关键字
+连接流程:设置AP模式-设置ssid和密码-重启-设置多链接-开启服务器-查看ip
 *******************************************************************************/
 //恢复出厂设置
 const _t_WIFI_CMD_Info	CMD_Restore={"AT+RESTORE\r\n", "OK"};                
@@ -49,6 +50,18 @@ const _t_WIFI_CMD_Info	CMD_IP={"AT+CIFSR\r\n", "OK"};
 //ap模式下的发送命令，0连接客户端，170发送字节长度
 _t_WIFI_CMD_Info 	CMD_Send= {"AT+CIPSEND=0,170\r\n", "OK"};
 
+/*****************************************************************************
+设置ESP8266 客户端 模式命令和答复关键字
+连接流程:设置STA模式-重启-连接wifi-开启单链接-建立TCP连接
+*******************************************************************************/
+//##配置ESP8266模块为Station 模式，开启wifi热点。
+const _t_WIFI_CMD_Info	CMD_STAMode={"AT+CWMODE=1\r\n", "OK"};   
+//连接路由器，wifi名：HiTV_woo。密码：1234567890。
+const _t_WIFI_CMD_Info	CMD_Connect_WIFI={"AT+CWJAP=\"HiTV_woo\",\"1234567890\"\r\n", "OK"};                
+//开启单链接
+const _t_WIFI_CMD_Info	CMD_Single={"AT+CIPMUX=0\r\n", "OK"};                
+//建立TCP 连接
+const _t_WIFI_CMD_Info	CMD_Connect_Server={"AT+CIPSTART=\"TCP\",\"192.168.43.118\",5000\r\n", "OK"};        
 
 #define WIFI_GPIO_PORT		GPIO_P5
 #define WIFI_GPIO_PIN		GPIO_Pin_3
@@ -131,7 +144,7 @@ u8 WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ms)
 	u8 *p;
 	u8 i;
 	Usart2SendString(send);			//发送命令
-	for(i = timeout_ms/(TimeOutSet2 * MS_PER_TICK); i>0; i--)		//计算超时次数
+	for(i = timeout_ms/(TimeOutSet2 * MS_PER_TICK); i>0; i--)		
 	{
 		if(wifi_receive())			//等待块消息
 		{
@@ -172,6 +185,24 @@ u8 send_to_client(u8 *client_id, u8 *p)
 
 	return SUCCESS;
 }
+u8 send_to_server( u8 *p)
+{
+	u8 temp[6];
+	u8 cmd[30]="AT+CIPSEND=";
+	u8 *str;
+	u16 send_len = strlen(p);
+	str = int_to_str(temp, send_len);
+	strcat(cmd, str);					//组合长度
+	strcat(cmd, "\r\n");
+
+	if( !WIFI_SendAndWait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))		//发送发送命令
+		return FAIL;
+	if( !WIFI_SendAndWait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))			//发送内容
+		return FAIL;
+
+	return SUCCESS;
+}
+
 /****************************************************************************************
   * @brief:	http送函数，先发送发送http 头，然后是content_length，最后content
   * @param:	client_id，连接的客户端id， p发送内容指针
@@ -208,7 +239,6 @@ u8 WIFI_Set_AP_mode(void)
 		return FAIL;
 	if( !WIFI_SendAndWait(CMD_SSID.send, CMD_SSID.match, WIFI_CMD_TIMEOUT_MS ))
 	{
-		delay_s(2);
 		return FAIL;
 	}
 	if( !WIFI_SendAndWait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
@@ -219,6 +249,26 @@ u8 WIFI_Set_AP_mode(void)
 	if( !WIFI_SendAndWait(CMD_Server.send, CMD_Server.match, WIFI_CMD_TIMEOUT_MS ))
 		return FAIL;
 	if( !WIFI_SendAndWait(CMD_IP.send, CMD_IP.match, WIFI_CMD_TIMEOUT_MS ))
+		return FAIL;
+	return SUCCESS;
+}
+
+u8 WIFI_Set_Client_mode(void)
+{
+	if( !WIFI_SendAndWait(CMD_STAMode.send, CMD_STAMode.match, WIFI_CMD_TIMEOUT_MS))
+		return FAIL;
+	if( !WIFI_SendAndWait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
+		return FAIL;
+	delay_s(3);
+	//注意wifi连接用时较长
+	if( !WIFI_SendAndWait(CMD_Connect_WIFI.send, CMD_Connect_WIFI.match, 20000 ))	
+	{
+		return FAIL;
+	}
+	if( !WIFI_SendAndWait(CMD_Single.send, CMD_Single.match, WIFI_CMD_TIMEOUT_MS ))
+		return FAIL;
+	//服务器连接也给较长时间
+	if( !WIFI_SendAndWait(CMD_Connect_Server.send, CMD_Connect_Server.match, 10000 ))
 		return FAIL;
 	return SUCCESS;
 }

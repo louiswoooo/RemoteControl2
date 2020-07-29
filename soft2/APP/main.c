@@ -25,7 +25,7 @@ _t_status Status;
 
 void main(void)
 {
-	Status = ap;
+	Status = client;
 	bsp();
 	while(1)
 	{
@@ -40,6 +40,8 @@ void main(void)
 				}
 				break;
 			case client:
+					send_to_server("i am genius!\r\n");
+					delay_s(1);
 				break;
 			default:
 				break;

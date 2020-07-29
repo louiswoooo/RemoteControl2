@@ -29,9 +29,9 @@ void bsp(void)
 	{
 		debug("wifi reset\r\n");
 		wifi_reset();
-		if(WIFI_Set_AP_mode())
+		if(WIFI_Set_Client_mode())
 		{
-			debug("wifi set ap sucess\r\n");
+			debug("wifi set Client sucess\r\n");
 			break;
 		}
 	}		
@@ -39,3 +39,16 @@ void bsp(void)
 }
 
 
+/*
+	while(1)
+	{
+		debug("wifi reset\r\n");
+		wifi_reset();
+		if(WIFI_Set_AP_mode())
+		{
+			debug("wifi set ap sucess\r\n");
+			break;
+		}
+	}		
+
+*/

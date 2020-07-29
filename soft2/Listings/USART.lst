@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   USART                                                             07/23/2020 20:48:33 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             07/29/2020 21:11:33 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
@@ -62,7 +62,7 @@ line level    source
   52          /****************************************************************************************
   53            * @brief: 串口2字符发送程序，先把字符存入缓冲区，
   54                  然后判断是否串口正在发送，如果没有，则触发串口发送
-C51 COMPILER V9.56.0.0   USART                                                             07/23/2020 20:48:33 PAGE 2   
+C51 COMPILER V9.56.0.0   USART                                                             07/29/2020 21:11:33 PAGE 2   
 
   55            * @param: dat
   56            * @retval:  none
@@ -126,7 +126,7 @@ line level    source
                 COM4.B_RX_OK    = 0;
               
                 S4_Int_en();
-C51 COMPILER V9.56.0.0   USART                                                             07/23/2020 20:48:33 PAGE 3   
+C51 COMPILER V9.56.0.0   USART                                                             07/29/2020 21:11:33 PAGE 3   
 
               
               
@@ -190,7 +190,7 @@ line level    source
  176          
  177          //串口1初始化
  178          void Usart1Init(void)   //115200bps@22.1184MHz
-C51 COMPILER V9.56.0.0   USART                                                             07/23/2020 20:48:33 PAGE 4   
+C51 COMPILER V9.56.0.0   USART                                                             07/29/2020 21:11:33 PAGE 4   
 
  179          {
  180   1        SCON = 0x50;    //8???,?????
@@ -227,49 +227,50 @@ line level    source
  211   2        }
  212   1      }
  213          
- 214          void Usart1SendString(u8 *puts)
- 215          {
- 216   1          for (; *puts != 0;  puts++)  TX1_write2buff(*puts);   //遇到停止符0结束
- 217   1      }
- 218          
+ 214          
+ 215          void Usart1SendString(u8 *puts)
+ 216          {
+ 217   1          for (; *puts != 0;  puts++)  TX1_write2buff(*puts);   //遇到停止符0结束
+ 218   1      }
  219          
  220          
- 221          /****************************************************************************************
- 222            * @brief: 串口4中断程序，根据接收状态，接收到的字符放入缓冲区
- 223                  并且重新设置接收计时器
- 224                  发送中断根据读写指针判断是否发送完成，如果完成清忙标志
- 225            * @param: none
- 226            * @retval:  none
- 227          *****************************************************************************************/
- 228          void UART1_int (void) interrupt UART1_VECTOR  using 3
- 229          {
- 230   1        if(RI)
- 231   1        {
- 232   2          RI=0;
- 233   2          if(COM1.B_RX_EN == 1)
- 234   2          {
- 235   3            if(COM1.RX_Cnt >= COM_RX1_Lenth)  COM1.RX_Cnt = 0;
- 236   3            RX1_Buffer[COM1.RX_Cnt++] = SBUF;
- 237   3            COM1.RX_TimeOut = TimeOutSet1;
- 238   3          }
- 239   2        }
- 240   1      
-C51 COMPILER V9.56.0.0   USART                                                             07/23/2020 20:48:33 PAGE 5   
+ 221          
+ 222          /****************************************************************************************
+ 223            * @brief: 串口4中断程序，根据接收状态，接收到的字符放入缓冲区
+ 224                  并且重新设置接收计时器
+ 225                  发送中断根据读写指针判断是否发送完成，如果完成清忙标志
+ 226            * @param: none
+ 227            * @retval:  none
+ 228          *****************************************************************************************/
+ 229          void UART1_int (void) interrupt UART1_VECTOR  using 3
+ 230          {
+ 231   1        if(RI)
+ 232   1        {
+ 233   2          RI=0;
+ 234   2          if(COM1.B_RX_EN == 1)
+ 235   2          {
+ 236   3            if(COM1.RX_Cnt >= COM_RX1_Lenth)  COM1.RX_Cnt = 0;
+ 237   3            RX1_Buffer[COM1.RX_Cnt++] = SBUF;
+ 238   3            COM1.RX_TimeOut = TimeOutSet1;
+ 239   3          }
+ 240   2        }
+C51 COMPILER V9.56.0.0   USART                                                             07/29/2020 21:11:33 PAGE 5   
 
- 241   1        if(TI)
- 242   1        {
- 243   2          TI=0;
- 244   2          if(COM1.TX_read != COM1.TX_write)
- 245   2          {
- 246   3            SBUF = TX1_Buffer[COM1.TX_read];
- 247   3            if(++COM1.TX_read >= COM_TX1_Lenth)   COM1.TX_read = 0;
- 248   3          }
- 249   2          else  COM1.B_TX_busy = 0;
- 250   2        }
- 251   1      
- 252   1      }
- 253          
- 254          #endif
+ 241   1      
+ 242   1        if(TI)
+ 243   1        {
+ 244   2          TI=0;
+ 245   2          if(COM1.TX_read != COM1.TX_write)
+ 246   2          {
+ 247   3            SBUF = TX1_Buffer[COM1.TX_read];
+ 248   3            if(++COM1.TX_read >= COM_TX1_Lenth)   COM1.TX_read = 0;
+ 249   3          }
+ 250   2          else  COM1.B_TX_busy = 0;
+ 251   2        }
+ 252   1      
+ 253   1      }
+ 254          
+ 255          #endif
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
