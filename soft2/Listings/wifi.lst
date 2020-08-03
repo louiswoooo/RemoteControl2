@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   WIFI                                                              07/29/2020 22:02:59 PAGE 1   
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE WIFI
 OBJECT MODULE PLACED IN .\Objects\wifi.obj
-COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\wifi.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG 
-                    -OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\wifi.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC
+                    -_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\wifi.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
 
 line level    source
 
@@ -20,7 +20,7 @@ line level    source
   10          #include "gpio.h"
   11          #include "sys.h"
   12          #include "wifi.h"
-  13          #include "http_ap.h"
+  13          #include "http_text.h"
   14          #define SERVER_ADDR   "119.3.233.56"
   15          #define SERVER_PORT   8000
   16          
@@ -62,244 +62,341 @@ line level    source
   52          
   53          /*****************************************************************************
   54          设置ESP8266 客户端 模式命令和答复关键字
-C51 COMPILER V9.56.0.0   WIFI                                                              07/29/2020 22:02:59 PAGE 2   
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 2   
 
   55          连接流程:设置STA模式-重启-连接wifi-开启单链接-建立TCP连接
   56          *******************************************************************************/
   57          //##配置ESP8266模块为Station 模式，开启wifi热点。
   58          const _t_WIFI_CMD_Info  CMD_STAMode={"AT+CWMODE=1\r\n", "OK"};   
   59          //连接路由器，wifi名：HiTV_woo。密码：1234567890。
-  60          const _t_WIFI_CMD_Info  CMD_Connect_WIFI={"AT+CWJAP=\"HiTV_woo\",\"1234567890\"\r\n", "OK"};               
-             - 
+  60          const _t_WIFI_CMD_Info  CMD_Connect_WIFI={"AT+CWJAP=\"HiTV_woo_plus\",\"1234567890\"\r\n", "OK"};          
+             -      
   61          //开启单链接
   62          const _t_WIFI_CMD_Info  CMD_Single={"AT+CIPMUX=0\r\n", "OK"};                
   63          //建立TCP 连接
-  64          const _t_WIFI_CMD_Info  CMD_Connect_Server={"AT+CIPSTART=\"TCP\",\"192.168.43.118\",5000\r\n", "OK"};      
-             -  
-  65          
-  66          #define WIFI_GPIO_PORT    GPIO_P5
-  67          #define WIFI_GPIO_PIN   GPIO_Pin_3
-  68          
-  69          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
-  70          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
-  71          
-  72          /*
-  73            * @brief: 整形数字转换成字符串函数
-  74            * @param: num 要转换的整数，str 转换出来的字符串的存贮控件指针
-  75            * @retval:  返回去掉前面的0的整数字符串指针
-  76          */
-  77          u8 *int_to_str( u8 *str,u16 num)
-  78          {
-  79   1        u8 *p;
-  80   1        str[0] = num/10000+0x30;
-  81   1        str[1] = num%10000/1000+0x30;
-  82   1        str[2] = num%1000/100+0x30;
-  83   1        str[3] = num%100/10+0x30;
-  84   1        str[4] = num%10+0x30;
-  85   1        str[5] = '\0';
-  86   1        p=str;
-  87   1        while(*p == '0')
-  88   1          p++;
-  89   1        if(*p == 0)
+  64          const _t_WIFI_CMD_Info  CMD_Connect_Server={"AT+CIPSTART=\"TCP\",\"192.168.1.106\",5000\r\n", "OK"};       
+             - 
+  65          //关闭TCP 连接
+  66          const _t_WIFI_CMD_Info  CMD_Disconnect_Server={"AT+CIPCLOSE=0\r\n", "OK"};        
+  67          
+  68          #define WIFI_GPIO_PORT    GPIO_P5
+  69          #define WIFI_GPIO_PIN   GPIO_Pin_3
+  70          
+  71          #define wifi_reset_pin_low()    GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  72          #define wifi_reset_pin_high()   GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
+  73          
+  74          /*
+  75            * @brief: 整形数字转换成字符串函数
+  76            * @param: num 要转换的整数，str 转换出来的字符串的存贮控件指针
+  77            * @retval:  返回去掉前面的0的整数字符串指针
+  78          */
+  79          u8 *int_to_str( u8 *str,u16 num)
+  80          {
+  81   1        u8 *p;
+  82   1        str[0] = num/10000+0x30;
+  83   1        str[1] = num%10000/1000+0x30;
+  84   1        str[2] = num%1000/100+0x30;
+  85   1        str[3] = num%100/10+0x30;
+  86   1        str[4] = num%10+0x30;
+  87   1        str[5] = '\0';
+  88   1        p=str;
+  89   1        while(*p == '0')
   90   1          p++;
-  91   1        return p;
-  92   1      }
-  93          
-  94          //esp8266硬件重启
-  95          void wifi_reset(void)
-  96          {
-  97   1        GPIO_InitTypeDef  wifi_gpio_init;
-  98   1      
-  99   1        wifi_gpio_init.Mode=GPIO_PullUp;
- 100   1        wifi_gpio_init.Pin=WIFI_GPIO_PIN;
- 101   1        
- 102   1        GPIO_Inilize(WIFI_GPIO_PORT, &wifi_gpio_init);
- 103   1      
- 104   1        wifi_reset_pin_low();
- 105   1        delay_ms(100);
- 106   1        wifi_reset_pin_high();
- 107   1        delay_s(2);
- 108   1      }
- 109          /****************************************************************************************
- 110            * @brief: esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
- 111                调用函数以后，如果TimeOutSet2*(ms/tick) 时间内接收不到新字节
- 112                接收块结束，返回接收到的字节数，本函数为阻塞函数  
- 113                阻塞时间为: 接收块时间+ TimeOutSet2
- 114            * @param: none
-C51 COMPILER V9.56.0.0   WIFI                                                              07/29/2020 22:02:59 PAGE 3   
+  91   1        if(*p == 0)
+  92   1          p++;
+  93   1        return p;
+  94   1      }
+  95          
+  96          //esp8266硬件重启
+  97          void WIFI_Reset(void)
+  98          {
+  99   1        GPIO_InitTypeDef  wifi_gpio_init;
+ 100   1      
+ 101   1        wifi_gpio_init.Mode=GPIO_PullUp;
+ 102   1        wifi_gpio_init.Pin=WIFI_GPIO_PIN;
+ 103   1        
+ 104   1        GPIO_Inilize(WIFI_GPIO_PORT, &wifi_gpio_init);
+ 105   1      
+ 106   1        wifi_reset_pin_low();
+ 107   1        delay_ms(100);
+ 108   1        wifi_reset_pin_high();
+ 109   1        delay_s(2);
+ 110   1      }
+ 111          /****************************************************************************************
+ 112            * @brief: esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
+ 113                调用函数以后，如果TimeOutSet2*(ms/tick) 时间内接收不到新字节
+ 114                接收块结束，返回接收到的字节数，本函数为阻塞函数  
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 3   
 
- 115            * @retval:  返回接收到的字节数，接收到的块存在缓存RX2_Buffer
- 116          *****************************************************************************************/
- 117          u8 wifi_receive()
- 118          {
- 119   1        COM2.B_RX_EN=1;
- 120   1        COM2.RX_Cnt=0;
- 121   1        COM2.B_RX_OK=0;
- 122   1        COM2.RX_TimeOut=TimeOutSet2;
- 123   1        while(COM2.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
- 124   1        COM2.B_RX_EN=0;
- 125   1        if(COM2.B_RX_OK)
- 126   1        {
- 127   2          return COM2.RX_Cnt;
- 128   2        }
- 129   1        return NULL;
- 130   1      }
- 131          
- 132          
- 133          /****************************************************************************************
- 134            * @brief: 给esp8266 发送命令，并匹配缓冲区当中的字符        
- 135            * @param: send: 要发送的命令
- 136                match:  要匹配的字符串
- 137                timeout_ticks:  设置超时的时间ms
- 138            * @retval:  如果在超时时间内收到多条消息，每条消息都与match 匹配，
- 139                  成功立即返回1，超时则返回0
- 140          *****************************************************************************************/
+ 115                阻塞时间为: 接收块时间+ TimeOutSet2
+ 116            * @param: timeout_ms, wifi 接收的超时时间
+ 117            * @retval:  返回接收到的字节数，接收到的块存在缓存RX2_Buffer
+ 118          *****************************************************************************************/
+ 119          u8 WIFI_Receive(u16 timeout_ms) 
+ 120          {
+ 121   1        u16 i;
+ 122   1        if(timeout_ms > 0)
+ 123   1        {
+ 124   2          for(i= timeout_ms/(TimeOutSet2* MS_PER_TICK); i>0; i--)
+ 125   2          {
+ 126   3            COM2.B_RX_EN=1;
+ 127   3            COM2.RX_Cnt=0;
+ 128   3            COM2.B_RX_OK=0;
+ 129   3            COM2.RX_TimeOut=TimeOutSet2;
+ 130   3            while(COM2.RX_TimeOut>0);     //每次串口接收不到字节产生超时，判定为一次块接收完成
+ 131   3            COM2.B_RX_EN=0;
+ 132   3            if(COM2.B_RX_OK)
+ 133   3            {
+ 134   4              return COM2.RX_Cnt;
+ 135   4            }
+ 136   3          }
+ 137   2        }
+ 138   1        return NULL;
+ 139   1      }
+ 140          
  141          
- 142          u8 WIFI_SendAndWait(u8 *send, u8 *match, u16 timeout_ms)
- 143          {
- 144   1        u8 *p;
- 145   1        u8 i;
- 146   1        Usart2SendString(send);     //发送命令
- 147   1        for(i = timeout_ms/(TimeOutSet2 * MS_PER_TICK); i>0; i--)   
- 148   1        {
- 149   2          if(wifi_receive())      //等待块消息
- 150   2          {
- 151   3            debug(RX2_Buffer);
- 152   3            if(p=strstr(RX2_Buffer,match))
- 153   3            {
- 154   4              debug_vip("match");
- 155   4              return 1;
- 156   4            }
- 157   3          }
- 158   2        }
- 159   1        return 0;
- 160   1      }
- 161          /****************************************************************************************
- 162            * @brief: 客户端连接 发送函数，先发送准备发送的命令，AT+CIPSEND=clientid,length ，
- 163                  参数是client的号（0-4），和发送数据的长度，然后才是内容，
- 164                  如果length大于实际发送的数据长度，则此次发送不发生，
- 165                  如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
- 166            * @param: client_id，连接的客户端id， p发送内容指针
- 167            * @retval:  成功返回1，失败0
- 168          *****************************************************************************************/
- 169          u8 send_to_client(u8 *client_id, u8 *p)
- 170          {
- 171   1        u8 temp[6];
- 172   1        u8 cmd[30]="AT+CIPSEND=";
- 173   1        u8 *str;
- 174   1        u16 send_len = strlen(p);
- 175   1        strcat(cmd, client_id);       //组合客户端id
- 176   1        strcat(cmd, ",");
-C51 COMPILER V9.56.0.0   WIFI                                                              07/29/2020 22:02:59 PAGE 4   
+ 142          /****************************************************************************************
+ 143            * @brief: 给esp8266 发送命令，并匹配缓冲区当中的字符        
+ 144            * @param: send: 要发送的命令
+ 145                match:  要匹配的字符串
+ 146                timeout_ticks:  设置超时的时间ms
+ 147            * @retval:  如果在超时时间内收到多条消息，每条消息都与match 匹配，
+ 148                  成功立即返回1，超时则返回0
+ 149          *****************************************************************************************/
+ 150          u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
+ 151          {
+ 152   1        u8 *p;
+ 153   1        u16 i;
+ 154   1        
+ 155   1        Usart2SendString(send);     //发送命令
+ 156   1        for(i = (timeout_ms/TimeOutSet2) / MS_PER_TICK; i>0; i--)   
+ 157   1        {
+ 158   2          if(WIFI_Receive(TimeOutSet2 * MS_PER_TICK))     //等待块消息
+ 159   2          {
+ 160   3            debug(RX2_Buffer);
+ 161   3            if(p=strstr(RX2_Buffer,match))
+ 162   3            {
+ 163   4              debug_vip("match");
+ 164   4              return 1;
+ 165   4            }
+ 166   3          }
+ 167   2        }
+ 168   1        return 0;
+ 169   1      }
+ 170          /****************************************************************************************
+ 171            * @brief: esp8266作为服务端向连接的客户端发送函数，格式如下:
+ 172                  AT+CIPSEND=clientid,length    //client 连接的客户端id，length 发送的数据长度
+ 173                  OK
+ 174                  >xxxxxxx        //发送的数据
+ 175                  busy s...
+ 176                  Recv xx bytes
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 4   
 
- 177   1        str = int_to_str(temp, send_len);
- 178   1        strcat(cmd, str);         //组合长度
- 179   1        strcat(cmd, "\r\n");
- 180   1      
- 181   1        if( !WIFI_SendAndWait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))   //发送发送命令
- 182   1          return FAIL;
- 183   1        if( !WIFI_SendAndWait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))      //发送内容
- 184   1          return FAIL;
- 185   1      
- 186   1        return SUCCESS;
- 187   1      }
- 188          u8 send_to_server( u8 *p)
- 189          {
- 190   1        u8 temp[6];
- 191   1        u8 cmd[30]="AT+CIPSEND=";
- 192   1        u8 *str;
- 193   1        u16 send_len = strlen(p);
- 194   1        str = int_to_str(temp, send_len);
- 195   1        strcat(cmd, str);         //组合长度
- 196   1        strcat(cmd, "\r\n");
- 197   1      
- 198   1        if( !WIFI_SendAndWait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))   //发送发送命令
+ 177                  SEND OK
+ 178                  
+ 179                  如果length大于实际发送的数据长度，则此次发送不发生，
+ 180                  如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+ 181            * @param: client_id，连接的客户端id， p发送内容指针
+ 182            * @retval:  成功返回1，失败0
+ 183          *****************************************************************************************/
+ 184          u8 server_send_to_client(u8 *client_id, u8 *p)
+ 185          {
+ 186   1        u8 temp[6];
+ 187   1        u8 cmd[30]="AT+CIPSEND=";
+ 188   1        u8 *str;
+ 189   1        u16 send_len = strlen(p);
+ 190   1        strcat(cmd, client_id);       //组合客户端id
+ 191   1        strcat(cmd, ",");
+ 192   1        str = int_to_str(temp, send_len);
+ 193   1        strcat(cmd, str);         //组合长度
+ 194   1        strcat(cmd, "\r\n");
+ 195   1      
+ 196   1        if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))   //发送发送命令
+ 197   1          return FAIL;
+ 198   1        if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))      //发送内容
  199   1          return FAIL;
- 200   1        if( !WIFI_SendAndWait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))      //发送内容
- 201   1          return FAIL;
- 202   1      
- 203   1        return SUCCESS;
- 204   1      }
- 205          
- 206          /****************************************************************************************
- 207            * @brief: http送函数，先发送发送http 头，然后是content_length，最后content
- 208            * @param: client_id，连接的客户端id， p发送内容指针
- 209            * @retval:  成功返回1，失败0
- 210          *****************************************************************************************/
- 211          u8 http_send(u8 *client_id, u8 *content)
- 212          {
- 213   1        u8 http_content_lenth_string[10];
- 214   1        u8 temp[6];
- 215   1        u8 *p;
- 216   1        u16 content_size = strlen(content);
- 217   1        
- 218   1        memset(http_content_lenth_string, 0, sizeof(http_content_lenth_string));
- 219   1        if(!send_to_client(client_id, HTTP_H1) )    //发送http 头，不包括content_length
- 220   1          return FAIL;
- 221   1        
- 222   1        p = int_to_str( temp, content_size);      //发送content_length和两个换行符
- 223   1        strcat(http_content_lenth_string, p);
- 224   1        strcat(http_content_lenth_string,"\r\n\r\n");
- 225   1        if(!send_to_client(client_id, http_content_lenth_string))
- 226   1          return FAIL;
- 227   1        
- 228   1        if(!send_to_client(client_id, content))   //发送内容
- 229   1          return FAIL;
- 230   1        return SUCCESS;
- 231   1      
- 232   1      }
- 233          
- 234          
- 235          
- 236          u8 WIFI_Set_AP_mode(void)
- 237          {
- 238   1        if( !WIFI_SendAndWait(CMD_APMode.send, CMD_APMode.match, WIFI_CMD_TIMEOUT_MS))
-C51 COMPILER V9.56.0.0   WIFI                                                              07/29/2020 22:02:59 PAGE 5   
+ 200   1      
+ 201   1        return SUCCESS;
+ 202   1      }
+ 203          /****************************************************************************************
+ 204            * @brief: esp8266作为客户端向连接的服务端发送函数，格式如下:
+ 205                  AT+CIPSEND=length   //length 发送的数据长度
+ 206                  OK
+ 207                  >xxxxxxx        //发送的数据
+ 208                  busy s...
+ 209                  Recv xx bytes
+ 210                  SEND OK
+ 211                  
+ 212                  如果length大于实际发送的数据长度，则此次发送不发生，
+ 213                  如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+ 214            * @param: p发送内容指针
+ 215            * @retval:  成功返回1，失败0
+ 216          ****************************************************************************************
+ 217          u8 client_send_to_server( u8 *p)
+ 218          {
+ 219            u8 temp[6];
+ 220            u8 cmd[30]="AT+CIPSEND=";
+ 221            u8 *str;
+ 222            u16 send_len = strlen(p);
+ 223            str = int_to_str(temp, send_len);
+ 224            strcat(cmd, str);         //组合长度
+ 225            strcat(cmd, "\r\n");
+ 226          
+ 227            if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))   //发送发送命令
+ 228              return FAIL;
+ 229            if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))      //发送内容
+ 230              return FAIL;
+ 231          
+ 232            return SUCCESS;
+ 233          }
+ 234          */
+ 235          /****************************************************************************************
+ 236            * @brief: esp8266作为服务端的http response 函数，收到http请求以后，
+ 237                  调用该函数进行response (参看HTTP 协议)
+ 238                  分成3部分发送，先发送http 头，然后是content_length，最后content
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 5   
 
- 239   1          return FAIL;
- 240   1        if( !WIFI_SendAndWait(CMD_SSID.send, CMD_SSID.match, WIFI_CMD_TIMEOUT_MS ))
- 241   1        {
- 242   2          return FAIL;
- 243   2        }
- 244   1        if( !WIFI_SendAndWait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
- 245   1          return FAIL;
- 246   1        delay_s(2);
- 247   1        if( !WIFI_SendAndWait(CMD_Muti.send, CMD_Muti.match, WIFI_CMD_TIMEOUT_MS ))
- 248   1          return FAIL;
- 249   1        if( !WIFI_SendAndWait(CMD_Server.send, CMD_Server.match, WIFI_CMD_TIMEOUT_MS ))
- 250   1          return FAIL;
- 251   1        if( !WIFI_SendAndWait(CMD_IP.send, CMD_IP.match, WIFI_CMD_TIMEOUT_MS ))
- 252   1          return FAIL;
- 253   1        return SUCCESS;
- 254   1      }
- 255          
- 256          u8 WIFI_Set_Client_mode(void)
- 257          {
- 258   1        if( !WIFI_SendAndWait(CMD_STAMode.send, CMD_STAMode.match, WIFI_CMD_TIMEOUT_MS))
- 259   1          return FAIL;
- 260   1        if( !WIFI_SendAndWait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
- 261   1          return FAIL;
- 262   1        delay_s(3);
- 263   1        //注意wifi连接用时较长
- 264   1        if( !WIFI_SendAndWait(CMD_Connect_WIFI.send, CMD_Connect_WIFI.match, 20000 )) 
- 265   1        {
- 266   2          return FAIL;
- 267   2        }
- 268   1        if( !WIFI_SendAndWait(CMD_Single.send, CMD_Single.match, WIFI_CMD_TIMEOUT_MS ))
- 269   1          return FAIL;
- 270   1        //服务器连接也给较长时间
- 271   1        if( !WIFI_SendAndWait(CMD_Connect_Server.send, CMD_Connect_Server.match, 10000 ))
- 272   1          return FAIL;
- 273   1        return SUCCESS;
- 274   1      }
- 275          
- 276          
+ 239            * @param: client_id，连接的客户端id， p发送内容指针
+ 240            * @retval:  成功返回1，失败0
+ 241          *****************************************************************************************/
+ 242          u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
+ 243          {
+ 244   1        u8 http_content_lenth_string[10];
+ 245   1        u8 temp[6];
+ 246   1        u8 *p;
+ 247   1        u16 content_size = strlen(content);
+ 248   1        
+ 249   1        memset(http_content_lenth_string, 0, sizeof(http_content_lenth_string));
+ 250   1        if(!server_send_to_client(client_id, HTTP_Server_Response_Head1) )    //发送http 头，不包括content_length
+ 251   1          return FAIL;
+ 252   1        
+ 253   1        p = int_to_str( temp, content_size);      //发送content_length和两个换行符
+ 254   1        strcat(http_content_lenth_string, p);
+ 255   1        strcat(http_content_lenth_string,"\r\n\r\n");
+ 256   1        if(!server_send_to_client(client_id, http_content_lenth_string))
+ 257   1          return FAIL;
+ 258   1        
+ 259   1        if(!server_send_to_client(client_id, content))    //发送内容
+ 260   1          return FAIL;
+ 261   1        return SUCCESS;
+ 262   1      
+ 263   1      }
+ 264          /****************************************************************************************
+ 265            * @brief: esp8266作为客户端的http request 函数，发送服务器http请求
+ 266                  调用该函数进行request (参看HTTP 协议)
+ 267                  分成4部分发送:
+ 268                  1. 发送http 头前导,例如: GET /a11?
+ 269                  2. 发送请求参数SWITH1=ON&SWITCH2=OFF&xxxx，
+ 270                  3. 发送头剩余信息
+ 271                  4. 发送步骤2的参数
+ 272            * @param: h1 http 头前导, http参数，3头部剩余
+ 273            * @retval:  成功返回1，失败0
+ 274          *****************************************************************************************/
+ 275          u8 WIFI_Client_HTTP_Request(u8 *h1, u8 *para, u8 *h3)
+ 276          {
+ 277   1        u8 temp[6];
+ 278   1        u8 cmd[30]="AT+CIPSEND=";
+ 279   1        u8 *str;
+ 280   1        u16 request_len = strlen(h1) + strlen(para)*2 + strlen(h3) ;
+ 281   1        str = int_to_str(temp, request_len);
+ 282   1        strcat(cmd, str);         //组合长度
+ 283   1        strcat(cmd, "\r\n");
+ 284   1      
+ 285   1        if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))  //发送发送命令，等待回应
+ 286   1          return FAIL;
+ 287   1        Usart2SendString(h1);
+ 288   1        Usart2SendString(para);
+ 289   1        Usart2SendString(h3);
+ 290   1        if(!wifi_send_and_wait(para, "SEND OK", WIFI_CMD_TIMEOUT_MS ))
+ 291   1          return FAIL;
+ 292   1        debug_vip("SEND OK");
+ 293   1        return SUCCESS;
+ 294   1      }
+ 295          /*********************************************************************************
+ 296          设置esp8266 为服务器模式，发个wifi热点，连接后可以进行本地控制和设置
+ 297          连接流程:设置AP模式-设置ssid和密码-重启-设置多链接-开启服务器-查看ip
+ 298          *******************************************************************************/
+ 299          u8 WIFI_SetServerMode(void)
+ 300          {
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 6   
+
+ 301   1        //设置为AP模式
+ 302   1        if( !wifi_send_and_wait(CMD_APMode.send, CMD_APMode.match, WIFI_CMD_TIMEOUT_MS))
+ 303   1          return FAIL;
+ 304   1        //设置wifi 热点信息
+ 305   1        if( !wifi_send_and_wait(CMD_SSID.send, CMD_SSID.match, WIFI_CMD_TIMEOUT_MS ))
+ 306   1        {
+ 307   2          return FAIL;
+ 308   2        }
+ 309   1        //重启
+ 310   1        if( !wifi_send_and_wait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
+ 311   1          return FAIL;
+ 312   1        delay_s(2);   //重启等待
+ 313   1        //设置多连接，服务器模式必须设置为多连接
+ 314   1        if( !wifi_send_and_wait(CMD_Muti.send, CMD_Muti.match, WIFI_CMD_TIMEOUT_MS ))
+ 315   1          return FAIL;
+ 316   1        //设置服务器模式和端口
+ 317   1        if( !wifi_send_and_wait(CMD_Server.send, CMD_Server.match, WIFI_CMD_TIMEOUT_MS ))
+ 318   1          return FAIL;
+ 319   1        //查看ip
+ 320   1        if( !wifi_send_and_wait(CMD_IP.send, CMD_IP.match, WIFI_CMD_TIMEOUT_MS ))
+ 321   1          return FAIL;
+ 322   1        return SUCCESS;
+ 323   1      }
+ 324          /*****************************************************************************
+ 325          设置ESP8266 客户端 模式命令和答复关键字
+ 326          连接流程:设置STA模式-重启-连接wifi-开启单链接-建立TCP连接
+ 327          *******************************************************************************/
+ 328          u8 WIFI_SetClientMode(void)
+ 329          {
+ 330   1        //设置为station 模式
+ 331   1        if( !wifi_send_and_wait(CMD_STAMode.send, CMD_STAMode.match, WIFI_CMD_TIMEOUT_MS))
+ 332   1          return FAIL;
+ 333   1        if( !wifi_send_and_wait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
+ 334   1          return FAIL;
+ 335   1        delay_s(3);
+ 336   1        //连接wifi，注意wifi连接用时较长，所以给了较长超时时间
+ 337   1        if( !wifi_send_and_wait(CMD_Connect_WIFI.send, CMD_Connect_WIFI.match, 20000 )) 
+ 338   1        {
+ 339   2          return FAIL;
+ 340   2        }
+ 341   1        //设置为单连接模式
+ 342   1        if( !wifi_send_and_wait(CMD_Single.send, CMD_Single.match, WIFI_CMD_TIMEOUT_MS ))
+ 343   1          return FAIL;
+ 344   1        //服务器连接也给较长时间
+ 345   1        /*
+ 346   1        if( !wifi_send_and_wait(CMD_Connect_Server.send, CMD_Connect_Server.match, 10000 ))
+ 347   1          return FAIL;
+ 348   1          */
+ 349   1        return SUCCESS;
+ 350   1      }
+ 351          
+ 352          u8 WIFI_ClientConnectServer(void)
+ 353          {
+ 354   1        if( !wifi_send_and_wait(CMD_Connect_Server.send, CMD_Connect_Server.match, 10000 ))
+ 355   1          return FAIL;
+ 356   1        return SUCCESS;
+ 357   1      }
+ 358          u8 WIFI_ClientDisonnectServer(void)
+ 359          {
+ 360   1        if( !wifi_send_and_wait(CMD_Disconnect_Server.send, CMD_Disconnect_Server.match, 5000 ))
+ 361   1          return FAIL;
+ 362   1        return SUCCESS;
+C51 COMPILER V9.56.0.0   WIFI                                                              08/02/2020 18:44:50 PAGE 7   
+
+ 363   1      }
+ 364          u8 WIFI_SetClientSingleConnect(void)
+ 365          {
+ 366   1        if( !wifi_send_and_wait(CMD_Single.send, CMD_Single.match, WIFI_CMD_TIMEOUT_MS ))
+ 367   1          return FAIL;
+ 368   1      }
+*** WARNING C291 IN LINE 368 OF APP\wifi.c: not every exit path returns a value
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1576    ----
-   CONSTANT SIZE    =    334    ----
-   XDATA SIZE       =     72     135
+   CODE SIZE        =   1831    ----
+   CONSTANT SIZE    =    354    ----
+   XDATA SIZE       =     78     142
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
@@ -307,4 +404,4 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

@@ -11,9 +11,7 @@
 #include "sys.h"
 #include "debug.h"
 #include "bsp.h"
-#include "http_ap.h"
-#include "string.h"
-#include "http_ap.h"
+#include "task.h"
 
 typedef enum _t_status_
 {
@@ -32,15 +30,13 @@ void main(void)
 		switch(Status)
 		{
 			case ap:
-				if(wifi_receive())
+				if(WIFI_Receive(50))
 				{
-					debug_vip(WIFI_RBUF);
-					if(strstr(WIFI_RBUF, "GET"))
-						AP_MSG_Handle();
+					task_Server();
 				}
 				break;
 			case client:
-					send_to_server("i am genius!\r\n");
+					task_Client();
 					delay_s(1);
 				break;
 			default:

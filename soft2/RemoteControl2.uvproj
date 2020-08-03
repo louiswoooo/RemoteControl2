@@ -394,14 +394,19 @@
               <FilePath>.\APP\sys.c</FilePath>
             </File>
             <File>
-              <FileName>http_ap.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\APP\http_ap.c</FilePath>
-            </File>
-            <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\APP\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\task.c</FilePath>
+            </File>
+            <File>
+              <FileName>http_text.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\http_text.c</FilePath>
             </File>
           </Files>
         </Group>

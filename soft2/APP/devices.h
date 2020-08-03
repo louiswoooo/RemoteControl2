@@ -31,5 +31,7 @@
 #define DH_Pin	P50   //定义数据线
 u8 DevicesControl(u8 *cmd);
 void DevicesInit(void);
+u8 DeviceGetStatus(u8 *status);
+
 
 #endif

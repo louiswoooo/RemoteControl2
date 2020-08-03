@@ -1,0 +1,1 @@
+"APP\task.c" LARGE OPTIMIZE (8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\task.lst) TABS (2) OBJECT(.\Objects\task.obj)

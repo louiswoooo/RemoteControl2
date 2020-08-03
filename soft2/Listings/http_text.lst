@@ -1,0 +1,81 @@
+C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/02/2020 18:35:19 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE HTTP_TEXT
+OBJECT MODULE PLACED IN .\Objects\http_text.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\http_text.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(
+                    -.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\http_text.lst) TABS(2) OBJECT(.\Objects\http_text.obj)
+
+line level    source
+
+   1          #include "config.h"
+   2          u8  code HTTP_Client_Request_Head1[]={"GET /a11?"};
+   3          u8  code HTTP_Client_Request_Head3[]={" HTTP/1.1\r\n\
+   4          Host: localhost:5000\r\n\
+   5          Connection: keep-alive\r\n\
+   6          \r\n"};
+   7          
+   8          u8 code HTTP_Server_Response_Head1[]={"HTTP/1.0 200 OK\r\n\
+   9          Content-Type: text/html; charset=utf-8\r\n\
+  10          Content-Length: "};
+  11          
+  12          u8 code HTTP_Server_Index[] = {"<!DOCTYPE html>\r\n\
+  13          <html lang=\"en\">\r\n\
+  14          <head>\r\n\
+  15              <meta charset=\"UTF-8\">\r\n\
+  16              <title>Genius AI Lab</title>\r\n\
+  17              <style>\r\n\
+  18                  h1{font-size:600%;text-align:center}\r\n\
+  19                  span{font-size:300%;margin-left:40px}\r\n\
+  20                  button{type:button;margin-left:40px;width:120px;height:120px;border-radius:60px;padding:20px}\r\n\
+  21                  .ss1{background:#ff9953}\r\n\
+  22                  .ss2{background:darkgray}\r\n\
+  23                  .ss3{background: #ffe0a0}\r\n\
+  24                  .ss4{background: #d6d6d6}\r\n\
+  25                  .ss5{border-radius:20px;height:60px}\r\n\
+  26              </style>\r\n\
+  27              <script>\r\n\
+  28                  function jp(a)\r\n\
+  29                  {window.location.href=\"/?\"+a}\r\n\
+  30              </script>\r\n\
+  31          </head>\r\n\
+  32          <body>\r\n\
+  33              <div style=\"width:1000px\">\r\n\
+  34                  <div style=\"background-color:slategray\">\r\n\
+  35                      <h1>Genius AI Lab</h1>\r\n\
+  36                  </div>\r\n\
+  37                  <br>\r\n\
+  38                          <span>SWITCH1:</span>\r\n\
+  39                          <button class=\"ss1\" onclick=\"jp('SWITCH1=ON')\">ON</button>\r\n\
+  40                          <button class=\"ss2\" onclick=\"jp('SWITCH1=OFF')\">OFF</button>\r\n\
+  41                          <br>\r\n\
+  42                          <span>SWITCH2:</span>\r\n\
+  43                          <button class=\"ss1\" onclick=\"jp('SWITCH2=ON')\">ON</button>\r\n\
+  44                          <button class=\"ss2\" onclick=\"jp('SWITCH2=OFF')\">OFF</button><br>\r\n\
+  45                          <span>SWITCH3:</span>\r\n\
+  46                          <button class=\"ss1\" onclick=\"jp('SWITCH3=ON')\">ON</button>\r\n\
+  47                          <button class=\"ss2\" onclick=\"jp('SWITCH3=OFF')\">OFF</button><br>\r\n\
+  48                          <span>SWITCH4:</span>\r\n\
+  49                          <button class=\"ss1\" onclick=\"jp('SWITCH4=ON')\">ON</button>\r\n\
+  50                          <button class=\"ss2\" onclick=\"jp('SWITCH4=OFF')\">OFF</button>\r\n\
+  51                  <br>\r\n\
+  52              </div>\r\n\
+  53          </body>\r\n\
+  54          </html>"};
+C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/02/2020 18:35:19 PAGE 2   
+
+  55          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   1759    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

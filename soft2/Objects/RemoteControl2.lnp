@@ -4,8 +4,9 @@
 ".\Objects\main.obj",
 ".\Objects\wifi.obj",
 ".\Objects\sys.obj",
-".\Objects\http_ap.obj",
 ".\Objects\debug.obj",
+".\Objects\task.obj",
+".\Objects\http_text.obj",
 ".\Objects\GPIO.obj",
 ".\Objects\PCA.obj",
 ".\Objects\USART.obj" 

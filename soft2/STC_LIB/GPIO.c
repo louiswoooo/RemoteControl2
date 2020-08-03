@@ -127,3 +127,53 @@ u8 GPIO_ClearBit(u8 GPIO, u8 PIN)
 	return 0;	//成功
 }
 
+u8 GPIO_GetBit(u8 GPIO, u8 PIN)
+{
+	if(GPIO > GPIO_P5)				return 1;	//空操作
+	if(GPIO == GPIO_P0)
+	{
+		if(P0 & PIN)
+			return 1;
+		else
+			return 0;
+	}
+	if(GPIO == GPIO_P1)
+	{
+		if(P1 & PIN)
+			return 1;
+		else
+			return 0;
+
+	}
+	if(GPIO == GPIO_P2)
+	{
+		if(P2 & PIN)
+			return 1;
+		else
+			return 0;
+	}
+	if(GPIO == GPIO_P3)
+	{
+		if(P3 & PIN)
+			return 1;
+		else
+			return 0;
+	}
+	if(GPIO == GPIO_P4)
+	{
+		if(P4 & PIN)
+			return 1;
+		else
+			return 0;
+	}
+	if(GPIO == GPIO_P5)
+	{
+		if(P5 & PIN)
+			return 1;
+		else
+			return 0;
+	}
+	return 0;	//成功
+}
+
+

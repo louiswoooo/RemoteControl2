@@ -2,7 +2,6 @@
 #include "sys.h"
 #include "string.h"
 #include "wifi.h"
-#include "http_ap.h"
 void bsp(void)
 {
 
@@ -28,8 +27,8 @@ void bsp(void)
 	while(1)
 	{
 		debug("wifi reset\r\n");
-		wifi_reset();
-		if(WIFI_Set_Client_mode())
+		WIFI_Reset();
+		if(WIFI_SetClientMode())
 		{
 			debug("wifi set Client sucess\r\n");
 			break;

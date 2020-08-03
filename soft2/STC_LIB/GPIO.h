@@ -36,6 +36,7 @@ typedef struct
 u8	GPIO_Inilize(u8 GPIO, GPIO_InitTypeDef *GPIOx);
 u8 GPIO_SetBit(u8 GPIO, u8 PIN);
 u8 GPIO_ClearBit(u8 GPIO, u8 PIN);
+u8 GPIO_GetBit(u8 GPIO, u8 PIN);
 
 #endif
 

@@ -101,64 +101,24 @@ static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
 static u8 SwitchControl(u8 *buf)
 {
 	u8 *cmd=buf;
-	debug(">>>>>>>>>>>>>>");
-	debug(cmd);
-	debug("\r\n");
-	switch(*(cmd+sizeof(KEYWORD_SWITCH)-1))
-	{
-		case '1':
-			if(strstr((char *)cmd, "ON"))
-			{
-				SWITCH1_ON();
-				debug("1 on!\r\n");
-			}
-			else if(strstr((char *)cmd, "OFF"))
-			{
-				SWITCH1_OFF();
-				debug("1 off!\r\n");
-			}
-			break;
-		case '2':
-			if(strstr((char *)cmd, "ON"))
-			{
-				SWITCH2_ON();
-				debug("2 on!\r\n");
-			}
-			else if(strstr((char *)cmd, "OFF"))
-			{
-				SWITCH2_OFF();
-				debug("2 off!\r\n");
-			}
-			break;
-		case '3':
-			if(strstr((char *)cmd, "ON"))
-			{
-				SWITCH3_ON();
-				debug("3 on!\r\n");
-			}
-			else if(strstr((char *)cmd, "OFF"))
-			{
-				SWITCH3_OFF();
-				debug("3 off!\r\n");
-			}
-			break;
-		case '4':
-			if(strstr((char *)cmd, "ON"))
-			{
-				SWITCH4_ON();
-				debug("4 on!\r\n");
-			}
-			else if(strstr((char *)cmd, "OFF"))
-			{
-				SWITCH4_OFF();
-				debug("4 off!\r\n");
-			}
-			break;
-		default:
-			debug("switch invalid command\r\n");
-			return 0;
-			break;
-	}
+	debug_vip(buf);
+	if(strstr(buf, "SWITCH1=ON"))
+		SWITCH1_ON();
+	else if(strstr(buf, "SWITCH1=OFF"))
+		SWITCH1_OFF();
+	if(strstr(buf, "SWITCH2=ON"))
+		SWITCH2_ON();
+	else if(strstr(buf, "SWITCH2=OFF"))
+		SWITCH2_OFF();
+	if(strstr(buf, "SWITCH3=ON"))
+		SWITCH3_ON();
+	else if(strstr(buf, "SWITCH3=OFF"))
+		SWITCH3_OFF();
+	if(strstr(buf, "SWITCH4=ON"))
+		SWITCH4_ON();
+	else if(strstr(buf, "SWITCH4=OFF"))
+		SWITCH4_OFF();
+	
 	return 1;
 }
 static u8 LightOn(u8 light_id)
@@ -373,4 +333,23 @@ u8 DevicesControl(u8 *cmd)
 	return 1;
 }
 
-
+u8 DeviceGetStatus(u8 *status)
+{
+	if(GPIO_GetBit(SWITCH1_GPIO_PORT, SWITCH1_GPIO_PIN))
+		strcat(status, "SWITCH1=ON");
+	else
+		strcat(status, "SWITCH1=OFF");
+	if(GPIO_GetBit(SWITCH2_GPIO_PORT, SWITCH2_GPIO_PIN))
+		strcat(status, "&SWITCH2=ON");
+	else
+		strcat(status, "&SWITCH2=OFF");
+	if(GPIO_GetBit(SWITCH3_GPIO_PORT, SWITCH3_GPIO_PIN))
+		strcat(status, "&SWITCH3=ON");
+	else
+		strcat(status, "&SWITCH3=OFF");
+	if(GPIO_GetBit(SWITCH4_GPIO_PORT, SWITCH4_GPIO_PIN))
+		strcat(status, "&SWITCH4=ON");
+	else
+		strcat(status, "&SWITCH4=OFF");
+	return 1;
+}
