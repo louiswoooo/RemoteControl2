@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/10/2020 17:41:24 PAGE 1   
+C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/10/2020 22:14:15 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE HTTP_TEXT
 OBJECT MODULE PLACED IN .\Objects\http_text.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\http_text.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(
-                    -.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\http_text.lst) TABS(2) OBJECT(.\Objects\http_text.obj)
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\http_text.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) D
+                    -EBUG OBJECTEXTEND PRINT(.\Listings\http_text.lst) TABS(2) OBJECT(.\Objects\http_text.obj)
 
 line level    source
 
@@ -22,7 +22,7 @@ line level    source
   12          u8 code HTTP_Server_Index[] = {"<!DOCTYPE html>\r\n\
   13          <html lang=\"en\">\r\n\
   14          <head>\r\n\
-  15              <meta charset=\"UTF-8\">\r\n\
+  15              <meta charset=\"gb2312\">\r\n\
   16              <title>Genius AI Lab</title>\r\n\
   17              <style>\r\n\
   18                  h1{font-size:600%;text-align:center}\r\n\
@@ -59,62 +59,62 @@ line level    source
   49                          <span>SWITCH4:</span>\r\n\
   50                          <button class=\"ss1\" onclick=\"jp('SWITCH4=ON')\">ON</button>\r\n\
   51                          <button class=\"ss2\" onclick=\"jp('SWITCH4=OFF')\">OFF</button>\r\n\
-  52                  <br>\r\n\
-  53              </div>\r\n\
-  54          </body>\r\n\
-C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/10/2020 17:41:24 PAGE 2   
+  52                  <br><hr>\r\n\
+  53                  <a href=\"/config\">AI远程控制设置</a>\r\n\
+  54              </div>\r\n\
+C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/10/2020 22:14:15 PAGE 2   
 
-  55          </html>"};
-  56          
-  57          u8 code HTTP_Server_Config[]  = {"<!DOCTYPE html>\r\n\
-  58          <html lang=\"en\">\r\n\
-  59          <head>\r\n\
-  60              <meta charset=\"UTF-8\">\r\n\
-  61              <title>天才AI实验室</title>\r\n\
-  62              <style>\r\n\
-  63                  h1{background-color: darkgray;margin: 20px;font-size: 64px;text-align: center;}\r\n\
-  64                  h2 {margin: 10px 40px;font-size: 54px;}\r\n\
-  65                  body{width:800px;}\r\n\
-  66                  .main-frame{float: left;background-color: #d6d6d6;float: left;border: solid 2px black;}\r\n\
-  67                  .sub-frame{float: left;border: solid 1px gray;}\r\n\
-  68                  .thd-frame{margin: 10px;float: left;border: dashed 1px gray;}\r\n\
-  69                  .form-line{margin: 10px;float: left;height: 80px;}\r\n\
-  70                  .form-line>p{margin: 0px 40px;float: left;font-size: 48px;width: 200px;line-height: 80px;text-alig
+  55          </body>\r\n\
+  56          </html>"};
+  57          
+  58          u8 code HTTP_Server_Config[]  = {"<!DOCTYPE html>\r\n\
+  59          <html lang=\"en\">\r\n\
+  60          <head>\r\n\
+  61              <meta charset=\"UTF-8\">\r\n\
+  62              <title>天才AI实验室</title>\r\n\
+  63              <style>\r\n\
+  64                  h1{background-color: darkgray;margin: 20px;font-size: 64px;text-align: center;}\r\n\
+  65                  h2 {margin: 10px 40px;font-size: 54px;}\r\n\
+  66                  body{width:800px;}\r\n\
+  67                  .main-frame{float: left;background-color: #d6d6d6;float: left;border: solid 2px black;}\r\n\
+  68                  .sub-frame{float: left;border: solid 1px gray;}\r\n\
+  69                  .thd-frame{margin: 10px;float: left;border: dashed 1px gray;}\r\n\
+  70                  .form-line{margin: 10px;float: left;height: 80px;}\r\n\
+  71                  .form-line>p{margin: 0px 40px;float: left;font-size: 48px;width: 200px;line-height: 80px;text-alig
              -n: right;}\r\n\
-  71                  .form-line>div,.form-line>input{float: right;width: 400px;height: 76px;border: solid;font-size: 48
+  72                  .form-line>div,.form-line>input{float: right;width: 400px;height: 76px;border: solid;font-size: 48
              -px;}\r\n\
-  72              </style>\r\n\
-  73          </head>\r\n\
-  74          <body>\r\n\
-  75              <div class=\"main-frame\">\r\n\
-  76                  <h1>天才AI实验室</h1>\r\n\
-  77                  <div class=\"sub-frame\">\r\n\
-  78                      <form action=\"#\">\r\n\
-  79                          <div class=\"thd-frame\">\r\n\
-  80                              <h2>WiFi</h2>\r\n\
-  81                              <div class=\"form-line\"><p>名称</p><input placeholder=\"输入连接的WiFi\" type=\"text\
+  73              </style>\r\n\
+  74          </head>\r\n\
+  75          <body>\r\n\
+  76              <div class=\"main-frame\">\r\n\
+  77                  <h1>天才AI实验室</h1>\r\n\
+  78                  <div class=\"sub-frame\">\r\n\
+  79                      <form action=\"#\">\r\n\
+  80                          <div class=\"thd-frame\">\r\n\
+  81                              <h2>WiFi</h2>\r\n\
+  82                              <div class=\"form-line\"><p>名称</p><input placeholder=\"输入连接的WiFi\" type=\"text\
              -" name=\"ssid\"></div>\r\n\
-  82                              <div class=\"form-line\"><p>密码</p><input placeholder=\"输入WiFi密码\" type=\"text\" 
+  83                              <div class=\"form-line\"><p>密码</p><input placeholder=\"输入WiFi密码\" type=\"text\" 
              -name=\"pwd\"></div>\r\n\
-  83                          </div>\r\n\
-  84                          <div class=\"thd-frame\">\r\n\
-  85                              <h2>服务器</h2>\r\n\
-  86                              <div class=\"form-line\"><p>IP地址</p><input placeholder=\"119.3.233.56\" type=\"text\
+  84                          </div>\r\n\
+  85                          <div class=\"thd-frame\">\r\n\
+  86                              <h2>服务器</h2>\r\n\
+  87                              <div class=\"form-line\"><p>IP地址</p><input placeholder=\"119.3.233.56\" type=\"text\
              -" name=\"ip\"></div>\r\n\
-  87                              <div class=\"form-line\"><p>端口</p><input placeholder=\"5000\" type=\"text\" name=\"p
+  88                              <div class=\"form-line\"><p>端口</p><input placeholder=\"5000\" type=\"text\" name=\"p
              -ort\"></div>\r\n\
-  88                          </div>\r\n\
-  89                          <div class=\"thd-frame\">\r\n\
-  90                              <h2>用户</h2>\r\n\
-  91                              <div class=\"form-line\"><p>用户名</p><input placeholder=\"输入自定义用户名\" type=\"t
+  89                          </div>\r\n\
+  90                          <div class=\"thd-frame\">\r\n\
+  91                              <h2>用户</h2>\r\n\
+  92                              <div class=\"form-line\"><p>用户名</p><input placeholder=\"输入自定义用户名\" type=\"t
              -ext\" name=\"user\"></div>\r\n\
-  92                              <div class=\"form-line\"><p>密码</p><input placeholder=\"输入自定义密码\" type=\"text\
+  93                              <div class=\"form-line\"><p>密码</p><input placeholder=\"输入自定义密码\" type=\"text\
              -" name=\"upwd\"></div>\r\n\
-  93                          </div>\r\n\
-  94                          <input style=\"float:right;margin: 10px 40px;width: 300px;height: 66px;font-size: 48px;bor
+  94                          </div>\r\n\
+  95                          <input style=\"float:right;margin: 10px 40px;width: 300px;height: 66px;font-size: 48px;bor
              -der-radius: 16px\" type=\"submit\" value=\"设定\">\r\n\
-  95                      </form>\r\n\
-  96                  <a href=\"/config\">AI远程控制设置</a>\r\n\
+  96                      </form>\r\n\
   97                  </div>\r\n\
   98              </div>\r\n\
   99          </body>\r\n\
@@ -125,8 +125,8 @@ line level    source
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =   ----    ----
-   CONSTANT SIZE    =   4064    ----
-C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/10/2020 17:41:24 PAGE 3   
+   CONSTANT SIZE    =   4069    ----
+C51 COMPILER V9.56.0.0   HTTP_TEXT                                                         08/10/2020 22:14:15 PAGE 3   
 
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

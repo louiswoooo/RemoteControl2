@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   DEBUG                                                             08/10/2020 16:30:07 PAGE 1   
+C51 COMPILER V9.56.0.0   DEBUG                                                             08/10/2020 22:04:48 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DEBUG
 OBJECT MODULE PLACED IN .\Objects\debug.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE APP\debug.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\ST
-                    -C_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\debug.lst) TABS(2) OBJECT(.\Objects\debug.obj)
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE APP\debug.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG
+                    - OBJECTEXTEND PRINT(.\Listings\debug.lst) TABS(2) OBJECT(.\Objects\debug.obj)
 
 line level    source
 

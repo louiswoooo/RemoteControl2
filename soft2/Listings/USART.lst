@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 16:30:08 PAGE 1   
+C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 22:04:49 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE USART
 OBJECT MODULE PLACED IN .\Objects\USART.obj
-COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(
-                    -.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE STC_LIB\USART.C LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) D
+                    -EBUG OBJECTEXTEND PRINT(.\Listings\USART.lst) TABS(2) OBJECT(.\Objects\USART.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52          /****************************************************************************************
   53            * @brief: 串口2字符发送程序，先把字符存入缓冲区，
   54                  然后判断是否串口正在发送，如果没有，则触发串口发送
-C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 16:30:08 PAGE 2   
+C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 22:04:49 PAGE 2   
 
   55            * @param: dat
   56            * @retval:  none
@@ -126,7 +126,7 @@ line level    source
                 COM4.B_RX_OK    = 0;
               
                 S4_Int_en();
-C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 16:30:08 PAGE 3   
+C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 22:04:49 PAGE 3   
 
               
               
@@ -190,7 +190,7 @@ line level    source
  176          
  177          //串口1初始化
  178          void Usart1Init(void)   //115200bps@22.1184MHz
-C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 16:30:08 PAGE 4   
+C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 22:04:49 PAGE 4   
 
  179          {
  180   1        SCON = 0x50;    //8???,?????
@@ -254,7 +254,7 @@ line level    source
  238   3            COM1.RX_TimeOut = TimeOutSet1;
  239   3          }
  240   2        }
-C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 16:30:08 PAGE 5   
+C51 COMPILER V9.56.0.0   USART                                                             08/10/2020 22:04:49 PAGE 5   
 
  241   1      
  242   1        if(TI)

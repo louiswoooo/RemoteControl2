@@ -32,6 +32,7 @@ void main(void)
 			case server:
 				if(WIFI_Receive(50))
 				{
+					debug(WIFI_RBUF);
 					task_Server();
 				}
 				break;
