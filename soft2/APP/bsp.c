@@ -28,7 +28,7 @@ void bsp(void)
 	{
 		debug("wifi reset\r\n");
 		WIFI_Reset();
-		if(WIFI_SetClientMode())
+		if(WIFI_SetServerMode())
 		{
 			debug("wifi set Client sucess\r\n");
 			break;

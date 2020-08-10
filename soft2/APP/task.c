@@ -18,7 +18,13 @@ eap8266作为服务端，接收消息格式:
 //服务端判断请求首页关键字
 #define HTTP_SERVER_INDEX_KEYWORD		"GET / " 		
 //服务端判断请求控制页关键字
-#define HTTP_SERVER_CONTROL_KEYWORD		"GET /?" 		
+#define HTTP_SERVER_CONTROL_KEYWORD		"GET /?" 	
+//服务端判断请求控制页关键字
+#define HTTP_SERVER_CONFIG_KEYWORD		"GET /config" 	
+//服务端判断请求控制页关键字
+#define HTTP_SERVER_RES_KEYWORD		"GET /res" 	
+
+
 //客户端判断收到控制信息关键字
 #define HTTP_CLIENT_CONTROL_KEYWORD		"control?" 
 
@@ -28,37 +34,37 @@ void task_Server(void)
 {
 	u8 *p, *temp;
 	u8 client_id[2];
-	debug(">>>>>>>>>>>>>>>>>>>>task_Server\r\n");
+	temp = strstr(WIFI_RBUF, "HTTP");	//	判断是否为http 请求
+	if(!temp)
+		return;
 	//浏览器发送的请求信息会很多，为方便处理
 	//截取第一行到HTTP之前的请求有效信息
-	temp = strstr(WIFI_RBUF, "HTTP");
-	if(temp)
+	*temp = 0x00;
+	p = strstr(WIFI_RBUF, SERVER_MSG_KEYWORD);		//获取链接的client_id
+	if(!p)
+		return;
+	p = p + sizeof(SERVER_MSG_KEYWORD)-1;
+	client_id[0] = *p;			//
+	client_id[1] = '\0';
+	p = strstr(WIFI_RBUF,  HTTP_SERVER_INDEX_KEYWORD);		//请求首页?
+	if(p)
 	{
-		*temp = 0x00;
-		p = strstr(WIFI_RBUF, SERVER_MSG_KEYWORD);		//获取链接的client_id
-		if(p)
-		{
-			p = p + sizeof(SERVER_MSG_KEYWORD)-1;
-			debug_vip(p);
-			client_id[0] = *p;			//
-			client_id[1] = '\0';
-			p = strstr(WIFI_RBUF,  HTTP_SERVER_INDEX_KEYWORD);		//请求首页?
-			if(p)
-			{
-				WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);	//发送首页
-			}
-			else
-			{
-				p = strstr(WIFI_RBUF, HTTP_SERVER_CONTROL_KEYWORD);	//请求控制?
-				if(p)
-				{
-					if(DevicesControl(p) == 1)		//控制外设
-						WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);	//成功返回控制页面
-					else
-						WIFI_Server_HTTP_Response(client_id, "Devices control Fail !!!");		//师范返回信息
-				}
-			}
-		}
+		WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);	//发送首页
+	}
+	else if(p = strstr(WIFI_RBUF, HTTP_SERVER_CONTROL_KEYWORD))	//请求控制?
+	{
+		if(DevicesControl(p) == 1)		//控制外设
+			WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);	//成功返回控制页面
+		else
+			WIFI_Server_HTTP_Response(client_id, "Devices control Fail !!!");		//师范返回信息
+	}
+	else if(p = strstr(WIFI_RBUF, HTTP_SERVER_CONFIG_KEYWORD))	//请求配置页面
+	{
+		WIFI_Server_HTTP_Response(client_id, HTTP_Server_Config);	//发送
+	}
+	else if(p = strstr(WIFI_RBUF, HTTP_SERVER_RES_KEYWORD))	//请求配置结果页面
+	{
+		WIFI_Server_HTTP_Response(client_id, HTTP_Server_Res);	//发送
 	}
 }
 

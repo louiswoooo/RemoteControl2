@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   TASK                                                              08/03/2020 22:13:28 PAGE 1   
+C51 COMPILER V9.56.0.0   TASK                                                              08/10/2020 17:41:24 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE TASK
@@ -28,86 +28,92 @@ line level    source
   18          //服务端判断请求首页关键字
   19          #define HTTP_SERVER_INDEX_KEYWORD   "GET / "    
   20          //服务端判断请求控制页关键字
-  21          #define HTTP_SERVER_CONTROL_KEYWORD   "GET /?"    
-  22          //客户端判断收到控制信息关键字
-  23          #define HTTP_CLIENT_CONTROL_KEYWORD   "control?" 
-  24          
-  25          
+  21          #define HTTP_SERVER_CONTROL_KEYWORD   "GET /?"  
+  22          //服务端判断请求控制页关键字
+  23          #define HTTP_SERVER_CONFIG_KEYWORD    "GET /config"   
+  24          //服务端判断请求控制页关键字
+  25          #define HTTP_SERVER_RES_KEYWORD   "GET /res"  
   26          
-  27          void task_Server(void)
-  28          {
-  29   1        u8 *p, *temp;
-  30   1        u8 client_id[2];
-  31   1        debug(">>>>>>>>>>>>>>>>>>>>task_Server\r\n");
-  32   1        //浏览器发送的请求信息会很多，为方便处理
-  33   1        //截取第一行到HTTP之前的请求有效信息
-  34   1        temp = strstr(WIFI_RBUF, "HTTP");
-  35   1        if(temp)
-  36   1        {
-  37   2          *temp = 0x00;
-  38   2          p = strstr(WIFI_RBUF, SERVER_MSG_KEYWORD);    //获取链接的client_id
-  39   2          if(p)
-  40   2          {
-  41   3            p = p + sizeof(SERVER_MSG_KEYWORD)-1;
-  42   3            debug_vip(p);
-  43   3            client_id[0] = *p;      //
-  44   3            client_id[1] = '\0';
-  45   3            p = strstr(WIFI_RBUF,  HTTP_SERVER_INDEX_KEYWORD);    //请求首页?
-  46   3            if(p)
-  47   3            {
-  48   4              WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //发送首页
-  49   4            }
-  50   3            else
-  51   3            {
-  52   4              p = strstr(WIFI_RBUF, HTTP_SERVER_CONTROL_KEYWORD); //请求控制?
-  53   4              if(p)
-  54   4              {
-C51 COMPILER V9.56.0.0   TASK                                                              08/03/2020 22:13:28 PAGE 2   
+  27          
+  28          //客户端判断收到控制信息关键字
+  29          #define HTTP_CLIENT_CONTROL_KEYWORD   "control?" 
+  30          
+  31          
+  32          
+  33          void task_Server(void)
+  34          {
+  35   1        u8 *p, *temp;
+  36   1        u8 client_id[2];
+  37   1        temp = strstr(WIFI_RBUF, "HTTP"); //  判断是否为http 请求
+  38   1        if(!temp)
+  39   1          return;
+  40   1        //浏览器发送的请求信息会很多，为方便处理
+  41   1        //截取第一行到HTTP之前的请求有效信息
+  42   1        *temp = 0x00;
+  43   1        p = strstr(WIFI_RBUF, SERVER_MSG_KEYWORD);    //获取链接的client_id
+  44   1        if(!p)
+  45   1          return;
+  46   1        p = p + sizeof(SERVER_MSG_KEYWORD)-1;
+  47   1        client_id[0] = *p;      //
+  48   1        client_id[1] = '\0';
+  49   1        p = strstr(WIFI_RBUF,  HTTP_SERVER_INDEX_KEYWORD);    //请求首页?
+  50   1        if(p)
+  51   1        {
+  52   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //发送首页
+  53   2        }
+  54   1        else if(p = strstr(WIFI_RBUF, HTTP_SERVER_CONTROL_KEYWORD)) //请求控制?
+C51 COMPILER V9.56.0.0   TASK                                                              08/10/2020 17:41:24 PAGE 2   
 
-  55   5                if(DevicesControl(p) == 1)    //控制外设
-  56   5                  WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //成功返回控制页面
-  57   5                else
-  58   5                  WIFI_Server_HTTP_Response(client_id, "Devices control Fail !!!");   //师范返回信息
-  59   5              }
-  60   4            }
-  61   3          }
-  62   2        }
-  63   1      }
-  64          
-  65          void task_Client(void)
-  66          {
-  67   1        u8 device_para[100];
-  68   1        u8 *p;
-  69   1        if(!WIFI_ClientConnectServer(SERVER_IP, SERVER_PORT))
-  70   1          return;
-  71   1        SERVER_LIGHT_ON();
-  72   1        device_para[0] = 0;
-  73   1        DeviceGetStatus(device_para); //获取设备信息字符串
-  74   1         //向服务器发送设备状态http 请求
-  75   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+  55   1        {
+  56   2          if(DevicesControl(p) == 1)    //控制外设
+  57   2            WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //成功返回控制页面
+  58   2          else
+  59   2            WIFI_Server_HTTP_Response(client_id, "Devices control Fail !!!");   //师范返回信息
+  60   2        }
+  61   1        else if(p = strstr(WIFI_RBUF, HTTP_SERVER_CONFIG_KEYWORD))  //请求配置页面
+  62   1        {
+  63   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Config); //发送
+  64   2        }
+  65   1        else if(p = strstr(WIFI_RBUF, HTTP_SERVER_RES_KEYWORD)) //请求配置结果页面
+  66   1        {
+  67   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Res);  //发送
+  68   2        }
+  69   1      }
+  70          
+  71          void task_Client(void)
+  72          {
+  73   1        u8 device_para[100];
+  74   1        u8 *p;
+  75   1        if(!WIFI_ClientConnectServer(SERVER_IP, SERVER_PORT))
   76   1          return;
-  77   1        if(WIFI_Receive(1000))    //等待服务器响应
-  78   1        {
-  79   2          SERVER_LIGHT_OFF();
-  80   2          p = strstr(WIFI_RBUF, HTTP_CLIENT_CONTROL_KEYWORD); //收到有效控制信息?
-  81   2          if(p)
-  82   2          {
-  83   3            DevicesControl(p);
-  84   3          }
-  85   2        }
-  86   1        else
-  87   1        {
-  88   2          debug("Server response timeout!\r\n");
-  89   2          
-  90   2        }
-  91   1        SERVER_LIGHT_OFF();
-  92   1      }
-  93          
+  77   1        SERVER_LIGHT_ON();
+  78   1        device_para[0] = 0;
+  79   1        DeviceGetStatus(device_para); //获取设备信息字符串
+  80   1         //向服务器发送设备状态http 请求
+  81   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+  82   1          return;
+  83   1        if(WIFI_Receive(1000))    //等待服务器响应
+  84   1        {
+  85   2          SERVER_LIGHT_OFF();
+  86   2          p = strstr(WIFI_RBUF, HTTP_CLIENT_CONTROL_KEYWORD); //收到有效控制信息?
+  87   2          if(p)
+  88   2          {
+  89   3            DevicesControl(p);
+  90   3          }
+  91   2        }
+  92   1        else
+  93   1        {
+  94   2          debug("Server response timeout!\r\n");
+  95   2          
+  96   2        }
+  97   1        SERVER_LIGHT_OFF();
+  98   1      }
+  99          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    427    ----
-   CONSTANT SIZE    =    138    ----
+   CODE SIZE        =    511    ----
+   CONSTANT SIZE    =    125    ----
    XDATA SIZE       =   ----     105
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

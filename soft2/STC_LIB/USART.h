@@ -85,6 +85,8 @@ extern	u8 	xdata RX1_Buffer[COM_RX1_Lenth];	//Ω” ’ª∫≥Â
 /************************Below is personal adding drives*********************************/
 void Usart2Init (void);
 void Usart2SendString(u8 *puts);
+void TX2_write2buff(u8 dat);
+
 
 void Usart4Init(void);
 void Usart4SendString(u8 *puts);

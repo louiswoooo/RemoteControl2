@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              08/03/2020 22:06:13 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              08/10/2020 16:30:07 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
@@ -25,7 +25,7 @@ line level    source
   15          
   16          typedef enum _t_status_
   17          {
-  18            ap=1,
+  18            server=1,
   19            client
   20          }_t_status;
   21          
@@ -33,13 +33,13 @@ line level    source
   23          
   24          void main(void)
   25          {
-  26   1        Status = client;
+  26   1        Status = server;
   27   1        bsp();
   28   1        while(1)
   29   1        {
   30   2          switch(Status)
   31   2          {
-  32   3            case ap:
+  32   3            case server:
   33   3              if(WIFI_Receive(50))
   34   3              {
   35   4                task_Server();
@@ -62,7 +62,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      1    ----
    PDATA SIZE       =   ----    ----
-C51 COMPILER V9.56.0.0   MAIN                                                              08/03/2020 22:06:13 PAGE 2   
+C51 COMPILER V9.56.0.0   MAIN                                                              08/10/2020 16:30:07 PAGE 2   
 
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

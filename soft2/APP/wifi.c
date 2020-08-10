@@ -18,6 +18,8 @@
 #define WIFI_SEND_TIMEOUT_MS	3000
 #define WIFI_SEND_TRY_TIMES	3
 
+#define SERVER_RESPONSE_BLOCK_SIZE	1800
+
 typedef	struct	
 {
 	u8 *send;			//命令
@@ -169,71 +171,7 @@ u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
 	}
 	return 0;
 }
-/****************************************************************************************
-  * @brief:	esp8266作为服务端向连接的客户端发送函数，格式如下:
-  			AT+CIPSEND=clientid,length		//client 连接的客户端id，length 发送的数据长度
-  			OK
-  			>xxxxxxx				//发送的数据
-  			busy s...
-  			Recv xx bytes
-  			SEND OK
-  			
-  			如果length大于实际发送的数据长度，则此次发送不发生，
-  			如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
-  * @param:	client_id，连接的客户端id， p发送内容指针
-  * @retval:	成功返回1，失败0
-*****************************************************************************************/
-u8 server_send_to_client(u8 *client_id, u8 *p)
-{
-	u8 temp[6];
-	u8 cmd[30]="AT+CIPSEND=";
-	u8 *str;
-	u16 send_len = strlen(p);
-	strcat(cmd, client_id);				//组合客户端id
-	strcat(cmd, ",");
-	str = int_to_str(temp, send_len);
-	strcat(cmd, str);					//组合长度
-	strcat(cmd, "\r\n");
 
-	if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))		//发送发送命令
-		return FAIL;
-	if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))			//发送内容
-		return FAIL;
-
-	return SUCCESS;
-}
-/****************************************************************************************
-  * @brief:	esp8266作为客户端向连接的服务端发送函数，格式如下:
-  			AT+CIPSEND=length		//length 发送的数据长度
-  			OK
-  			>xxxxxxx				//发送的数据
-  			busy s...
-  			Recv xx bytes
-  			SEND OK
-  			
-  			如果length大于实际发送的数据长度，则此次发送不发生，
-  			如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
-  * @param:	p发送内容指针
-  * @retval:	成功返回1，失败0
-****************************************************************************************
-u8 client_send_to_server( u8 *p)
-{
-	u8 temp[6];
-	u8 cmd[30]="AT+CIPSEND=";
-	u8 *str;
-	u16 send_len = strlen(p);
-	str = int_to_str(temp, send_len);
-	strcat(cmd, str);					//组合长度
-	strcat(cmd, "\r\n");
-
-	if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))		//发送发送命令
-		return FAIL;
-	if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))			//发送内容
-		return FAIL;
-
-	return SUCCESS;
-}
-*/
 /****************************************************************************************
   * @brief:	esp8266作为服务端的http response 函数，收到http请求以后，
   			调用该函数进行response (参看HTTP 协议)
@@ -243,22 +181,46 @@ u8 client_send_to_server( u8 *p)
 *****************************************************************************************/
 u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
 {
-	u8 http_content_lenth_string[10];
+	u16 i;
 	u8 temp[6];
+	u8 response_head2[12];
+	u8 cmd[30]="AT+CIPSEND=";	//发送命令
+	u8 *str;
+	u16 len, content_size;	
 	u8 *p;
-	u16 content_size = strlen(content);
-	
-	memset(http_content_lenth_string, 0, sizeof(http_content_lenth_string));
-	if(!server_send_to_client(client_id, HTTP_Server_Response_Head1) )		//发送http 头，不包括content_length
+
+	content_size = strlen(content);
+	//发送h1+h2
+	int_to_str(response_head2, content_size);
+	strcat(response_head2, "\r\n\r\n");
+	len = strlen(HTTP_Server_Response_Head1) + strlen(response_head2);	//计算长度
+	str = int_to_str(temp, len);		//转换成长度字符
+	strcat(cmd, client_id);
+	strcat(cmd, ",");
+	strcat(cmd, str);					//组合长度
+	strcat(cmd, "\r\n");
+	if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送发送命令，等待回应
 		return FAIL;
-	
-	p = int_to_str( temp, content_size);			//发送content_length和两个换行符
-	strcat(http_content_lenth_string, p);
-	strcat(http_content_lenth_string,"\r\n\r\n");
-	if(!server_send_to_client(client_id, http_content_lenth_string))
-		return FAIL;
-	
-	if(!server_send_to_client(client_id, content))		//发送内容
+	Usart2SendString(HTTP_Server_Response_Head1);
+	Usart2SendString(response_head2);
+	//发送content
+	for(i = content_size/SERVER_RESPONSE_BLOCK_SIZE;i>0;i--)
+	{
+		str = int_to_str(temp, SERVER_RESPONSE_BLOCK_SIZE);		//转换成长度字符
+		strcat(cmd, client_id);
+		strcat(cmd, ",");
+		strcat(cmd, str);					//组合长度
+		strcat(cmd, "\r\n");
+		if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送发送命令，等待回应
+			return FAIL;
+		TX2_write2buff(*p);
+		p++;
+		if(!wifi_send_and_wait(NULL, "SEND OK", WIFI_SEND_TIMEOUT_MS))
+			return FAIL;
+	}
+	//发送结尾
+	p++;
+	if(!wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))
 		return FAIL;
 	return SUCCESS;
 
@@ -362,3 +324,131 @@ u8 WIFI_ClientConnectServer(u8 *ip, u8 *port)
 		return FAIL;
 	return SUCCESS;
 }
+
+/****************************************************************************************
+  * @brief:	esp8266作为服务端向连接的客户端发送函数，格式如下:
+  			AT+CIPSEND=clientid,length		//client 连接的客户端id，length 发送的数据长度
+  			OK
+  			>xxxxxxx				//发送的数据
+  			busy s...
+  			Recv xx bytes
+  			SEND OK
+  			
+  			如果length大于实际发送的数据长度，则此次发送不发生，
+  			如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+  * @param:	client_id，连接的客户端id， p发送内容指针
+  * @retval:	成功返回1，失败0
+*****************************************************************************************
+u8 server_send_to_client(u8 *client_id, u8 *p)
+{
+	u8 temp[6];
+	u8 cmd[30]="AT+CIPSEND=";
+	u8 *str;
+	u16 send_len = strlen(p);
+	strcat(cmd, client_id);				//组合客户端id
+	strcat(cmd, ",");
+	str = int_to_str(temp, send_len);
+	strcat(cmd, str);					//组合长度
+	strcat(cmd, "\r\n");
+
+	if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))		//发送发送命令
+		return FAIL;
+	if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))			//发送内容
+		return FAIL;
+
+	return SUCCESS;
+}
+****************************************************************************************
+  * @brief:	esp8266作为客户端向连接的服务端发送函数，格式如下:
+  			AT+CIPSEND=length		//length 发送的数据长度
+  			OK
+  			>xxxxxxx				//发送的数据
+  			busy s...
+  			Recv xx bytes
+  			SEND OK
+  			
+  			如果length大于实际发送的数据长度，则此次发送不发生，
+  			如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+  * @param:	p发送内容指针
+  * @retval:	成功返回1，失败0
+****************************************************************************************
+u8 client_send_to_server( u8 *p)
+{
+	u8 temp[6];
+	u8 cmd[30]="AT+CIPSEND=";
+	u8 *str;
+	u16 send_len = strlen(p);
+	str = int_to_str(temp, send_len);
+	strcat(cmd, str);					//组合长度
+	strcat(cmd, "\r\n");
+
+	if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))		//发送发送命令
+		return FAIL;
+	if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))			//发送内容
+		return FAIL;
+
+	return SUCCESS;
+}
+
+****************************************************************************************
+  * @brief:	esp8266作为服务端的http response 函数，收到http请求以后，
+  			调用该函数进行response (参看HTTP 协议)
+  			分成3部分发送，先发送http 头，然后是content_length，最后content
+  * @param:	client_id，连接的客户端id， p发送内容指针
+  * @retval:	成功返回1，失败0
+*****************************************************************************************
+u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
+{
+	u8 http_content_lenth_string[10];
+	u8 temp[6];
+	u8 *p;
+	u16 content_size = strlen(content);
+	
+	memset(http_content_lenth_string, 0, sizeof(http_content_lenth_string));
+	if(!server_send_to_client(client_id, HTTP_Server_Response_Head1) )		//发送http 头，不包括content_length
+		return FAIL;
+	
+	p = int_to_str( temp, content_size);			//发送content_length和两个换行符
+	strcat(http_content_lenth_string, p);
+	strcat(http_content_lenth_string,"\r\n\r\n");
+	if(!server_send_to_client(client_id, http_content_lenth_string))
+		return FAIL;
+	
+	if(!server_send_to_client(client_id, content))		//发送内容
+		return FAIL;
+	return SUCCESS;
+
+}
+*/
+/****************************************************************************************
+  * @brief:	esp8266作为客户端向连接的服务端发送函数，格式如下:
+  			AT+CIPSEND=length		//length 发送的数据长度
+  			OK
+  			>xxxxxxx				//发送的数据
+  			busy s...
+  			Recv xx bytes
+  			SEND OK
+  			
+  			如果length大于实际发送的数据长度，则此次发送不发生，
+  			如果length小于实际发送的长度，则此次发送length长度的数据，多余的数据截断丢失
+  * @param:	p发送内容指针
+  * @retval:	成功返回1，失败0
+****************************************************************************************
+u8 client_send_to_server( u8 *p)
+{
+	u8 temp[6];
+	u8 cmd[30]="AT+CIPSEND=";
+	u8 *str;
+	u16 send_len = strlen(p);
+	str = int_to_str(temp, send_len);
+	strcat(cmd, str);					//组合长度
+	strcat(cmd, "\r\n");
+
+	if( !wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))		//发送发送命令
+		return FAIL;
+	if( !wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))			//发送内容
+		return FAIL;
+
+	return SUCCESS;
+}
+*/

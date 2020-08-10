@@ -15,7 +15,7 @@
 
 typedef enum _t_status_
 {
-	ap=1,
+	server=1,
 	client
 }_t_status;
 
@@ -23,13 +23,13 @@ _t_status Status;
 
 void main(void)
 {
-	Status = client;
+	Status = server;
 	bsp();
 	while(1)
 	{
 		switch(Status)
 		{
-			case ap:
+			case server:
 				if(WIFI_Receive(50))
 				{
 					task_Server();

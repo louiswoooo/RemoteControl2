@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   SYS                                                               08/02/2020 18:35:19 PAGE 1   
+C51 COMPILER V9.56.0.0   SYS                                                               08/10/2020 16:30:07 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE SYS
@@ -62,7 +62,7 @@ line level    source
   52   1        {
   53   2          sys_tick--;
   54   2        }
-C51 COMPILER V9.56.0.0   SYS                                                               08/02/2020 18:35:19 PAGE 2   
+C51 COMPILER V9.56.0.0   SYS                                                               08/10/2020 16:30:07 PAGE 2   
 
   55   1        
   56   1        if(COM2.B_RX_EN)      //如果允许串口接收
@@ -126,7 +126,7 @@ line level    source
  114          #define DOG_FLAG_MASK     0x80
  115          #define DOG_ENABLE_MASK   0x20
  116          #define DOG_CLEAR_MASK    0x10
-C51 COMPILER V9.56.0.0   SYS                                                               08/02/2020 18:35:19 PAGE 3   
+C51 COMPILER V9.56.0.0   SYS                                                               08/10/2020 16:30:07 PAGE 3   
 
  117          #define DOG_IDLECOUNT_MASK 0x08
  118          #define DOG_PRESCALER_MASK      0xf8
