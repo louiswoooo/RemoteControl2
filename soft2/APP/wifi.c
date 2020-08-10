@@ -11,8 +11,6 @@
 #include "sys.h"
 #include "wifi.h"
 #include "http_text.h"
-#define SERVER_ADDR		"119.3.233.56"
-#define SERVER_PORT		8000
 
 #define WIFI_CMD_TIMEOUT_MS	3000
 #define WIFI_CMD_TRY_TIMES		5
@@ -47,8 +45,6 @@ const _t_WIFI_CMD_Info	CMD_Server={"AT+CIPSERVER=1,5000\r\n", "OK"};
 //##查看一下ESP8266的IP
 const _t_WIFI_CMD_Info	CMD_IP={"AT+CIFSR\r\n", "OK"};        
 
-//ap模式下的发送命令，0连接客户端，170发送字节长度
-_t_WIFI_CMD_Info 	CMD_Send= {"AT+CIPSEND=0,170\r\n", "OK"};
 
 /*****************************************************************************
 设置ESP8266 客户端 模式命令和答复关键字
@@ -71,11 +67,11 @@ const _t_WIFI_CMD_Info	CMD_Disconnect_Server={"AT+CIPCLOSE=0\r\n", "OK"};
 #define	wifi_reset_pin_low()		GPIO_ClearBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
 #define	wifi_reset_pin_high()		GPIO_SetBit(WIFI_GPIO_PORT, WIFI_GPIO_PIN)
 
-/*
+/*****************************************************************************
   * @brief:	整形数字转换成字符串函数
   * @param:	num 要转换的整数，str 转换出来的字符串的存贮控件指针
   * @retval:	返回去掉前面的0的整数字符串指针
-*/
+*******************************************************************************/
 u8 *int_to_str( u8 *str,u16 num)
 {
 	u8 *p;
@@ -93,7 +89,11 @@ u8 *int_to_str( u8 *str,u16 num)
 	return p;
 }
 
-//esp8266硬件重启
+/*****************************************************************************
+  * @brief:	esp 8266 硬件重启，需要给它一个低电平，然后延时进入控制
+  * @param:	num 要转换的整数，str 转换出来的字符串的存贮控件指针
+  * @retval:	返回去掉前面的0的整数字符串指针
+*******************************************************************************/
 void WIFI_Reset(void)
 {
 	GPIO_InitTypeDef	wifi_gpio_init;
@@ -110,9 +110,10 @@ void WIFI_Reset(void)
 }
 /****************************************************************************************
   * @brief:	esp8266 串口接收函数，启动接收，以块为单位接收串口信息，
-			调用函数以后，如果TimeOutSet2*(ms/tick) 时间内接收不到新字节
-			接收块结束，返回接收到的字节数，本函数为阻塞函数	
-			阻塞时间为: 接收块时间+ TimeOutSet2
+			调用函数以后，每次以(TimeOutSet2* MS_PER_TICK) 时间接收串口信息，
+			如果收到则返回，如果等待timeout_ms 时间仍然没有收到一个字节
+			函数则超时返回
+			其中COM2.RX_TimeOut 为块接收超时计数器，每个tick 中断会-1
   * @param:	timeout_ms, wifi 接收的超时时间
   * @retval:	返回接收到的字节数，接收到的块存在缓存RX2_Buffer
 *****************************************************************************************/
@@ -121,17 +122,17 @@ u8 WIFI_Receive(u16 timeout_ms)
 	u16 i;
 	if(timeout_ms > 0)
 	{
-		for(i= timeout_ms/(TimeOutSet2* MS_PER_TICK); i>0; i--)
+		for(i= timeout_ms/(TimeOutSet2* MS_PER_TICK); i>0; i--)		//计算在timeout_ms时间的循环次数
 		{
-			COM2.B_RX_EN=1;
-			COM2.RX_Cnt=0;
-			COM2.B_RX_OK=0;
-			COM2.RX_TimeOut=TimeOutSet2;
-			while(COM2.RX_TimeOut>0);			//每次串口接收不到字节产生超时，判定为一次块接收完成
-			COM2.B_RX_EN=0;
-			if(COM2.B_RX_OK)
+			COM2.B_RX_EN=1;		//设置允许接收
+			COM2.RX_Cnt=0;			//清零接收计数器
+			COM2.B_RX_OK=0;		//清零接收标志
+			COM2.RX_TimeOut=TimeOutSet2;	//设置块接收时间
+			while(COM2.RX_TimeOut>0);			//如果块接收超时时间未到，继续等待
+			COM2.B_RX_EN=0;			//超时时间到，停止接收
+			if(COM2.B_RX_OK)			//如果收到字节
 			{
-				return COM2.RX_Cnt;
+				return COM2.RX_Cnt;	//返回字节
 			}
 		}
 	}
@@ -140,10 +141,11 @@ u8 WIFI_Receive(u16 timeout_ms)
 
 
 /****************************************************************************************
-  * @brief:	给esp8266 发送命令，并匹配缓冲区当中的字符				
+  * @brief:	给esp8266 发送信息，并匹配缓冲区当中的字符
+  			等待timeout_ms 如果收到匹配则返回1，否则返回0
   * @param:	send:	要发送的命令
 			match:	要匹配的字符串
-			timeout_ticks:	设置超时的时间ms
+			timeout_ms:	设置超时的时间ms
   * @retval:	如果在超时时间内收到多条消息，每条消息都与match 匹配，
   			成功立即返回1，超时则返回0
 *****************************************************************************************/
@@ -152,7 +154,7 @@ u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
 	u8 *p;
 	u16 i;
 	
-	Usart2SendString(send);			//发送命令
+	Usart2SendString(send);			//发送消息
 	for(i = (timeout_ms/TimeOutSet2) / MS_PER_TICK; i>0; i--)		
 	{
 		if(WIFI_Receive(TimeOutSet2 * MS_PER_TICK))			//等待块消息
@@ -269,25 +271,25 @@ u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
   			2. 发送请求参数SWITH1=ON&SWITCH2=OFF&xxxx，
   			3. 发送头剩余信息
   			4. 发送步骤2的参数
-  * @param:	h1 http 头前导, http参数，3头部剩余
+  * @param:	h1 http 头前导, para http参数，h3头部剩余
   * @retval:	成功返回1，失败0
 *****************************************************************************************/
 u8 WIFI_Client_HTTP_Request(u8 *h1, u8 *para, u8 *h3)
 {
 	u8 temp[6];
-	u8 cmd[30]="AT+CIPSEND=";
+	u8 cmd[30]="AT+CIPSEND=";	//发送命令
 	u8 *str;
-	u16 request_len = strlen(h1) + strlen(para)*2 + strlen(h3) ;
-	str = int_to_str(temp, request_len);
+	u16 request_len = strlen(h1) + strlen(para)*2 + strlen(h3) ;	//计算长度
+	str = int_to_str(temp, request_len);		//转换成长度字符
 	strcat(cmd, str);					//组合长度
 	strcat(cmd, "\r\n");
 
 	if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送发送命令，等待回应
 		return FAIL;
-	Usart2SendString(h1);
-	Usart2SendString(para);
-	Usart2SendString(h3);
-	if(!wifi_send_and_wait(para, "SEND OK", WIFI_CMD_TIMEOUT_MS ))
+	Usart2SendString(h1);	//发送头部1
+	Usart2SendString(para);	//发送参数
+	Usart2SendString(h3);	//发送头部3
+	if(!wifi_send_and_wait(para, "SEND OK", WIFI_CMD_TIMEOUT_MS ))		//发送参数，并等待发送完成
 		return FAIL;
 	debug_vip("SEND OK");
 	return SUCCESS;
@@ -323,7 +325,7 @@ u8 WIFI_SetServerMode(void)
 }
 /*****************************************************************************
 设置ESP8266 客户端 模式命令和答复关键字
-连接流程:设置STA模式-重启-连接wifi-开启单链接-建立TCP连接
+连接流程:设置STA模式-重启-连接wifi-开启单链接
 *******************************************************************************/
 u8 WIFI_SetClientMode(void)
 {
@@ -332,7 +334,7 @@ u8 WIFI_SetClientMode(void)
 		return FAIL;
 	if( !wifi_send_and_wait(CMD_Reset.send, CMD_Reset.match, WIFI_CMD_TIMEOUT_MS ))
 		return FAIL;
-	delay_s(3);
+	delay_s(2);
 	//连接wifi，注意wifi连接用时较长，所以给了较长超时时间
 	if( !wifi_send_and_wait(CMD_Connect_WIFI.send, CMD_Connect_WIFI.match, 20000 ))	
 	{
@@ -341,28 +343,22 @@ u8 WIFI_SetClientMode(void)
 	//设置为单连接模式
 	if( !wifi_send_and_wait(CMD_Single.send, CMD_Single.match, WIFI_CMD_TIMEOUT_MS ))
 		return FAIL;
-	//服务器连接也给较长时间
-	/*
-	if( !wifi_send_and_wait(CMD_Connect_Server.send, CMD_Connect_Server.match, 10000 ))
-		return FAIL;
-		*/
 	return SUCCESS;
 }
-
-u8 WIFI_ClientConnectServer(void)
+/*****************************************************************************
+  * @brief:	客户端模式下连接服务器
+  		连接命令: AT+CIPSTART="TCP","192.168.1.106",5000\r\n
+  * @param:	ip 连接的服务器ip , port 服务器端口
+  * @retval:	成功返回1，失败0
+*******************************************************************************/
+u8 WIFI_ClientConnectServer(u8 *ip, u8 *port)
 {
-	if( !wifi_send_and_wait(CMD_Connect_Server.send, CMD_Connect_Server.match, 10000 ))
+	u8 cmd[50] = {"AT+CIPSTART=\"TCP\",\""};
+	strcat(cmd, ip);
+	strcat(cmd, "\",");
+	strcat(cmd, port);
+	strcat(cmd, "\r\n");
+	if( !wifi_send_and_wait(cmd, "CONNECT", 10000 ))
 		return FAIL;
 	return SUCCESS;
-}
-u8 WIFI_ClientDisonnectServer(void)
-{
-	if( !wifi_send_and_wait(CMD_Disconnect_Server.send, CMD_Disconnect_Server.match, 5000 ))
-		return FAIL;
-	return SUCCESS;
-}
-u8 WIFI_SetClientSingleConnect(void)
-{
-	if( !wifi_send_and_wait(CMD_Single.send, CMD_Single.match, WIFI_CMD_TIMEOUT_MS ))
-		return FAIL;
 }

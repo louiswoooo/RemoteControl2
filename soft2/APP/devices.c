@@ -269,7 +269,7 @@ static u8 LightControl(u8 *buf)
 
 void DevicesInit(void)
 {
-	GPIO_InitTypeDef	light_pin_init, switch_pin_init, dh_pin_init;
+	GPIO_InitTypeDef	light_pin_init, switch_pin_init, dh_pin_init, server_light_pin_init;
 	PCA_InitTypeDef pca_init;
 
 	switch_pin_init.Mode=GPIO_OUT_PP;
@@ -277,6 +277,10 @@ void DevicesInit(void)
 	GPIO_Inilize(SWITCH1_GPIO_PORT,&switch_pin_init);
 	switch_pin_init.Pin=SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
 	GPIO_Inilize(SWITCH2_GPIO_PORT,&switch_pin_init);
+
+	server_light_pin_init.Mode=GPIO_OUT_PP;
+	server_light_pin_init.Pin=SERVER_GPIO_PIN;
+	GPIO_Inilize(SERVER_GPIO_PORT,&switch_pin_init);
 
 	dh_pin_init.Mode=GPIO_PullUp;
 	dh_pin_init.Pin=DH_GPIO_PIN;
@@ -305,8 +309,12 @@ void DevicesInit(void)
 	SWITCH3_OFF();
 	SWITCH4_OFF();
 
+	SERVER_LIGHT_OFF();
+
 	LightOff(PCA_LIGHT1);
 	LightOff(PCA_LIGHT2);
+	LIGHT1_OFF();
+	LIGHT2_OFF();
 
 	Light1Power=0;
 	Light2Power=0;

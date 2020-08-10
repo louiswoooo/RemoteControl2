@@ -3,6 +3,10 @@
 #include "string.h"
 #include "debug.h"
 #include "devices.h"
+
+#define SERVER_IP		"119.3.233.56"
+#define SERVER_PORT		"5000"
+
 /***************************************************************************
 eap8266作为服务端，接收消息格式:
 +IPD,id,length:data, id 为连接的客户端id，length为接收到的字符串长度,data为数据
@@ -62,25 +66,28 @@ void task_Client(void)
 {
 	u8 device_para[100];
 	u8 *p;
+	if(!WIFI_ClientConnectServer(SERVER_IP, SERVER_PORT))
+		return;
+	SERVER_LIGHT_ON();
+	device_para[0] = 0;
+	DeviceGetStatus(device_para);	//获取设备信息字符串
 	 //向服务器发送设备状态http 请求
-	if(WIFI_ClientConnectServer())
+	if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+		return;
+	if(WIFI_Receive(1000))		//等待服务器响应
 	{
-		device_para[0] = 0;
-		DeviceGetStatus(device_para);	//获取设备信息字符串
-		WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3);
-		if(WIFI_Receive(1000))		//等待服务器响应
+		SERVER_LIGHT_OFF();
+		p = strstr(WIFI_RBUF, HTTP_CLIENT_CONTROL_KEYWORD);	//收到有效控制信息?
+		if(p)
 		{
-			p = strstr(WIFI_RBUF, HTTP_CLIENT_CONTROL_KEYWORD);	//收到有效控制信息?
-			if(p)
-			{
-				DevicesControl(p);
-			}
-		}
-		else
-		{
-			debug("Server response timeout!\r\n");
-			
+			DevicesControl(p);
 		}
 	}
+	else
+	{
+		debug("Server response timeout!\r\n");
+		
+	}
+	SERVER_LIGHT_OFF();
 }
 

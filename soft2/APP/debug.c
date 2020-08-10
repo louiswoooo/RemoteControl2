@@ -28,7 +28,7 @@ void DebugVar(u16 var)
 }
 void DebugVIP(u8 *str)
 {
-	debug("*************************");	
+	debug("***");	
 	debug(str);
 	debug("\r\n");
 }

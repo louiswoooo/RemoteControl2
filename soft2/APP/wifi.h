@@ -16,7 +16,7 @@ u8 WIFI_SetServerMode(void);
 u8 WIFI_SetClientMode(void);
 u8 client_send_to_server( u8 *p);
 u8 server_send_to_client(u8 *client_id, u8 *p);
-u8 WIFI_ClientConnectServer(void);
+u8 WIFI_ClientConnectServer(u8 *ip, u8 *port);
 u8 WIFI_ClientDisonnectServer(void);
 u8 WIFI_SetClientSingleConnect(void);
 

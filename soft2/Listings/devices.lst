@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 1   
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DEVICES
@@ -62,7 +62,7 @@ line level    source
   52   1      }
   53          
   54          static u8 DHT11_rec_byte(void)      //接收一个字节
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 2   
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 2   
 
   55          {   
   56   1        u8 i,dat=0;  
@@ -126,7 +126,7 @@ line level    source
  114   1          SWITCH3_ON();
  115   1        else if(strstr(buf, "SWITCH3=OFF"))
  116   1          SWITCH3_OFF();
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 3   
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 3   
 
  117   1        if(strstr(buf, "SWITCH4=ON"))
  118   1          SWITCH4_ON();
@@ -190,7 +190,7 @@ line level    source
  176   2          PWMn_Update(PCA1, LIGHT2_PWM_SET);
  177   2          return 1;
  178   2        }
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 4   
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 4   
 
  179   1        else 
  180   1          return 0;
@@ -254,7 +254,7 @@ line level    source
  238   3              {
  239   4                LightOn(LIGHT2_ID);
  240   4                debug("light1 on!\r\n");
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 5   
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 5   
 
  241   4              }
  242   3              else if(strstr((char *)cmd, "OFF"))
@@ -287,7 +287,7 @@ line level    source
  269          
  270          void DevicesInit(void)
  271          {
- 272   1        GPIO_InitTypeDef  light_pin_init, switch_pin_init, dh_pin_init;
+ 272   1        GPIO_InitTypeDef  light_pin_init, switch_pin_init, dh_pin_init, server_light_pin_init;
  273   1        PCA_InitTypeDef pca_init;
  274   1      
  275   1        switch_pin_init.Mode=GPIO_OUT_PP;
@@ -296,94 +296,102 @@ line level    source
  278   1        switch_pin_init.Pin=SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
  279   1        GPIO_Inilize(SWITCH2_GPIO_PORT,&switch_pin_init);
  280   1      
- 281   1        dh_pin_init.Mode=GPIO_PullUp;
- 282   1        dh_pin_init.Pin=DH_GPIO_PIN;
- 283   1        GPIO_Inilize(DH_GPIO_PORT, &dh_pin_init);
+ 281   1        server_light_pin_init.Mode=GPIO_OUT_PP;
+ 282   1        server_light_pin_init.Pin=SERVER_GPIO_PIN;
+ 283   1        GPIO_Inilize(SERVER_GPIO_PORT,&switch_pin_init);
  284   1      
- 285   1        light_pin_init.Mode=GPIO_OUT_PP;
- 286   1        light_pin_init.Pin=LIGHT1_GPIO_PIN;
- 287   1        GPIO_Inilize(LIGHT1_GPIO_PORT, &light_pin_init);
- 288   1        light_pin_init.Pin=LIGHT2_GPIO_PIN;
- 289   1        GPIO_Inilize(LIGHT2_GPIO_PORT, &light_pin_init);
- 290   1        
- 291   1        pca_init.PCA_IoUse = PCA_P12_P11_P10_P37;
- 292   1        pca_init.PCA_Clock = PCA_Clock_12T;
- 293   1        pca_init.PCA_Mode = PCA_Mode_PWM;
- 294   1        pca_init.PCA_PWM_Wide = PCA_PWM_8bit;
- 295   1        pca_init.PCA_Interrupt_Mode = DISABLE;
- 296   1        pca_init.PCA_Polity = PolityHigh;
- 297   1        pca_init.PCA_Value = 0;
- 298   1      
- 299   1        PCA_Init(PCA_Counter, &pca_init);
- 300   1        PCA_Init(PCA_LIGHT1, &pca_init);
- 301   1        PCA_Init(PCA_LIGHT2, &pca_init);
+ 285   1        dh_pin_init.Mode=GPIO_PullUp;
+ 286   1        dh_pin_init.Pin=DH_GPIO_PIN;
+ 287   1        GPIO_Inilize(DH_GPIO_PORT, &dh_pin_init);
+ 288   1      
+ 289   1        light_pin_init.Mode=GPIO_OUT_PP;
+ 290   1        light_pin_init.Pin=LIGHT1_GPIO_PIN;
+ 291   1        GPIO_Inilize(LIGHT1_GPIO_PORT, &light_pin_init);
+ 292   1        light_pin_init.Pin=LIGHT2_GPIO_PIN;
+ 293   1        GPIO_Inilize(LIGHT2_GPIO_PORT, &light_pin_init);
+ 294   1        
+ 295   1        pca_init.PCA_IoUse = PCA_P12_P11_P10_P37;
+ 296   1        pca_init.PCA_Clock = PCA_Clock_12T;
+ 297   1        pca_init.PCA_Mode = PCA_Mode_PWM;
+ 298   1        pca_init.PCA_PWM_Wide = PCA_PWM_8bit;
+ 299   1        pca_init.PCA_Interrupt_Mode = DISABLE;
+ 300   1        pca_init.PCA_Polity = PolityHigh;
+ 301   1        pca_init.PCA_Value = 0;
  302   1      
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 6   
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 6   
 
- 303   1        SWITCH1_OFF();
- 304   1        SWITCH2_OFF();
- 305   1        SWITCH3_OFF();
- 306   1        SWITCH4_OFF();
- 307   1      
- 308   1        LightOff(PCA_LIGHT1);
- 309   1        LightOff(PCA_LIGHT2);
- 310   1      
- 311   1        Light1Power=0;
- 312   1        Light2Power=0;
- 313   1      }
- 314          
- 315          u8 DevicesControl(u8 *cmd)
- 316          {
- 317   1        u8 *p;
- 318   1        p=strstr(cmd, KEYWORD_SWITCH);
- 319   1        if(p)
- 320   1        {
- 321   2          if(SwitchControl(p))
- 322   2            return 1;
- 323   2          else
- 324   2            return 0;
- 325   2        }
- 326   1        else if(p=strstr(cmd, KEYWORD_LIGHT))
- 327   1          LightControl(p);
- 328   1        else if(p=strstr(cmd, KEYWORD_TEMP))
- 329   1          DHT11_Receive(p);
- 330   1        else if(p=strstr(cmd, KEYWORD_HUMI))
- 331   1          DHT11_Receive(p);
- 332   1        
- 333   1        return 1;
- 334   1      }
- 335          
- 336          u8 DeviceGetStatus(u8 *status)
- 337          {
- 338   1        if(GPIO_GetBit(SWITCH1_GPIO_PORT, SWITCH1_GPIO_PIN))
- 339   1          strcat(status, "SWITCH1=ON");
- 340   1        else
- 341   1          strcat(status, "SWITCH1=OFF");
- 342   1        if(GPIO_GetBit(SWITCH2_GPIO_PORT, SWITCH2_GPIO_PIN))
- 343   1          strcat(status, "&SWITCH2=ON");
- 344   1        else
- 345   1          strcat(status, "&SWITCH2=OFF");
- 346   1        if(GPIO_GetBit(SWITCH3_GPIO_PORT, SWITCH3_GPIO_PIN))
- 347   1          strcat(status, "&SWITCH3=ON");
+ 303   1        PCA_Init(PCA_Counter, &pca_init);
+ 304   1        PCA_Init(PCA_LIGHT1, &pca_init);
+ 305   1        PCA_Init(PCA_LIGHT2, &pca_init);
+ 306   1      
+ 307   1        SWITCH1_OFF();
+ 308   1        SWITCH2_OFF();
+ 309   1        SWITCH3_OFF();
+ 310   1        SWITCH4_OFF();
+ 311   1      
+ 312   1        SERVER_LIGHT_OFF();
+ 313   1      
+ 314   1        LightOff(PCA_LIGHT1);
+ 315   1        LightOff(PCA_LIGHT2);
+ 316   1        LIGHT1_OFF();
+ 317   1        LIGHT2_OFF();
+ 318   1      
+ 319   1        Light1Power=0;
+ 320   1        Light2Power=0;
+ 321   1      }
+ 322          
+ 323          u8 DevicesControl(u8 *cmd)
+ 324          {
+ 325   1        u8 *p;
+ 326   1        p=strstr(cmd, KEYWORD_SWITCH);
+ 327   1        if(p)
+ 328   1        {
+ 329   2          if(SwitchControl(p))
+ 330   2            return 1;
+ 331   2          else
+ 332   2            return 0;
+ 333   2        }
+ 334   1        else if(p=strstr(cmd, KEYWORD_LIGHT))
+ 335   1          LightControl(p);
+ 336   1        else if(p=strstr(cmd, KEYWORD_TEMP))
+ 337   1          DHT11_Receive(p);
+ 338   1        else if(p=strstr(cmd, KEYWORD_HUMI))
+ 339   1          DHT11_Receive(p);
+ 340   1        
+ 341   1        return 1;
+ 342   1      }
+ 343          
+ 344          u8 DeviceGetStatus(u8 *status)
+ 345          {
+ 346   1        if(GPIO_GetBit(SWITCH1_GPIO_PORT, SWITCH1_GPIO_PIN))
+ 347   1          strcat(status, "SWITCH1=ON");
  348   1        else
- 349   1          strcat(status, "&SWITCH3=OFF");
- 350   1        if(GPIO_GetBit(SWITCH4_GPIO_PORT, SWITCH4_GPIO_PIN))
- 351   1          strcat(status, "&SWITCH4=ON");
+ 349   1          strcat(status, "SWITCH1=OFF");
+ 350   1        if(GPIO_GetBit(SWITCH2_GPIO_PORT, SWITCH2_GPIO_PIN))
+ 351   1          strcat(status, "&SWITCH2=ON");
  352   1        else
- 353   1          strcat(status, "&SWITCH4=OFF");
- 354   1        return 1;
- 355   1      }
+ 353   1          strcat(status, "&SWITCH2=OFF");
+ 354   1        if(GPIO_GetBit(SWITCH3_GPIO_PORT, SWITCH3_GPIO_PIN))
+ 355   1          strcat(status, "&SWITCH3=ON");
+ 356   1        else
+ 357   1          strcat(status, "&SWITCH3=OFF");
+ 358   1        if(GPIO_GetBit(SWITCH4_GPIO_PORT, SWITCH4_GPIO_PIN))
+ 359   1          strcat(status, "&SWITCH4=ON");
+ 360   1        else
+ 361   1          strcat(status, "&SWITCH4=OFF");
+ 362   1        return 1;
+ 363   1      }
+
+C51 COMPILER V9.56.0.0   DEVICES                                                           08/03/2020 22:18:45 PAGE 7   
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   2076    ----
+   CODE SIZE        =   2118    ----
    CONSTANT SIZE    =    367    ----
-   XDATA SIZE       =      2      50
+   XDATA SIZE       =      2      52
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
-C51 COMPILER V9.56.0.0   DEVICES                                                           08/02/2020 18:35:18 PAGE 7   
-
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
