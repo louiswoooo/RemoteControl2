@@ -1,1 +1,0 @@
-"APP\http_ap.c" LARGE OPTIMIZE (8,SPEED) BROWSE INCDIR(.\STC_LIB;.\APP) DEBUG OBJECTEXTEND PRINT(.\Listings\http_ap.lst) TABS (2) OBJECT(.\Objects\http_ap.obj)

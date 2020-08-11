@@ -181,7 +181,7 @@ u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
 *****************************************************************************************/
 u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
 {
-	u16 i;
+	u16 i, j;
 	u8 temp[6];
 	u8 response_head2[12];
 	u8 cmd[30]="AT+CIPSEND=";	//发送命令
@@ -191,9 +191,11 @@ u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
 
 	content_size = strlen(content);
 	//发送h1+h2
-	int_to_str(response_head2, content_size);
+	str = int_to_str(temp, content_size);
+	response_head2[0] = '\0';
+	strcat(response_head2, str);
 	strcat(response_head2, "\r\n\r\n");
-	len = strlen(HTTP_Server_Response_Head1) + strlen(response_head2);	//计算长度
+	len = strlen(HTTP_Server_Response_Head1) + strlen(response_head2);	//计算发送长度
 	str = int_to_str(temp, len);		//转换成长度字符
 	strcat(cmd, client_id);
 	strcat(cmd, ",");
@@ -203,23 +205,42 @@ u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content)
 		return FAIL;
 	Usart2SendString(HTTP_Server_Response_Head1);
 	Usart2SendString(response_head2);
+	if(!wifi_send_and_wait(NULL, "SEND OK", WIFI_SEND_TIMEOUT_MS))
+		return FAIL;
 	//发送content
+	str = int_to_str(temp, SERVER_RESPONSE_BLOCK_SIZE);		//转换成长度字符
+	p = content;
 	for(i = content_size/SERVER_RESPONSE_BLOCK_SIZE;i>0;i--)
 	{
-		str = int_to_str(temp, SERVER_RESPONSE_BLOCK_SIZE);		//转换成长度字符
+		debug(">>>");
+		debug_var(i);
+		debug("\r\n");
+		cmd[0] = '\0';
+		strcat(cmd,"AT+CIPSEND=");
 		strcat(cmd, client_id);
 		strcat(cmd, ",");
 		strcat(cmd, str);					//组合长度
 		strcat(cmd, "\r\n");
-		if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送发送命令，等待回应
+		if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送命令，等待回应
 			return FAIL;
-		TX2_write2buff(*p);
-		p++;
-		if(!wifi_send_and_wait(NULL, "SEND OK", WIFI_SEND_TIMEOUT_MS))
+		for(j=SERVER_RESPONSE_BLOCK_SIZE; j > 0; j--)
+		{
+			TX2_write2buff(*p);
+			p++;
+		}
+		if(!wifi_send_and_wait(0x00, "SEND OK", WIFI_SEND_TIMEOUT_MS))
 			return FAIL;
 	}
 	//发送结尾
-	p++;
+	str = int_to_str(temp, strlen(p));
+	cmd[0] = '\0';
+	strcat(cmd,"AT+CIPSEND=");
+	strcat(cmd, client_id);
+	strcat(cmd, ",");
+	strcat(cmd, str);					//组合长度
+	strcat(cmd, "\r\n");
+	if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送命令，等待回应
+		return FAIL;
 	if(!wifi_send_and_wait(p, "SEND OK", WIFI_SEND_TIMEOUT_MS))
 		return FAIL;
 	return SUCCESS;

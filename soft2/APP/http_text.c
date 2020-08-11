@@ -12,7 +12,7 @@ Content-Length: "};
 u8 code HTTP_Server_Index[]	=	{"<!DOCTYPE html>\r\n\
 <html lang=\"en\">\r\n\
 <head>\r\n\
-    <meta charset=\"UTF-8\">\r\n\
+    <meta charset=\"gb2312\">\r\n\
     <title>Genius AI Lab</title>\r\n\
     <style>\r\n\
         h1{font-size:600%;text-align:center}\r\n\
@@ -49,7 +49,8 @@ u8 code HTTP_Server_Index[]	=	{"<!DOCTYPE html>\r\n\
                 <span>SWITCH4:</span>\r\n\
                 <button class=\"ss1\" onclick=\"jp('SWITCH4=ON')\">ON</button>\r\n\
                 <button class=\"ss2\" onclick=\"jp('SWITCH4=OFF')\">OFF</button>\r\n\
-        <br>\r\n\
+        <br><hr>\r\n\
+        <a href=\"/config\">AI远程控制设置</a>\r\n\
     </div>\r\n\
 </body>\r\n\
 </html>"};
@@ -93,7 +94,6 @@ u8 code HTTP_Server_Config[]	=	{"<!DOCTYPE html>\r\n\
                 </div>\r\n\
                 <input style=\"float:right;margin: 10px 40px;width: 300px;height: 66px;font-size: 48px;border-radius: 16px\" type=\"submit\" value=\"设定\">\r\n\
             </form>\r\n\
-        <a href=\"/config\">AI远程控制设置</a>\r\n\
         </div>\r\n\
     </div>\r\n\
 </body>\r\n\
