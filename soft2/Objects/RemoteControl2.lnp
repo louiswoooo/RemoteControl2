@@ -7,6 +7,7 @@
 ".\Objects\debug.obj",
 ".\Objects\task.obj",
 ".\Objects\http_text.obj",
+".\Objects\EEPROM.obj",
 ".\Objects\GPIO.obj",
 ".\Objects\PCA.obj",
 ".\Objects\USART.obj" 

@@ -408,6 +408,11 @@
               <FileType>1</FileType>
               <FilePath>.\APP\http_text.c</FilePath>
             </File>
+            <File>
+              <FileName>EEPROM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\STC_LIB\EEPROM.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
