@@ -18,11 +18,11 @@
 void DebugVar(u16 var)
 {
 	u8 num[6];
-	num[0]=var/10000+0x30;
-	num[1]=var%10000/1000+0x30;
-	num[2]=var%1000/100+0x30;
-	num[3]=var%100/10+0x30;
-	num[4]=var%10+0x30;
+	num[0]=var/10000+'0';
+	num[1]=var%10000/1000+'0';
+	num[2]=var%1000/100+'0';
+	num[3]=var%100/10+'0';
+	num[4]=var%10+'0';
 	num[5]='\0';
 	debug(num);
 }

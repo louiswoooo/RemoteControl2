@@ -106,4 +106,3 @@ void EEPROM_write_n(u16 EE_address,u8 *DataAddress,u16 number)
 	DisableEEPROM();
 	EA = 1;		//重新允许中断
 }
-

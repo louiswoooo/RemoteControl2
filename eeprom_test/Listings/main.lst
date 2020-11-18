@@ -1,0 +1,98 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              09/08/2020 15:57:15 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\Program Files (x86)\keil5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTE
+                    -ND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "eeprom.h"
+   2          #include "usart.h"
+   3          #include "stc15fxxxx.h"
+   4          
+   5          #define debug(x)  Usart1SendString(x)
+   6          #define debug_byte(x) Usart1SendByte(x)
+   7          
+   8          
+   9          //´®¿Ú1³õÊ¼»¯
+  10          void Usart1Init(void)   //115200bps@22.1184MHz
+  11          {
+  12   1        SCON = 0x50;    //8???,?????
+  13   1        AUXR |= 0x40;   //???1???Fosc,?1T
+  14   1        AUXR &= 0xFE;   //??1?????1???????
+  15   1        TMOD &= 0x0F;   //?????1?16???????
+  16   1        TL1 = 0xD0;   //??????
+  17   1        TH1 = 0xFF;   //??????
+  18   1        ET1 = 0;    //?????1??
+  19   1        TR1 = 1;    //?????1
+  20   1        
+  21   1      
+  22   1        ES =0;
+  23   1      
+  24   1      }
+  25          
+  26          void Usart1SendByte(u8 dat)
+  27          {
+  28   1        SBUF = dat;
+  29   1        while(!TI);
+  30   1        TI = 0;
+  31   1      }
+  32          
+  33          void Usart1SendString(u8 *str)
+  34          {
+  35   1        while(*str)
+  36   1        {
+  37   2          debug_byte(*str);
+  38   2        }
+  39   1      }
+  40          void main(void)
+  41          {
+  42   1        u16 i;
+  43   1        u8 str[] = {"i am genius !!!!!!!i am genius !!!!!!!i am genius !!!!!!!i am genius !!!!!!!i am genius !!!!
+             -!!!"};
+  44   1        u8 read_buf[200], write_buf[200];
+  45   1        u8 dat;
+  46   1        dat = 0x33;
+  47   1        for(i=0; i<200; i++)
+  48   1        {
+  49   2          write_buf[i] = 0x44;
+  50   2        }
+  51   1        Usart1Init();
+  52   1        debug_byte(dat);
+  53   1        EEPROM_SectorErase(EEPROM_START_ADDRESS);
+C51 COMPILER V9.56.0.0   MAIN                                                              09/08/2020 15:57:15 PAGE 2   
+
+  54   1        EEPROM_read_n(EEPROM_START_ADDRESS, read_buf, 200);
+  55   1        for(i=0; i < 200; i++)
+  56   1        {
+  57   2          debug_byte(read_buf[i]);
+  58   2      
+  59   2        }
+  60   1        
+  61   1        EEPROM_write_n(EEPROM_START_ADDRESS, str, sizeof(str));
+  62   1        EEPROM_read_n(EEPROM_START_ADDRESS, read_buf, 200);
+  63   1        for(i=0; i < 200; i++)
+  64   1        {
+  65   2          debug_byte(read_buf[i]);
+  66   2      
+  67   2        }
+  68   1      
+  69   1        while(1)
+  70   1        {}
+  71   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    202    ----
+   CONSTANT SIZE    =     96    ----
+   XDATA SIZE       =   ----     496
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

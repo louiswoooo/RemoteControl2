@@ -5,35 +5,21 @@
 void bsp(void)
 {
 
-	EA=0;
-	Usart2Init();
-	S2_Int_en();
+	EA=0;			//关中断
+	Usart2Init();		//初始化串口2		
+	S2_Int_en();		//开串口2中断
 	
-	debug_init();
+	debug_init();		//调试口初始化
 
 	IP=0x00;
 	IP2=0x00;
 	IP2 |=0x01;			//设置串口2 优先级高
 	
 	
-	sys_tick_init();
+	sys_tick_init();		//时间片模块初始化
 
-	EA=1;
-	debug("sys start\r\n");
-	DevicesInit();
-
-	memset(RX2_Buffer, 0, sizeof(RX2_Buffer));
-
-	while(1)
-	{
-		debug("wifi reset\r\n");
-		WIFI_Reset();
-		if(WIFI_SetServerMode())
-		{
-			debug("wifi set Server sucess\r\n");
-			break;
-		}
-	}		
+	EA=1;				//开中断
+	DevicesInit();		//外设初始化
 
 }
 

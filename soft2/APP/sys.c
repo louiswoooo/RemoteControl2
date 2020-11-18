@@ -16,6 +16,21 @@
 
 u8 sys_tick;										//时间片计数器
 u8 second,minute,hour;					//时钟任务变量
+u16 tick_counter;
+
+extern u8 second,minute,hour;					
+
+void debug_time(void)
+{
+	debug_var((u16)hour);
+	debug(":");
+	debug_var((u16)minute);
+	debug(":");
+	debug_var((u16)second);
+	debug("\r\n");
+
+}
+
 
 /****************************************************************************************
   * @brief:	初始化时间片定时器t0，初始化时钟任务变量 
@@ -37,6 +52,8 @@ void sys_tick_init(void)		//10毫秒@22.1184MHz
 	second=0;
 	minute=0;
 	hour=0;
+
+	tick_counter = 0;
 }
 
 /****************************************************************************************
@@ -48,11 +65,27 @@ void sys_tick_init(void)		//10毫秒@22.1184MHz
 *****************************************************************************************/
 void sys_tick_int(void) interrupt TIMER0_VECTOR using 1
 {
+	EA=0;
+	tick_counter++;
 	if(sys_tick>0)
 	{
 		sys_tick--;
 	}
-	
+	else
+	{
+		sys_tick = TICK_PER_SECOND;
+		second++;
+		if(second>=60)
+		{
+			second=0;
+			minute++;
+			if(minute>=60)
+			{
+				minute=0;
+				hour++;
+			}
+		}
+	}	
 	if(COM2.B_RX_EN)			//如果允许串口接收
 	{
 		if(COM2.RX_TimeOut>0) 		//计时器大于0
@@ -69,6 +102,7 @@ void sys_tick_int(void) interrupt TIMER0_VECTOR using 1
 			}
 		}
 	}
+	EA=1;
 }
 /****************************************************************************************
   * @brief:	时钟任务，每隔1s打印时间

@@ -12,6 +12,7 @@
 #include "wifi.h"
 #include "http_text.h"
 
+#define WIFI_HTTP_REQUEST_TIMEOUT_MS	10000
 #define WIFI_CMD_TIMEOUT_MS	3000
 #define WIFI_CMD_TRY_TIMES		5
 
@@ -26,6 +27,9 @@ typedef	struct
 	u8 *match;			//匹配
 }
 _t_WIFI_CMD_Info;
+
+extern u8 second;										//时间片计数器
+
 
 /*****************************************************************************
 设置ESP8266 服务端模式命令和答复关键字
@@ -55,7 +59,7 @@ const _t_WIFI_CMD_Info	CMD_IP={"AT+CIFSR\r\n", "OK"};
 //##配置ESP8266模块为Station 模式，开启wifi热点。
 const _t_WIFI_CMD_Info	CMD_STAMode={"AT+CWMODE=1\r\n", "OK"};   
 //连接路由器，wifi名：HiTV_woo。密码：1234567890。
-const _t_WIFI_CMD_Info	CMD_Connect_WIFI={"AT+CWJAP=\"HiTV_woo_plus\",\"1234567890\"\r\n", "OK"};                
+//const _t_WIFI_CMD_Info	CMD_Connect_WIFI={"AT+CWJAP=\"HiTV_woo_plus\",\"1234567890\"\r\n", "OK"};                
 //开启单链接
 const _t_WIFI_CMD_Info	CMD_Single={"AT+CIPMUX=0\r\n", "OK"};                
 //建立TCP 连接
@@ -105,9 +109,9 @@ void WIFI_Reset(void)
 	
 	GPIO_Inilize(WIFI_GPIO_PORT, &wifi_gpio_init);
 
-	wifi_reset_pin_low();
-	delay_ms(100);
-	wifi_reset_pin_high();
+	wifi_reset_pin_low();		//低电平
+	delay_ms(100);			//延时100ms
+	wifi_reset_pin_high();	//拉高
 	delay_s(2);
 }
 /****************************************************************************************
@@ -122,6 +126,7 @@ void WIFI_Reset(void)
 u8 WIFI_Receive(u16 timeout_ms)	
 {
 	u16 i;
+	u8 pre_second;
 	if(timeout_ms > 0)
 	{
 		for(i= timeout_ms/(TimeOutSet2* MS_PER_TICK); i>0; i--)		//计算在timeout_ms时间的循环次数
@@ -130,7 +135,20 @@ u8 WIFI_Receive(u16 timeout_ms)
 			COM2.RX_Cnt=0;			//清零接收计数器
 			COM2.B_RX_OK=0;		//清零接收标志
 			COM2.RX_TimeOut=TimeOutSet2;	//设置块接收时间
-			while(COM2.RX_TimeOut>0);			//如果块接收超时时间未到，继续等待
+			debug("1");
+			pre_second = second;
+			while(COM2.RX_TimeOut>0)			//如果块接收超时时间未到，继续等待
+			{
+				if(pre_second != second )
+				{
+					debug("$$");
+					debug_var(COM2.RX_TimeOut);
+					debug("\r\n");
+					pre_second = second;
+				}
+
+			}
+			debug("2");
 			COM2.B_RX_EN=0;			//超时时间到，停止接收
 			if(COM2.B_RX_OK)			//如果收到字节
 			{
@@ -154,10 +172,11 @@ u8 WIFI_Receive(u16 timeout_ms)
 u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
 {
 	u8 *p;
-	u16 i;
-	
+	u16 i, temp;
+
+	temp= (timeout_ms/TimeOutSet2) / MS_PER_TICK;
 	Usart2SendString(send);			//发送消息
-	for(i = (timeout_ms/TimeOutSet2) / MS_PER_TICK; i>0; i--)		
+	for(i = temp; i>0; i--)		
 	{
 		if(WIFI_Receive(TimeOutSet2 * MS_PER_TICK))			//等待块消息
 		{
@@ -169,6 +188,7 @@ u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
 			}
 		}
 	}
+	debug("send timeout!!!!!!!!!!!!!!\r\n");
 	return 0;
 }
 
@@ -268,12 +288,16 @@ u8 WIFI_Client_HTTP_Request(u8 *h1, u8 *para, u8 *h3)
 	strcat(cmd, "\r\n");
 
 	if(!wifi_send_and_wait(cmd, "> ", WIFI_CMD_TIMEOUT_MS ))	//发送发送命令，等待回应
+	{
 		return FAIL;
+	}
 	Usart2SendString(h1);	//发送头部1
 	Usart2SendString(para);	//发送参数
 	Usart2SendString(h3);	//发送头部3
-	if(!wifi_send_and_wait(para, "SEND OK", WIFI_CMD_TIMEOUT_MS ))		//发送参数，并等待发送完成
+	if(!wifi_send_and_wait(para, "OK", WIFI_HTTP_REQUEST_TIMEOUT_MS))		//发送参数，并等待发送完成
+	{
 		return FAIL;
+	}
 	debug_vip("SEND OK");
 	return SUCCESS;
 }
@@ -309,9 +333,18 @@ u8 WIFI_SetServerMode(void)
 /*****************************************************************************
 设置ESP8266 客户端 模式命令和答复关键字
 连接流程:设置STA模式-重启-连接wifi-开启单链接
+//const _t_WIFI_CMD_Info	CMD_Connect_WIFI={"AT+CWJAP=\"HiTV_woo_plus\",\"1234567890\"\r\n", "OK"};                
+
 *******************************************************************************/
-u8 WIFI_SetClientMode(void)
+u8 WIFI_SetClientMode(u8 *ssid, u8 *pwd)
 {
+	u8 wifi_connect_cmd[50]="AT+CWJAP=";
+	strcat(wifi_connect_cmd, "\"");
+	strcat(wifi_connect_cmd, ssid);
+	strcat(wifi_connect_cmd, "\",\"");
+	strcat(wifi_connect_cmd, pwd);
+	strcat(wifi_connect_cmd, "\"\r\n");
+	
 	//设置为station 模式
 	if( !wifi_send_and_wait(CMD_STAMode.send, CMD_STAMode.match, WIFI_CMD_TIMEOUT_MS))
 		return FAIL;
@@ -319,7 +352,7 @@ u8 WIFI_SetClientMode(void)
 		return FAIL;
 	delay_s(2);
 	//连接wifi，注意wifi连接用时较长，所以给了较长超时时间
-	if( !wifi_send_and_wait(CMD_Connect_WIFI.send, CMD_Connect_WIFI.match, 20000 ))	
+	if( !wifi_send_and_wait(wifi_connect_cmd, "OK", 20000 ))	
 	{
 		return FAIL;
 	}
@@ -341,8 +374,22 @@ u8 WIFI_ClientConnectServer(u8 *ip, u8 *port)
 	strcat(cmd, "\",");
 	strcat(cmd, port);
 	strcat(cmd, "\r\n");
-	if( !wifi_send_and_wait(cmd, "CONNECT", 10000 ))
+	if( !wifi_send_and_wait(cmd, "OK", 10000 ))
 		return FAIL;
+	return SUCCESS;
+}
+/*****************************************************************************
+  * @brief:	客户端模式下关闭连接
+  		连接命令:AT+CIPCLOSE\r\n
+  * @param:	
+  * @retval:	成功返回1，失败0
+*******************************************************************************/
+u8 WIFI_ClientConnectClose(void)
+{
+	u8 cmd[50] = {"AT+CIPCLOSE\r\n"};
+	if( !wifi_send_and_wait(cmd, "OK", 10000 ))
+		return FAIL;
+	debug("^^^^^^^^^close\r\n");
 	return SUCCESS;
 }
 

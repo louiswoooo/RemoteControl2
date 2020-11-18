@@ -98,13 +98,17 @@ static s16 DHT11_Receive(u8 *cmd)      //接收40位的数据
 	return 0xffff;
 }
 
+/****************************************************************************************
+  * @brief:	控制开关量外设的函数
+  * @param:	buf 控制字符串
+  * @retval:	1，成功，0，失败
+*****************************************************************************************/
 static u8 SwitchControl(u8 *buf)
 {
 	u8 *cmd=buf;
-	debug_vip(buf);
-	if(strstr(buf, "SWITCH1=ON"))
+	if(strstr(buf, "SWITCH1=ON"))		//打开开关1
 		SWITCH1_ON();
-	else if(strstr(buf, "SWITCH1=OFF"))
+	else if(strstr(buf, "SWITCH1=OFF"))	//关闭开关1
 		SWITCH1_OFF();
 	if(strstr(buf, "SWITCH2=ON"))
 		SWITCH2_ON();
@@ -272,12 +276,14 @@ void DevicesInit(void)
 	GPIO_InitTypeDef	light_pin_init, switch_pin_init, dh_pin_init, server_light_pin_init;
 	PCA_InitTypeDef pca_init;
 
-	switch_pin_init.Mode=GPIO_OUT_PP;
-	switch_pin_init.Pin=SWITCH1_GPIO_PIN;
-	GPIO_Inilize(SWITCH1_GPIO_PORT,&switch_pin_init);
-	switch_pin_init.Pin=SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;
-	GPIO_Inilize(SWITCH2_GPIO_PORT,&switch_pin_init);
+	//开关量端口初始化
+	switch_pin_init.Mode=GPIO_OUT_PP;		//设置为强推挽模式
+	switch_pin_init.Pin=SWITCH1_GPIO_PIN;	//设置管脚
+	GPIO_Inilize(SWITCH1_GPIO_PORT,&switch_pin_init);	//初始化开关端口1
+	switch_pin_init.Pin=SWITCH2_GPIO_PIN|SWITCH3_GPIO_PIN|SWITCH4_GPIO_PIN;	//设置管脚
+	GPIO_Inilize(SWITCH2_GPIO_PORT,&switch_pin_init);	//初始化开关端口2、3、4
 
+	//服务器连接指示灯端口初始化
 	server_light_pin_init.Mode=GPIO_OUT_PP;
 	server_light_pin_init.Pin=SERVER_GPIO_PIN;
 	GPIO_Inilize(SERVER_GPIO_PORT,&switch_pin_init);
@@ -304,7 +310,7 @@ void DevicesInit(void)
 	PCA_Init(PCA_LIGHT1, &pca_init);
 	PCA_Init(PCA_LIGHT2, &pca_init);
 
-	SWITCH1_OFF();
+	SWITCH1_OFF();			//关闭所有开关
 	SWITCH2_OFF();
 	SWITCH3_OFF();
 	SWITCH4_OFF();
@@ -320,10 +326,16 @@ void DevicesInit(void)
 	Light2Power=0;
 }
 
+/****************************************************************************************
+  * @brief:	控制各个外设模块的函数
+  * @param:	cmd 控制字符串
+  * @retval:	1，成功，0，失败
+*****************************************************************************************/
+
 u8 DevicesControl(u8 *cmd)
 {
 	u8 *p;
-	p=strstr(cmd, KEYWORD_SWITCH);
+	p=strstr(cmd, KEYWORD_SWITCH);		//开关量控制
 	if(p)
 	{
 		if(SwitchControl(p))
@@ -344,20 +356,20 @@ u8 DevicesControl(u8 *cmd)
 u8 DeviceGetStatus(u8 *status)
 {
 	if(GPIO_GetBit(SWITCH1_GPIO_PORT, SWITCH1_GPIO_PIN))
-		strcat(status, "SWITCH1=ON");
+		strcat(status, "SWITCH1=ON,");
 	else
-		strcat(status, "SWITCH1=OFF");
+		strcat(status, "SWITCH1=OFF,");
 	if(GPIO_GetBit(SWITCH2_GPIO_PORT, SWITCH2_GPIO_PIN))
-		strcat(status, "&SWITCH2=ON");
+		strcat(status, "SWITCH2=ON,");
 	else
-		strcat(status, "&SWITCH2=OFF");
+		strcat(status, "SWITCH2=OFF,");
 	if(GPIO_GetBit(SWITCH3_GPIO_PORT, SWITCH3_GPIO_PIN))
-		strcat(status, "&SWITCH3=ON");
+		strcat(status, "SWITCH3=ON,");
 	else
-		strcat(status, "&SWITCH3=OFF");
+		strcat(status, "SWITCH3=OFF,");
 	if(GPIO_GetBit(SWITCH4_GPIO_PORT, SWITCH4_GPIO_PIN))
-		strcat(status, "&SWITCH4=ON");
+		strcat(status, "SWITCH4=ON,");
 	else
-		strcat(status, "&SWITCH4=OFF");
+		strcat(status, "SWITCH4=OFF,");
 	return 1;
 }

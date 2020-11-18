@@ -7,5 +7,6 @@ void task0_Clock(void);
 void sys_idle(void);
 void dog_init(void);
 void dog_clear(void);
+void debug_time(void);
 
 #endif

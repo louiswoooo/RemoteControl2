@@ -80,6 +80,7 @@ void Usart2SendString(u8 *puts)
 *****************************************************************************************/
 void UART2_int (void) interrupt UART2_VECTOR		using 2
 {
+	EA=0;
 	if(RI2)
 	{
 		CLR_RI2();
@@ -90,6 +91,7 @@ void UART2_int (void) interrupt UART2_VECTOR		using 2
 			COM2.RX_TimeOut = TimeOutSet2;						//重新设置超时计时器
 		}
 	}
+	EA=1;
 }
 
 #if DEBUG_PORT == USART4
@@ -146,6 +148,7 @@ void Usart4SendString(u8 *puts)
 *****************************************************************************************/
 void UART4_int (void) interrupt UART4_VECTOR	using 3
 {
+	EA=0;
 	if(RI4)
 	{
 		CLR_RI4();
@@ -167,7 +170,7 @@ void UART4_int (void) interrupt UART4_VECTOR	using 3
 		}
 		else	COM4.B_TX_busy = 0;
 	}
-
+	EA=1;
 }
 
 #endif
@@ -220,7 +223,7 @@ void Usart1SendString(u8 *puts)
 
 
 /****************************************************************************************
-  * @brief:	串口4中断程序，根据接收状态，接收到的字符放入缓冲区
+  * @brief:	串口1中断程序，根据接收状态，接收到的字符放入缓冲区
   			并且重新设置接收计时器
   			发送中断根据读写指针判断是否发送完成，如果完成清忙标志
   * @param:	none

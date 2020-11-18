@@ -13,11 +13,11 @@ u8 WIFI_Receive(u16 timeout_ms)	;
 u8 WIFI_Server_HTTP_Response(u8 *client_id, u8 *content);
 u8 WIFI_Client_HTTP_Request(u8 *h1, u8 *para, u8 *h3);
 u8 WIFI_SetServerMode(void);
-u8 WIFI_SetClientMode(void);
 u8 client_send_to_server( u8 *p);
 u8 server_send_to_client(u8 *client_id, u8 *p);
 u8 WIFI_ClientConnectServer(u8 *ip, u8 *port);
 u8 WIFI_ClientDisonnectServer(void);
-u8 WIFI_SetClientSingleConnect(void);
+u8 WIFI_SetClientMode(u8 *ssid, u8 *pwd);
+u8 WIFI_ClientConnectClose(void);
 
 #endif
