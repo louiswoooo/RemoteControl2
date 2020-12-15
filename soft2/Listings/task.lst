@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 1   
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE TASK
@@ -18,461 +18,500 @@ line level    source
    8          #define RELOGIN_TIMES 10
    9          u16 HeartBeat_TimeoutCounter, HeartBeat_ErrMsgCounter, HeartBeat_OKCounter;
   10          u16 HeartBeat_ConnectFailCounter, HeartBeat_SendFailCounter;
-  11          
-  12          typedef enum _e_status_
-  13          {
-  14            init = 1,
-  15            server_mode,
-  16            client_mode
-  17          }_e_status;
-  18          
-  19          extern _e_status Sys_Status;
-  20          typedef enum _e_client_status_
-  21          {
-  22            unkown=1,
-  23            not_login,
-  24            heart_beat
-  25          }_e_client_status;
-  26          
-  27          extern _e_client_status Client_Status;
-  28          //ÖØµÇÂ½¼ÆÊýÆ÷£¬Ã¿´ÎÊÕµ½ÐÄÌøÔòÇåÁã£¬³¬¹ý10´ÎÎ´ÊÕµ½ÐÄÌøÔòÖØÐÂµÇÂ¼
-  29          u8 ReloginTimes;
-  30          u16 ReloginCounter;
-  31          
-  32          /***************************************************************************
-  33          eap8266×÷Îª·þÎñ¶Ë£¬½ÓÊÕÏûÏ¢¸ñÊ½:
-  34          +IPD,id,length:data, id ÎªÁ¬½ÓµÄ¿Í»§¶Ëid£¬lengthÎª½ÓÊÕµ½µÄ×Ö·û´®³¤¶È,dataÎªÊý¾Ý
-  35          eap8266×÷Îª·þÎñ¶Ë£¬½ÓÊÕÏûÏ¢¸ñÊ½:
-  36          +IPD,length:lengthÎª½ÓÊÕµ½µÄ×Ö·û´®³¤¶È,dataÎªÊý¾Ý
-  37          ***************************************************************************/
-  38          //serverÄ£Ê½ºÍclientÄ£Ê½ÊÜµ½ÏûÏ¢¹Ø¼ü×Ö
-  39          #define SERVER_MSG_KEYWORD  "+IPD,"
-  40          #define CLIENT_MSG_KEYWORD  "+IPD,"
-  41          //·þÎñ¶ËÅÐ¶ÏÇëÇóÊ×Ò³¹Ø¼ü×Ö
-  42          #define HTTP_SERVER_INDEX_KEYWORD   "GET / "    
-  43          //·þÎñ¶ËÅÐ¶ÏÇëÇó¿ØÖÆÒ³¹Ø¼ü×Ö
-  44          #define HTTP_SERVER_CONTROL_KEYWORD   "GET /?"  
-  45          //·þÎñ¶ËÅÐ¶ÏÇëÇó¿ØÖÆÒ³¹Ø¼ü×Ö
-  46          #define HTTP_SERVER_CONFIG_KEYWORD    "GET /config"   
-  47          //·þÎñ¶ËÅÐ¶ÏÇëÇó¿ØÖÆÒ³¹Ø¼ü×Ö
-  48          #define HTTP_SERVER_RES_KEYWORD   "GET /res"  
-  49          
+  11          u8 xdata PreStatus[100];
+  12          
+  13          typedef enum _e_status_
+  14          {
+  15            init = 1,
+  16            server_mode,
+  17            client_mode
+  18          }_e_status;
+  19          
+  20          extern _e_status Sys_Status;
+  21          typedef enum _e_client_status_
+  22          {
+  23            unkown=1,
+  24            not_login,
+  25            heart_beat
+  26          }_e_client_status;
+  27          
+  28          extern _e_client_status Client_Status;
+  29          //ÖØµÇÂ½¼ÆÊýÆ÷£¬Ã¿´ÎÊÕµ½ÐÄÌøÔòÇåÁã£¬³¬¹ý10´ÎÎ´ÊÕµ½ÐÄÌøÔòÖØÐÂµÇÂ¼
+  30          u8 ReloginTimes;
+  31          u16 ReloginCounter;
+  32          
+  33          /***************************************************************************
+  34          eap8266×÷Îª·þÎñ¶Ë£¬½ÓÊÕÏûÏ¢¸ñÊ½:
+  35          +IPD,id,length:data, id ÎªÁ¬½ÓµÄ¿Í»§¶Ëid£¬lengthÎª½ÓÊÕµ½µÄ×Ö·û´®³¤¶È,dataÎªÊý¾Ý
+  36          eap8266×÷Îª·þÎñ¶Ë£¬½ÓÊÕÏûÏ¢¸ñÊ½:
+  37          +IPD,length:lengthÎª½ÓÊÕµ½µÄ×Ö·û´®³¤¶È,dataÎªÊý¾Ý
+  38          ***************************************************************************/
+  39          //serverÄ£Ê½ºÍclientÄ£Ê½ÊÜµ½ÏûÏ¢¹Ø¼ü×Ö
+  40          #define SERVER_MSG_KEYWORD  "+IPD,"
+  41          #define CLIENT_MSG_KEYWORD  "+IPD,"
+  42          //·þÎñ¶ËÅÐ¶ÏÇëÇóÊ×Ò³¹Ø¼ü×Ö
+  43          #define HTTP_SERVER_INDEX_KEYWORD   "GET / "    
+  44          //·þÎñ¶ËÅÐ¶ÏÇëÇó¿ØÖÆÒ³¹Ø¼ü×Ö
+  45          #define HTTP_SERVER_CONTROL_KEYWORD   "GET /?"  
+  46          //·þÎñ¶ËÅÐ¶ÏÇëÇó¿ØÖÆÒ³¹Ø¼ü×Ö
+  47          #define HTTP_SERVER_CONFIG_KEYWORD    "GET /config"   
+  48          //·þÎñ¶ËÅÐ¶ÏÇëÇó¿ØÖÆÒ³¹Ø¼ü×Ö
+  49          #define HTTP_SERVER_RES_KEYWORD   "GET /res"  
   50          
-  51          //¿Í»§¶ËÅÐ¶ÏÊÕµ½¿ØÖÆÐÅÏ¢¹Ø¼ü×Ö
-  52          #define HTTP_CLIENT_SERVER_REPLY_CONTROL    "status=ok" 
-  53          #define HTTP_CLIENT_SERVER_REPLY_REGIST_OK    "bregist=ok" 
-  54          #define HTTP_CLIENT_SERVER_REPLY_LOGIN_OK   "blogin=ok" 
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 2   
+  51          
+  52          //¿Í»§¶ËÅÐ¶ÏÊÕµ½¿ØÖÆÐÅÏ¢¹Ø¼ü×Ö
+  53          #define HTTP_CLIENT_SERVER_REPLY_CONTROL    "status=ok" 
+  54          #define HTTP_CLIENT_SERVER_REPLY_REGIST_OK    "bregist=ok" 
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 2   
 
-  55          
-  56          #define REGIST_PRE  "bregist?"
-  57          #define LOGIN_PRE "blogin?"
-  58          #define STATUS_PRE  "status?"
-  59          
-  60          u8 EEPROM_EraseAndWirteString(u16 block_addr, u8 *str)
-  61          {
-  62   1        if(strlen(str) > 511)
-  63   1          return 0;
-  64   1        else
-  65   1        {
-  66   2          EEPROM_SectorErase(block_addr);   //²Á³ý
-  67   2          EEPROM_write_n(block_addr, str, strlen(str)+1); //Ð´Èëflash
-  68   2          return 1;
-  69   2        }
-  70   1      }
-  71          u8 get_http_para(u8 *http_head, u8*find_para, u8 *res)
-  72          {
-  73   1        u8 *p_para;
-  74   1        u8 *p1,*p2, *p;
-  75   1        if(!(p_para = strstr(http_head, find_para)))
-  76   1          return FAIL;
-  77   1        p1 = p_para + strlen(find_para)+1;
-  78   1        if(!(p2 = strstr(p1, "&")))
-  79   1          return FAIL;
-  80   1        p = res;
-  81   1        while(p1<p2)
-  82   1        {
-  83   2          *p = *p1;
-  84   2          p1++;
-  85   2          p++;
-  86   2        }
-  87   1        *p = '\0';
-  88   1        return SUCCESS;
-  89   1      }
-  90          
-  91          u8 *check_http_para(u8 *ssid, u8 *pwd, u8 * server, u8 *port, u8 *user, u8 *upwd)
-  92          {
-  93   1        if(strlen(ssid) == 0)
-  94   1          return "WiFi ssid is Empty!";
-  95   1        if(strlen(pwd) < 8)
-  96   1        {
-  97   2          return "WiFi password is less than 8 bytes!";
-  98   2        }
-  99   1        if(strlen(server) == 0)
- 100   1        {
- 101   2          return "Server ip is empty!"; 
- 102   2        }
- 103   1        if(strlen(port) == 0)
- 104   1        {
- 105   2          return "Server port is empty!"; 
- 106   2        }
- 107   1        if(strlen(user) == 0)
- 108   1        {
- 109   2          return "User is empty!"; 
- 110   2        }
- 111   1        if(strlen(upwd) == 0)
- 112   1        {
- 113   2          return "User password is empty!"; 
- 114   2        }
- 115   1        return "Config OK";
- 116   1      
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 3   
+  55          #define HTTP_CLIENT_SERVER_REPLY_LOGIN_OK   "blogin=ok" 
+  56          
+  57          #define REGIST_PRE  "bregist?"
+  58          #define LOGIN_PRE "blogin?"
+  59          #define STATUS_PRE  "status?"
+  60          
+  61          u8 EEPROM_EraseAndWirteString(u16 block_addr, u8 *str)
+  62          {
+  63   1        if(strlen(str) > 511)
+  64   1          return 0;
+  65   1        else
+  66   1        {
+  67   2          EEPROM_SectorErase(block_addr);   //²Á³ý
+  68   2          EEPROM_write_n(block_addr, str, strlen(str)+1); //Ð´Èëflash
+  69   2          return 1;
+  70   2        }
+  71   1      }
+  72          u8 get_http_para(u8 *http_head, u8*find_para, u8 *res)
+  73          {
+  74   1        u8 *p_para;
+  75   1        u8 *p1,*p2, *p;
+  76   1        if(!(p_para = strstr(http_head, find_para)))
+  77   1          return FAIL;
+  78   1        p1 = p_para + strlen(find_para)+1;
+  79   1        if(!(p2 = strstr(p1, "&")))
+  80   1          return FAIL;
+  81   1        p = res;
+  82   1        while(p1<p2)
+  83   1        {
+  84   2          *p = *p1;
+  85   2          p1++;
+  86   2          p++;
+  87   2        }
+  88   1        *p = '\0';
+  89   1        return SUCCESS;
+  90   1      }
+  91          
+  92          u8 *check_http_para(u8 *ssid, u8 *pwd, u8 * server, u8 *port, u8 *user, u8 *upwd)
+  93          {
+  94   1        if(strlen(ssid) == 0)
+  95   1          return "WiFi ssid is Empty!";
+  96   1        if(strlen(pwd) < 8)
+  97   1        {
+  98   2          return "WiFi password is less than 8 bytes!";
+  99   2        }
+ 100   1        if(strlen(server) == 0)
+ 101   1        {
+ 102   2          return "Server ip is empty!"; 
+ 103   2        }
+ 104   1        if(strlen(port) == 0)
+ 105   1        {
+ 106   2          return "Server port is empty!"; 
+ 107   2        }
+ 108   1        if(strlen(user) == 0)
+ 109   1        {
+ 110   2          return "User is empty!"; 
+ 111   2        }
+ 112   1        if(strlen(upwd) == 0)
+ 113   1        {
+ 114   2          return "User password is empty!"; 
+ 115   2        }
+ 116   1        return "Config OK";
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 3   
 
- 117   1      }
- 118          
- 119          /****************************************************************************************
- 120            * @brief: web server Ä£Ê½·þÎñº¯Êý£¬¸Ãº¯ÔÚwifiÄ£¿é½øÈë·þÎñ¶Ë×´Ì¬ÒÔºó£¬´¦Àíwifi
- 121            »º³åÇøµ±ÖÐÊÕµ½µÄ×Ö·û´®£¬ÅÐ¶ÏÁ¬½ÓµÄweb ¿Í»§¶ËµÄËùÇëÇóµÄÒ³Ãæ£¬
- 122            È»ºó·µ»ØËùÇëÇóµÄÒ³Ãæ  ¸ø¿Í»§¶Ë
- 123            Á÷³Ì:Ê×ÏÈÅÐ¶ÏÊÇ·ñÎªhttp ÇëÇó£¬»ñÈ¡client_id( esp8266¿ÉÒÔÁ¬½Ó  ¶à¸ö¿Í»§¶Ë£¬
- 124            ÐèÒªÅÐ¶ÏÊÇÄÄ¸ö¿Í»§¶ËÁ¬½Ó)£¬ÅÐ¶ÏÒ³Ãæ¹Ø¼ü×Ö£¬´¦ÀíÇëÇó£¬·µ»Ø¶¨ÒåÒ³Ãæ
- 125            * @param: 
- 126            * @retval:  
- 127          *****************************************************************************************/
- 128          void task_Server(void)
- 129          {
- 130   1        u8 ssid[32];
- 131   1        u8 pwd[32];
- 132   1        u8 ip[16];
- 133   1        u8 port[6];
- 134   1        u8 user[20];
- 135   1        u8 upwd[20];
- 136   1        u8 http_request_head[200];
- 137   1        u8 http_request_head_size;
- 138   1      
+ 117   1      
+ 118   1      }
+ 119          
+ 120          /****************************************************************************************
+ 121            * @brief: web server Ä£Ê½·þÎñº¯Êý£¬¸Ãº¯ÔÚwifiÄ£¿é½øÈë·þÎñ¶Ë×´Ì¬ÒÔºó£¬´¦Àíwifi
+ 122            »º³åÇøµ±ÖÐÊÕµ½µÄ×Ö·û´®£¬ÅÐ¶ÏÁ¬½ÓµÄweb ¿Í»§¶ËµÄËùÇëÇóµÄÒ³Ãæ£¬
+ 123            È»ºó·µ»ØËùÇëÇóµÄÒ³Ãæ  ¸ø¿Í»§¶Ë
+ 124            Á÷³Ì:Ê×ÏÈÅÐ¶ÏÊÇ·ñÎªhttp ÇëÇó£¬»ñÈ¡client_id( esp8266¿ÉÒÔÁ¬½Ó  ¶à¸ö¿Í»§¶Ë£¬
+ 125            ÐèÒªÅÐ¶ÏÊÇÄÄ¸ö¿Í»§¶ËÁ¬½Ó)£¬ÅÐ¶ÏÒ³Ãæ¹Ø¼ü×Ö£¬´¦ÀíÇëÇó£¬·µ»Ø¶¨ÒåÒ³Ãæ
+ 126            * @param: 
+ 127            * @retval:  
+ 128          *****************************************************************************************/
+ 129          void task_Server(void)
+ 130          {
+ 131   1        u8 ssid[32];
+ 132   1        u8 pwd[32];
+ 133   1        u8 ip[16];
+ 134   1        u8 port[6];
+ 135   1        u8 user[20];
+ 136   1        u8 upwd[20];
+ 137   1        u8 http_request_head[200];
+ 138   1        u8 http_request_head_size;
  139   1      
- 140   1        u8 *config_res;
- 141   1        
- 142   1        u8 *p, *temp;
- 143   1        u8 client_id[2];
- 144   1        temp = strstr(WIFI_RBUF, "HTTP"); //  ÅÐ¶ÏÊÇ·ñÎªhttp ÇëÇó
- 145   1        if(!temp)
- 146   1          return;
- 147   1        //ä¯ÀÀÆ÷·¢ËÍµÄÇëÇóÐÅÏ¢»áºÜ¶à£¬Îª·½±ã´¦Àí
- 148   1        //½ØÈ¡µÚÒ»ÐÐµ½HTTPÖ®Ç°µÄÇëÇóÓÐÐ§ÐÅÏ¢
- 149   1        *temp = 0x00;
- 150   1        http_request_head[0] = '\0';
- 151   1        strcpy(http_request_head, WIFI_RBUF);
- 152   1        p = strstr(http_request_head, SERVER_MSG_KEYWORD);    //»ñÈ¡Á´½ÓµÄclient_id
- 153   1        if(!p)
- 154   1          return;
- 155   1        p = p + sizeof(SERVER_MSG_KEYWORD)-1;
- 156   1        client_id[0] = *p;      //
- 157   1        client_id[1] = '\0';
- 158   1        p = strstr(http_request_head,  HTTP_SERVER_INDEX_KEYWORD);    //ÇëÇóµÄÊÇÊ×Ò³?
- 159   1        if(p)
- 160   1        {
- 161   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //·¢ËÍÊ×Ò³
- 162   2        }
- 163   1        else if(p = strstr(http_request_head, HTTP_SERVER_CONTROL_KEYWORD)) //ÇëÇó¿ØÖÆÒ³?
- 164   1        {
- 165   2          if(DevicesControl(p) == 1)    //¿ØÖÆÍâÉè
- 166   2            WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //³É¹¦Ôò·µ»Ø¿ØÖÆÒ³Ãæ
- 167   2          else
- 168   2            WIFI_Server_HTTP_Response(client_id, "Devices control Fail !!!");   //Ê§°Ü·µ»ØÐÅÏ¢
- 169   2        }
- 170   1        else if(p = strstr(http_request_head, HTTP_SERVER_CONFIG_KEYWORD))  //ÇëÇóÊµÑé°åÅäÖÃÒ³Ãæ
- 171   1        {
- 172   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Config); //·¢ËÍÅäÖÃÒ³Ãæ
- 173   2        }
- 174   1        else if(p = strstr(http_request_head, HTTP_SERVER_RES_KEYWORD)) //ÇëÇóÅäÖÃ½á¹ûÒ³Ãæ
- 175   1        {
- 176   2          http_request_head_size= strlen(http_request_head);
- 177   2          http_request_head[http_request_head_size-1] = '&';  //×îºóÒ»¸öÎª¿Õ¸ñ£¬Îª±ê×¼»¯´¦Àí¸ÄÎª&
- 178   2          http_request_head[http_request_head_size] = 0x00; //add 0
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 4   
+ 140   1      
+ 141   1        u8 *config_res;
+ 142   1        
+ 143   1        u8 *p, *temp;
+ 144   1        u8 client_id[2];
+ 145   1        temp = strstr(WIFI_RBUF, "HTTP"); //  ÅÐ¶ÏÊÇ·ñÎªhttp ÇëÇó
+ 146   1        if(!temp)
+ 147   1          return;
+ 148   1        //ä¯ÀÀÆ÷·¢ËÍµÄÇëÇóÐÅÏ¢»áºÜ¶à£¬Îª·½±ã´¦Àí
+ 149   1        //½ØÈ¡µÚÒ»ÐÐµ½HTTPÖ®Ç°µÄÇëÇóÓÐÐ§ÐÅÏ¢
+ 150   1        *temp = 0x00;
+ 151   1        http_request_head[0] = '\0';
+ 152   1        strcpy(http_request_head, WIFI_RBUF);
+ 153   1        p = strstr(http_request_head, SERVER_MSG_KEYWORD);    //»ñÈ¡Á´½ÓµÄclient_id
+ 154   1        if(!p)
+ 155   1          return;
+ 156   1        p = p + sizeof(SERVER_MSG_KEYWORD)-1;
+ 157   1        client_id[0] = *p;      //
+ 158   1        client_id[1] = '\0';
+ 159   1        p = strstr(http_request_head,  HTTP_SERVER_INDEX_KEYWORD);    //ÇëÇóµÄÊÇÊ×Ò³?
+ 160   1        if(p)
+ 161   1        {
+ 162   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //·¢ËÍÊ×Ò³
+ 163   2        }
+ 164   1        else if(p = strstr(http_request_head, HTTP_SERVER_CONTROL_KEYWORD)) //ÇëÇó¿ØÖÆÒ³?
+ 165   1        {
+ 166   2          if(DevicesControl(p) == 1)    //¿ØÖÆÍâÉè
+ 167   2            WIFI_Server_HTTP_Response(client_id, HTTP_Server_Index);  //³É¹¦Ôò·µ»Ø¿ØÖÆÒ³Ãæ
+ 168   2          else
+ 169   2            WIFI_Server_HTTP_Response(client_id, "Devices control Fail !!!");   //Ê§°Ü·µ»ØÐÅÏ¢
+ 170   2        }
+ 171   1        else if(p = strstr(http_request_head, HTTP_SERVER_CONFIG_KEYWORD))  //ÇëÇóÊµÑé°åÅäÖÃÒ³Ãæ
+ 172   1        {
+ 173   2          WIFI_Server_HTTP_Response(client_id, HTTP_Server_Config); //·¢ËÍÅäÖÃÒ³Ãæ
+ 174   2        }
+ 175   1        else if(p = strstr(http_request_head, HTTP_SERVER_RES_KEYWORD)) //ÇëÇóÅäÖÃ½á¹ûÒ³Ãæ
+ 176   1        {
+ 177   2          http_request_head_size= strlen(http_request_head);
+ 178   2          http_request_head[http_request_head_size-1] = '&';  //×îºóÒ»¸öÎª¿Õ¸ñ£¬Îª±ê×¼»¯´¦Àí¸ÄÎª&
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 4   
 
- 179   2          ssid[0] = '\0';
- 180   2          pwd[0] = '\0';
- 181   2          ip[0] = '\0';
- 182   2          port[0] = '\0';
- 183   2          user[0] = '\0';
- 184   2          upwd[0] = '\0';
- 185   2          get_http_para(http_request_head, "ssid", ssid);
- 186   2          get_http_para(http_request_head, "pwd", pwd);
- 187   2          get_http_para(http_request_head, "ip", ip);
- 188   2          get_http_para(http_request_head, "port", port);
- 189   2          get_http_para(http_request_head, "user", user);
- 190   2          get_http_para(http_request_head, "upwd", upwd);
- 191   2          config_res =  check_http_para(ssid, pwd, ip, port,user, upwd);
- 192   2          WIFI_Server_HTTP_Response(client_id, config_res); //·¢ËÍÅäÖÃ½á¹û
- 193   2          if(strstr(config_res, "OK"))        //Èç¹û²ÎÊýÕýÈ·,Ð´Èëflash
- 194   2          {
- 195   3            EEPROM_EraseAndWirteString(EEPROM_FIRST_ADDRESS, http_request_head);    //°ÑÅäÖÃÐÅÏ¢Ð´ÈëµÚÒ»Çø
- 196   3            delay_s(1);
- 197   3            debug("$$$$$$$$$$$$$$$$$$$$$$$$");
- 198   3            debug_vip(http_request_head);
- 199   3            Sys_Status = init;      //×ª»»×´Ì¬
- 200   3          }
- 201   2        }
- 202   1      }
- 203          
- 204          /****************************************************************************************
- 205            * @brief: ±¾º¯ÊýÔÚÔ¶³Ì·þÎñÆ÷½øÐÐ×¢²á
- 206            * @param: server, Ô¶³Ì·þÎñÆ÷ip
- 207            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
- 208            user, ×¢²áµÄÓÃ»§Ãû
- 209            upwd£¬ÓÃ»§ÃÜÂë
- 210            * @retval:  
- 211          *****************************************************************************************/
- 212          void client_regist(u8 *server, u8 *port, u8 *user, u8 *upwd)
- 213          {
- 214   1        u8 device_para[100];
- 215   1        if(!WIFI_ClientConnectServer(server, port))   //Á¬½ÓÔ¶³Ì·þÎñÆ÷
- 216   1          return;
- 217   1        SERVER_LIGHT_ON();    //ÁÁÁ¬½ÓµÆ
- 218   1        device_para[0] = '\0';
- 219   1        strcat(device_para, REGIST_PRE);  //°´ÕÕÐ­ÒéÖÆ×÷×¢²á×Ö·û´®
- 220   1        strcat(device_para, "user=");
- 221   1        strcat(device_para, user);
- 222   1        strcat(device_para , "&pwd=");
- 223   1        strcat(device_para, upwd);
- 224   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))    //ÏòÔ¶³
+ 179   2          http_request_head[http_request_head_size] = 0x00; //add 0
+ 180   2          ssid[0] = '\0';
+ 181   2          pwd[0] = '\0';
+ 182   2          ip[0] = '\0';
+ 183   2          port[0] = '\0';
+ 184   2          user[0] = '\0';
+ 185   2          upwd[0] = '\0';
+ 186   2          get_http_para(http_request_head, "ssid", ssid);
+ 187   2          get_http_para(http_request_head, "pwd", pwd);
+ 188   2          get_http_para(http_request_head, "ip", ip);
+ 189   2          get_http_para(http_request_head, "port", port);
+ 190   2          get_http_para(http_request_head, "user", user);
+ 191   2          get_http_para(http_request_head, "upwd", upwd);
+ 192   2          config_res =  check_http_para(ssid, pwd, ip, port,user, upwd);
+ 193   2          WIFI_Server_HTTP_Response(client_id, config_res); //·¢ËÍÅäÖÃ½á¹û
+ 194   2          if(strstr(config_res, "OK"))        //Èç¹û²ÎÊýÕýÈ·,Ð´Èëflash
+ 195   2          {
+ 196   3            EEPROM_EraseAndWirteString(EEPROM_FIRST_ADDRESS, http_request_head);    //°ÑÅäÖÃÐÅÏ¢Ð´ÈëµÚÒ»Çø
+ 197   3            delay_s(1);
+ 198   3            debug("$$$$$$$$$$$$$$$$$$$$$$$$");
+ 199   3            debug_vip(http_request_head);
+ 200   3            Sys_Status = init;      //×ª»»×´Ì¬
+ 201   3          }
+ 202   2        }
+ 203   1      }
+ 204          
+ 205          /****************************************************************************************
+ 206            * @brief: ±¾º¯ÊýÔÚÔ¶³Ì·þÎñÆ÷½øÐÐ×¢²á
+ 207            * @param: server, Ô¶³Ì·þÎñÆ÷ip
+ 208            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
+ 209            user, ×¢²áµÄÓÃ»§Ãû
+ 210            upwd£¬ÓÃ»§ÃÜÂë
+ 211            * @retval:  
+ 212          *****************************************************************************************/
+ 213          void client_regist(u8 *server, u8 *port, u8 *user, u8 *upwd)
+ 214          {
+ 215   1        u8 device_para[100];
+ 216   1        if(!WIFI_ClientConnectServer(server, port))   //Á¬½ÓÔ¶³Ì·þÎñÆ÷
+ 217   1          return;
+ 218   1        SERVER_LIGHT_ON();    //ÁÁÁ¬½ÓµÆ
+ 219   1        device_para[0] = '\0';
+ 220   1        strcat(device_para, REGIST_PRE);  //°´ÕÕÐ­ÒéÖÆ×÷×¢²á×Ö·û´®
+ 221   1        strcat(device_para, "user=");
+ 222   1        strcat(device_para, user);
+ 223   1        strcat(device_para , "&pwd=");
+ 224   1        strcat(device_para, upwd);
+ 225   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))    //ÏòÔ¶³
              -Ì·þÎñÆ÷·¢ÆðÇëÇó
- 225   1          return;
- 226   1        if(WIFI_Receive(1000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
- 227   1        {
- 228   2          if(strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_REGIST_OK))   //×¢²áÊÇ·ñ³É¹¦
- 229   2          {
- 230   3            EEPROM_EraseAndWirteString(EEPROM_SECOND_ADDRESS, WIFI_RBUF);   // ·µ»ØµÄ×¢²á×Ö·û´®Ð´Èëeeprom 2Çø
- 231   3            Client_Status = not_login;    //×ª»»×´Ì¬
- 232   3          }
- 233   2          else
- 234   2          {
- 235   3            delay_s(10);        //Èç¹ûÊ§°Ü£¬µÈ´ý10s¼ÌÐøÇëÇó×¢²á
- 236   3          }
- 237   2        }
- 238   1        SERVER_LIGHT_OFF();   //¹Ø·þÎñÆ÷Á¬½ÓµÆ
- 239   1      }
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 5   
+ 226   1          return;
+ 227   1        if(WIFI_Receive(3000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
+ 228   1        {
+ 229   2          if(strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_REGIST_OK))   //×¢²áÊÇ·ñ³É¹¦
+ 230   2          {
+ 231   3            EEPROM_EraseAndWirteString(EEPROM_SECOND_ADDRESS, WIFI_RBUF);   // ·µ»ØµÄ×¢²á×Ö·û´®Ð´Èëeeprom 2Çø
+ 232   3            Client_Status = not_login;    //×ª»»×´Ì¬
+ 233   3          }
+ 234   2          else
+ 235   2          {
+ 236   3            delay_s(10);        //Èç¹ûÊ§°Ü£¬µÈ´ý10s¼ÌÐøÇëÇó×¢²á
+ 237   3          }
+ 238   2        }
+ 239   1        SERVER_LIGHT_OFF();   //¹Ø·þÎñÆ÷Á¬½ÓµÆ
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 5   
 
- 240          
- 241          /****************************************************************************************
- 242            * @brief: ±¾º¯ÊýÔÚÔ¶³Ì·þÎñÆ÷½øÐÐµÇÂ¼
- 243            * @param: server, Ô¶³Ì·þÎñÆ÷ip
- 244            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
- 245            user, ×¢²áµÄÓÃ»§Ãû
- 246            upwd£¬ÓÃ»§ÃÜÂë
- 247            * @retval:  
- 248          *****************************************************************************************/
- 249          void client_login(u8 *server, u8 *port, u8 *user, u8 *upwd)
- 250          { u8 device_para[100];
- 251   1        u8 *p;
- 252   1        if(!WIFI_ClientConnectServer(server, port))
- 253   1          return;
- 254   1        SERVER_LIGHT_ON();
- 255   1        device_para[0] = '\0';
- 256   1        strcat(device_para, LOGIN_PRE);   //°´ÕÕÐ­ÒéÖÆ×÷µÇÂ¼×Ö·û´®
- 257   1        strcat(device_para, "user=");
- 258   1        strcat(device_para, user);
- 259   1        strcat(device_para , "&pwd=");
- 260   1        strcat(device_para, upwd);
- 261   1        strcat(device_para, "&status=");
- 262   1        DeviceGetStatus(device_para);   //»ñÈ¡Éè±¸ÐÅÏ¢×Ö·û´®
- 263   1         //Ïò·þÎñÆ÷·¢ËÍÉè±¸×´Ì¬http ÇëÇó
- 264   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
- 265   1          return;
- 266   1        if(WIFI_Receive(1000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
- 267   1        {
- 268   2          p = strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_LOGIN_OK); //ÊÕµ½ÓÐÐ§¿ØÖÆÐÅÏ¢?
- 269   2          if(p)
- 270   2          {
- 271   3            DevicesControl(p);    //¿ØÖÆÍâÉè
- 272   3            Client_Status = heart_beat; //×ª»»×´Ì¬
- 273   3            ReloginTimes =0;      //ÇåÁãÖØµÇÂ¼¼ÆÊýÆ÷
- 274   3            HeartBeat_TimeoutCounter = 0;
- 275   3            HeartBeat_ErrMsgCounter = 0;
- 276   3            HeartBeat_OKCounter = 0;
- 277   3            HeartBeat_ConnectFailCounter = 0;
- 278   3            HeartBeat_SendFailCounter = 0;
- 279   3      
- 280   3            
- 281   3            ReloginCounter++;
- 282   3          }
- 283   2          else
- 284   2          {
- 285   3            delay_s(10);
- 286   3          }
- 287   2        }
- 288   1        else
- 289   1        {
- 290   2          debug("Server response timeout!\r\n");
- 291   2          
- 292   2        }
- 293   1        SERVER_LIGHT_OFF(); 
- 294   1      }
- 295          
- 296          /****************************************************************************************
- 297            * @brief: ±¾º¯ÊýÏòÔ¶³Ì·þÎñÆ÷·¢ÆðÐÄÌøÇëÇó
- 298            * @param: server, Ô¶³Ì·þÎñÆ÷ip
- 299            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
- 300            user, ×¢²áµÄÓÃ»§Ãû
- 301            upwd£¬ÓÃ»§ÃÜÂë
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 6   
+ 240   1      }
+ 241          
+ 242          /****************************************************************************************
+ 243            * @brief: ±¾º¯ÊýÔÚÔ¶³Ì·þÎñÆ÷½øÐÐµÇÂ¼
+ 244            * @param: server, Ô¶³Ì·þÎñÆ÷ip
+ 245            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
+ 246            user, ×¢²áµÄÓÃ»§Ãû
+ 247            upwd£¬ÓÃ»§ÃÜÂë
+ 248            * @retval:  
+ 249          *****************************************************************************************/
+ 250          void client_login(u8 *server, u8 *port, u8 *user, u8 *upwd)
+ 251          { u8 device_para[100];
+ 252   1        u8 *p;
+ 253   1        if(!WIFI_ClientConnectServer(server, port))
+ 254   1          return;
+ 255   1        SERVER_LIGHT_ON();
+ 256   1        device_para[0] = '\0';
+ 257   1        strcat(device_para, LOGIN_PRE);   //°´ÕÕÐ­ÒéÖÆ×÷µÇÂ¼×Ö·û´®
+ 258   1        strcat(device_para, "user=");
+ 259   1        strcat(device_para, user);
+ 260   1        strcat(device_para , "&pwd=");
+ 261   1        strcat(device_para, upwd);
+ 262   1        strcat(device_para, "&status=");
+ 263   1        DeviceGetStatus(device_para);   //»ñÈ¡Éè±¸ÐÅÏ¢×Ö·û´®
+ 264   1         //Ïò·þÎñÆ÷·¢ËÍÉè±¸×´Ì¬http ÇëÇó
+ 265   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+ 266   1          return;
+ 267   1        if(WIFI_Receive(3000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
+ 268   1        {
+ 269   2          p = strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_LOGIN_OK); //ÊÕµ½ÓÐÐ§¿ØÖÆÐÅÏ¢?
+ 270   2          PreStatus[0] = '\0';
+ 271   2          strcpy(PreStatus, p);
+ 272   2          if(p)
+ 273   2          {
+ 274   3            DevicesControl(p);    //¿ØÖÆÍâÉè
+ 275   3            Client_Status = heart_beat; //×ª»»×´Ì¬
+ 276   3            ReloginTimes =0;      //ÇåÁãÖØµÇÂ¼¼ÆÊýÆ÷
+ 277   3            HeartBeat_TimeoutCounter = 0;
+ 278   3            HeartBeat_ErrMsgCounter = 0;
+ 279   3            HeartBeat_OKCounter = 0;
+ 280   3            HeartBeat_ConnectFailCounter = 0;
+ 281   3            HeartBeat_SendFailCounter = 0;
+ 282   3      
+ 283   3            
+ 284   3            ReloginCounter++;
+ 285   3          }
+ 286   2          else
+ 287   2          {
+ 288   3            delay_s(10);
+ 289   3          }
+ 290   2        }
+ 291   1        else
+ 292   1        {
+ 293   2          debug("Server response timeout!\r\n");
+ 294   2          
+ 295   2        }
+ 296   1        SERVER_LIGHT_OFF(); 
+ 297   1      }
+ 298          
+ 299          /****************************************************************************************
+ 300            * @brief: ±¾º¯ÊýÏòÔ¶³Ì·þÎñÆ÷·¢ÆðÐÄÌøÇëÇó
+ 301            * @param: server, Ô¶³Ì·þÎñÆ÷ip
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 6   
 
- 302            * @retval:  
- 303          *****************************************************************************************/
- 304          void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
- 305          {
- 306   1        u8 device_para[100];
- 307   1        u8 *p;
- 308   1        u16 heartbeat_totalcounter;
- 309   1        float res;
- 310   1        debug("**************\r\n");
- 311   1        if(!WIFI_ClientConnectServer(server, port))
- 312   1        {
- 313   2          WIFI_ClientConnectClose();
- 314   2          delay_ms(100);
- 315   2          if(!WIFI_ClientConnectServer(server, port))
- 316   2          {
- 317   3            debug("connect fail\r\n");
- 318   3            HeartBeat_ConnectFailCounter++;
- 319   3            return;
- 320   3          }
- 321   2        }
- 322   1        SERVER_LIGHT_ON();
- 323   1        device_para[0] = '\0';
- 324   1        strcat(device_para, STATUS_PRE);    //ÐÄÌø×Ö·û´®
- 325   1        strcat(device_para, "user=");
- 326   1        strcat(device_para, user);
- 327   1        strcat(device_para , "&pwd=");
- 328   1        strcat(device_para, upwd);
- 329   1        strcat(device_para, "&status=");
- 330   1        DeviceGetStatus(device_para); //»ñÈ¡Éè±¸ÐÅÏ¢×Ö·û´®
- 331   1        debug("dev get\r\n");
- 332   1         //Ïò·þÎñÆ÷·¢ËÍÉè±¸×´Ì¬http ÇëÇó
- 333   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
- 334   1        {
- 335   2          debug("request fail\r\n");
- 336   2          HeartBeat_SendFailCounter++;
- 337   2          return;
- 338   2        }
- 339   1        debug("wait recv");
- 340   1        if(WIFI_Receive(3000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
- 341   1        {
- 342   2          p = strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_CONTROL);  //ÊÕµ½ÓÐÐ§¿ØÖÆÐÅÏ¢?
- 343   2          if(p)
- 344   2          {
- 345   3            debug("recv ctl\r\n");
- 346   3            DevicesControl(p);
- 347   3            ReloginTimes = 0;
- 348   3            HeartBeat_OKCounter++;
- 349   3          }
- 350   2          else
- 351   2          {
- 352   3            debug("recv waste\r\n");
- 353   3            ReloginTimes++;
- 354   3            HeartBeat_ErrMsgCounter ++;
- 355   3            if(ReloginTimes > 10)   //³¬Ê±10´ÎÎ´ÊÕµ½»Ø¸´
- 356   3            {
- 357   4              Client_Status = not_login;
- 358   4            }
- 359   3          }
- 360   2        }
- 361   1        else
- 362   1        {
- 363   2          debug("recv timeout------------->>>>>>>>\r\n");
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 7   
+ 302            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
+ 303            user, ×¢²áµÄÓÃ»§Ãû
+ 304            upwd£¬ÓÃ»§ÃÜÂë
+ 305            * @retval:  
+ 306          *****************************************************************************************/
+ 307          void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
+ 308          {
+ 309   1        u8 device_para[100];
+ 310   1        u8 *p;
+ 311   1        u16 heartbeat_totalcounter;
+ 312   1        float res;
+ 313   1        debug("--------------------\r\n");
+ 314   1        if(!WIFI_ClientConnectServer(server, port))   //Ïò·þÎñÆ÷Á¬½Ó
+ 315   1        {
+ 316   2          WIFI_ClientConnectClose();
+ 317   2          delay_ms(100);
+ 318   2          if(!WIFI_ClientConnectServer(server, port))
+ 319   2          {
+ 320   3            debug("connect fail\r\n");
+ 321   3            HeartBeat_ConnectFailCounter++;
+ 322   3            return;
+ 323   3          }
+ 324   2        }
+ 325   1        SERVER_LIGHT_ON();
+ 326   1        device_para[0] = '\0';
+ 327   1        strcat(device_para, STATUS_PRE);    //ÐÄÌø×Ö·û´®
+ 328   1        strcat(device_para, "user=");
+ 329   1        strcat(device_para, user);
+ 330   1        strcat(device_para , "&pwd=");
+ 331   1        strcat(device_para, upwd);
+ 332   1        strcat(device_para, "&status=");
+ 333   1        DeviceGetStatus(device_para); //»ñÈ¡Éè±¸ÐÅÏ¢×Ö·û´®
+ 334   1         //Ïò·þÎñÆ÷·¢ËÍÉè±¸×´Ì¬http ÇëÇó
+ 335   1        if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+ 336   1        {
+ 337   2          debug("request fail\r\n");
+ 338   2          HeartBeat_SendFailCounter++;
+ 339   2          return;
+ 340   2        }
+ 341   1        if(WIFI_Receive(3000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
+ 342   1        {
+ 343   2          p = strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_CONTROL);  //ÊÕµ½ÓÐÐ§¿ØÖÆÐÅÏ¢?
+ 344   2          if(p)
+ 345   2          {
+ 346   3            ReloginTimes = 0;
+ 347   3            HeartBeat_OKCounter++;
+ 348   3            DevicesControl(p);
+ 349   3            if(!strstr(p, PreStatus))
+ 350   3            {
+ 351   4              PreStatus[0] = '\0';
+ 352   4              strcpy(PreStatus, p);
+ 353   4              if(!WIFI_ClientConnectServer(server, port))
+ 354   4              {
+ 355   5                WIFI_ClientConnectClose();
+ 356   5                delay_ms(100);
+ 357   5                if(!WIFI_ClientConnectServer(server, port))
+ 358   5                {
+ 359   6                  debug("connect fail\r\n");
+ 360   6                  HeartBeat_ConnectFailCounter++;
+ 361   6                  return;
+ 362   6                }
+ 363   5              }
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 7   
 
- 364   2          HeartBeat_TimeoutCounter++;
- 365   2          ReloginTimes++;
- 366   2          if(ReloginTimes > 10)   //³¬Ê±10´ÎÎ´ÊÕµ½»Ø¸´
- 367   2          {
- 368   3            Client_Status = not_login;
- 369   3          }
- 370   2        }
- 371   1        SERVER_LIGHT_OFF(); 
- 372   1        heartbeat_totalcounter = HeartBeat_OKCounter + HeartBeat_ErrMsgCounter + HeartBeat_TimeoutCounter;
- 373   1        debug("##########ReloginCounter:");
- 374   1        debug_var(ReloginCounter);
- 375   1        debug("\r\n");
- 376   1        debug("OK ErrMsg  Timeout % % %\r\n");
- 377   1        debug_var(HeartBeat_OKCounter);
- 378   1        debug(" ");
- 379   1        debug_var(HeartBeat_ErrMsgCounter);
- 380   1        debug(" ");
- 381   1        debug_var(HeartBeat_TimeoutCounter);
- 382   1        debug(" ");
- 383   1        res = ((float)HeartBeat_OKCounter/(float)heartbeat_totalcounter)*100.0;
- 384   1        debug_var((u16)res);
- 385   1        debug("%  ");
- 386   1        res = ((float)HeartBeat_ErrMsgCounter/(float)heartbeat_totalcounter)*100.0;
- 387   1        debug_var((u16)res);
- 388   1        debug("%  ");
- 389   1        res = ((float)HeartBeat_TimeoutCounter/(float)heartbeat_totalcounter)*100.0;
- 390   1        debug_var((u16)res);
- 391   1        debug("%\r\n");
- 392   1        debug("HeartBeat_ConnectFailCounter:");
- 393   1        debug_var(HeartBeat_ConnectFailCounter);
- 394   1        debug(" HeartBeat_SendFailCounter:");
- 395   1        debug_var(HeartBeat_SendFailCounter);
- 396   1        debug("\r\n");
- 397   1      }
- 398          
- 399          /****************************************************************************************
- 400            * @brief: web client Ä£Ê½·þÎñº¯Êý£¬client Ä£Ê½·ÖÎª3¸ö×Ó×´Ì¬£¬·Ö±ðÎªunknown £¬
- 401            Ê×ÏÈ¶ÁÈ¡eepromÔÚÔ¶³Ì·þÎñÆ÷µÄ×¢²á²ÎÊýÈç¹ûÎ´×¢²á£¬Ôò½øÐÐ×¢²á£¬×¢²áºó
- 402            ½øÈënot_login ×´Ì¬£¬ÊµÑé°åÔÚÔ¶³Ì·þÎñÆ÷½øÐÐ×¢²á£¬×¢²á³É¹¦ÒÔºó½øÈëheart_beat
- 403            ×´Ì¬
- 404            * @param: server, Ô¶³Ì·þÎñÆ÷ip
- 405            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
- 406            user, ×¢²áµÄÓÃ»§Ãû
- 407            upwd£¬ÓÃ»§ÃÜÂë
- 408            * @retval:  
- 409          *****************************************************************************************/
- 410          void task_Client(u8 *server, u8 *port, u8 *user, u8 *upwd)
- 411          {
- 412   1        u8 eeprom_buf[200];
- 413   1        switch(Client_Status)
- 414   1        {
- 415   2          case unkown:      //Î´Öª×´Ì¬
- 416   2            EEPROM_read_n(EEPROM_SECOND_ADDRESS, eeprom_buf, 200);    //»ñÈ¡eepromÖÐµÄ²ÎÊý
- 417   2            eeprom_buf[199] = 0x00;
- 418   2            debug("@@@@@@@@@@@@@@@");
- 419   2            debug(eeprom_buf);
- 420   2            if(!strstr(eeprom_buf, HTTP_CLIENT_SERVER_REPLY_REGIST_OK))   //Èç¹û²ÎÊý²»ºÏ·¨
- 421   2            {
- 422   3              client_regist(server, port, user, upwd);    //½øÐÐÔ¶³Ì×¢²á
- 423   3            }
- 424   2            else
- 425   2            {
-C51 COMPILER V9.56.0.0   TASK                                                              11/11/2020 10:12:26 PAGE 8   
+ 364   4              device_para[0] = '\0';
+ 365   4              strcat(device_para, STATUS_PRE);    //ÐÄÌø×Ö·û´®
+ 366   4              strcat(device_para, "user=");
+ 367   4              strcat(device_para, user);
+ 368   4              strcat(device_para , "&pwd=");
+ 369   4              strcat(device_para, upwd);
+ 370   4              strcat(device_para, "&status=");
+ 371   4              DeviceGetStatus(device_para); //»ñÈ¡Éè±¸ÐÅÏ¢×Ö·û´®
+ 372   4               //Ïò·þÎñÆ÷·¢ËÍÉè±¸×´Ì¬http ÇëÇó
+ 373   4              if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+ 374   4              {
+ 375   5                debug("request fail\r\n");
+ 376   5                HeartBeat_SendFailCounter++;
+ 377   5                return;
+ 378   5              }
+ 379   4              if(WIFI_Receive(3000))    //µÈ´ý·þÎñÆ÷ÏìÓ¦
+ 380   4              {
+ 381   5                debug("CTRL Report!\r\n");
+ 382   5      
+ 383   5              }
+ 384   4            }
+ 385   3          }
+ 386   2          else
+ 387   2          {
+ 388   3            debug("recv waste\r\n");
+ 389   3            ReloginTimes++;
+ 390   3            HeartBeat_ErrMsgCounter ++;
+ 391   3            if(ReloginTimes > 10)   //³¬Ê±10´ÎÎ´ÊÕµ½»Ø¸´
+ 392   3            {
+ 393   4              Client_Status = not_login;
+ 394   4            }
+ 395   3          }
+ 396   2        }
+ 397   1        else
+ 398   1        {
+ 399   2          debug("recv timeout------------->>>>>>>>\r\n");
+ 400   2          HeartBeat_TimeoutCounter++;
+ 401   2          ReloginTimes++;
+ 402   2          if(ReloginTimes > 10)   //³¬Ê±10´ÎÎ´ÊÕµ½»Ø¸´
+ 403   2          {
+ 404   3            Client_Status = not_login;
+ 405   3          }
+ 406   2        }
+ 407   1        SERVER_LIGHT_OFF(); 
+ 408   1        heartbeat_totalcounter = HeartBeat_OKCounter + HeartBeat_ErrMsgCounter + HeartBeat_TimeoutCounter;
+ 409   1        debug("#############ReloginCounter:");
+ 410   1        debug_var(ReloginCounter);
+ 411   1        debug("\r\n");
+ 412   1        debug("OK ErrMsg  Timeout % % %\r\n");
+ 413   1        debug_var(HeartBeat_OKCounter);
+ 414   1        debug(" ");
+ 415   1        debug_var(HeartBeat_ErrMsgCounter);
+ 416   1        debug(" ");
+ 417   1        debug_var(HeartBeat_TimeoutCounter);
+ 418   1        debug(" ");
+ 419   1        res = ((float)HeartBeat_OKCounter/(float)heartbeat_totalcounter)*100.0;
+ 420   1        debug_var((u16)res);
+ 421   1        debug("%  ");
+ 422   1        res = ((float)HeartBeat_ErrMsgCounter/(float)heartbeat_totalcounter)*100.0;
+ 423   1        debug_var((u16)res);
+ 424   1        debug("%  ");
+ 425   1        res = ((float)HeartBeat_TimeoutCounter/(float)heartbeat_totalcounter)*100.0;
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 8   
 
- 426   3              Client_Status = not_login;    //×ª»»not_login×´Ì¬
- 427   3            }
- 428   2            break;
- 429   2          case not_login:   //not_login×´Ì¬
- 430   2            client_login(server, port, user, upwd);   //½øÐÐÔ¶³ÌµÇÂ¼
- 431   2            break;
- 432   2          case heart_beat:    //ÐÄÌø×´Ì¬
- 433   2            client_heart_beat(server, port, user, upwd);  //Ö´ÐÐÐÄÌø²é³ÌÐò
- 434   2            break;
- 435   2          default:
- 436   2            Client_Status = unkown;
- 437   2              
- 438   2        }
- 439   1      
- 440   1      }
- 441          
+ 426   1        debug_var((u16)res);
+ 427   1        debug("%\r\n");
+ 428   1        debug("ConnectFail:");
+ 429   1        debug_var(HeartBeat_ConnectFailCounter);
+ 430   1        debug(" SendFail:");
+ 431   1        debug_var(HeartBeat_SendFailCounter);
+ 432   1        debug("\r\n");
+ 433   1      }
+ 434          
+ 435          /****************************************************************************************
+ 436            * @brief: web client Ä£Ê½·þÎñº¯Êý£¬client Ä£Ê½·ÖÎª3¸ö×Ó×´Ì¬£¬·Ö±ðÎªunknown £¬
+ 437            Ê×ÏÈ¶ÁÈ¡eepromÔÚÔ¶³Ì·þÎñÆ÷µÄ×¢²á²ÎÊýÈç¹ûÎ´×¢²á£¬Ôò½øÐÐ×¢²á£¬×¢²áºó
+ 438            ½øÈënot_login ×´Ì¬£¬ÊµÑé°åÔÚÔ¶³Ì·þÎñÆ÷½øÐÐ×¢²á£¬×¢²á³É¹¦ÒÔºó½øÈëheart_beat
+ 439            ×´Ì¬
+ 440            * @param: server, Ô¶³Ì·þÎñÆ÷ip
+ 441            port, Ô¶³Ì·þÎñÆ÷¶Ë¿Ú
+ 442            user, ×¢²áµÄÓÃ»§Ãû
+ 443            upwd£¬ÓÃ»§ÃÜÂë
+ 444            * @retval:  
+ 445          *****************************************************************************************/
+ 446          void task_Client(u8 *server, u8 *port, u8 *user, u8 *upwd)
+ 447          {
+ 448   1        u8 eeprom_buf[200];
+ 449   1        switch(Client_Status)
+ 450   1        {
+ 451   2          case unkown:      //Î´Öª×´Ì¬
+ 452   2            EEPROM_read_n(EEPROM_SECOND_ADDRESS, eeprom_buf, 200);    //»ñÈ¡eepromÖÐµÄ²ÎÊý
+ 453   2            eeprom_buf[199] = 0x00;
+ 454   2            debug("read eeprom_buf: ");
+ 455   2            debug(eeprom_buf);
+ 456   2            debug("\r\n");
+ 457   2            if(!strstr(eeprom_buf, HTTP_CLIENT_SERVER_REPLY_REGIST_OK))   //Èç¹û²ÎÊý²»ºÏ·¨
+ 458   2            {
+ 459   3              client_regist(server, port, user, upwd);    //½øÐÐÔ¶³Ì×¢²á
+ 460   3            }
+ 461   2            else
+ 462   2            {
+ 463   3              Client_Status = not_login;    //×ª»»not_login×´Ì¬
+ 464   3            }
+ 465   2            break;
+ 466   2          case not_login:   //not_login×´Ì¬
+ 467   2            client_login(server, port, user, upwd);   //½øÐÐÔ¶³ÌµÇÂ¼
+ 468   2            break;
+ 469   2          case heart_beat:    //ÐÄÌø×´Ì¬
+ 470   2            client_heart_beat(server, port, user, upwd);  //Ö´ÐÐÐÄÌø²é³ÌÐò
+ 471   2            break;
+ 472   2          default:
+ 473   2            Client_Status = unkown;
+ 474   2              
+ 475   2        }
+ 476   1      
+ 477   1      }
+ 478          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   3252    ----
-   CONSTANT SIZE    =    644    ----
-   XDATA SIZE       =     13     931
+   CODE SIZE        =   3714    ----
+   CONSTANT SIZE    =    605    ----
+   XDATA SIZE       =    113     934
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
+C51 COMPILER V9.56.0.0   TASK                                                              11/30/2020 15:22:10 PAGE 9   
+
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 

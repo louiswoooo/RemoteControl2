@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   EEPROM                                                            11/10/2020 16:11:10 PAGE 1   
+C51 COMPILER V9.56.0.0   EEPROM                                                            11/19/2020 15:31:20 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE EEPROM
@@ -62,7 +62,7 @@ line level    source
   52   1        DisableEEPROM();
   53   1        EA = 1;   //重新允许中断
   54   1      }
-C51 COMPILER V9.56.0.0   EEPROM                                                            11/10/2020 16:11:10 PAGE 2   
+C51 COMPILER V9.56.0.0   EEPROM                                                            11/19/2020 15:31:20 PAGE 2   
 
   55          
   56          
@@ -126,7 +126,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    XDATA SIZE       =   ----      14
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
-C51 COMPILER V9.56.0.0   EEPROM                                                            11/10/2020 16:11:10 PAGE 3   
+C51 COMPILER V9.56.0.0   EEPROM                                                            11/19/2020 15:31:20 PAGE 3   
 
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

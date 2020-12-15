@@ -13,7 +13,7 @@
 *******************************************************************************/
 #include "USART.h"
 #include "debug.h"
-
+#include "string.h"
 COMx_Define COM2;
 u8	xdata TX2_Buffer[COM_TX2_Lenth];	//∑¢ÀÕª∫≥Â
 u8 	xdata RX2_Buffer[COM_RX2_Lenth];	//Ω” ’ª∫≥Â
@@ -195,8 +195,10 @@ void Usart1Init(void)		//115200bps@22.1184MHz
 	COM1.B_TX_busy  = 0;
 	COM1.RX_Cnt     = 0;
 	COM1.RX_TimeOut = 0;
-	COM1.B_RX_EN    = 0;
+	COM1.B_RX_EN    = 1;
 	COM1.B_RX_OK    = 0;
+
+	memset(RX1_Buffer, 0, sizeof(RX1_Buffer));
 
 	ES =1;
 

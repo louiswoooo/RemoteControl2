@@ -10,6 +10,7 @@
 ".\Objects\EEPROM.obj",
 ".\Objects\GPIO.obj",
 ".\Objects\PCA.obj",
-".\Objects\USART.obj" 
+".\Objects\USART.obj",
+".\Objects\Exti.obj" 
 TO ".\Objects\RemoteControl2" 
 PRINT(".\Listings\RemoteControl2.m51") RAMSIZE(256) 

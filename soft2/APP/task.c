@@ -8,6 +8,7 @@
 #define RELOGIN_TIMES	10
 u16 HeartBeat_TimeoutCounter, HeartBeat_ErrMsgCounter, HeartBeat_OKCounter;
 u16 HeartBeat_ConnectFailCounter, HeartBeat_SendFailCounter;
+u8 xdata PreStatus[100];
 
 typedef enum _e_status_
 {
@@ -223,7 +224,7 @@ void client_regist(u8 *server, u8 *port, u8 *user, u8 *upwd)
 	strcat(device_para, upwd);
 	if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))		//向远程服务器发起请求
 		return;
-	if(WIFI_Receive(1000))		//等待服务器响应
+	if(WIFI_Receive(3000))		//等待服务器响应
 	{
 		if(strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_REGIST_OK))		//注册是否成功
 		{
@@ -263,9 +264,11 @@ void client_login(u8 *server, u8 *port, u8 *user, u8 *upwd)
 	 //向服务器发送设备状态http 请求
 	if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
 		return;
-	if(WIFI_Receive(1000))		//等待服务器响应
+	if(WIFI_Receive(3000))		//等待服务器响应
 	{
 		p = strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_LOGIN_OK);	//收到有效控制信息?
+		PreStatus[0] = '\0';
+		strcpy(PreStatus, p);
 		if(p)
 		{
 			DevicesControl(p);		//控制外设
@@ -307,8 +310,8 @@ void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
 	u8 *p;
 	u16 heartbeat_totalcounter;
 	float res;
-	debug("**************\r\n");
-	if(!WIFI_ClientConnectServer(server, port))
+	debug("--------------------\r\n");
+	if(!WIFI_ClientConnectServer(server, port))		//向服务器连接
 	{
 		WIFI_ClientConnectClose();
 		delay_ms(100);
@@ -328,7 +331,6 @@ void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
 	strcat(device_para, upwd);
 	strcat(device_para, "&status=");
 	DeviceGetStatus(device_para);	//获取设备信息字符串
-	debug("dev get\r\n");
 	 //向服务器发送设备状态http 请求
 	if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
 	{
@@ -336,16 +338,50 @@ void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
 		HeartBeat_SendFailCounter++;
 		return;
 	}
-	debug("wait recv");
 	if(WIFI_Receive(3000))		//等待服务器响应
 	{
 		p = strstr(WIFI_RBUF, HTTP_CLIENT_SERVER_REPLY_CONTROL);	//收到有效控制信息?
 		if(p)
 		{
-			debug("recv ctl\r\n");
-			DevicesControl(p);
 			ReloginTimes = 0;
 			HeartBeat_OKCounter++;
+			DevicesControl(p);
+			if(!strstr(p, PreStatus))
+			{
+				PreStatus[0] = '\0';
+				strcpy(PreStatus, p);
+				if(!WIFI_ClientConnectServer(server, port))
+				{
+					WIFI_ClientConnectClose();
+					delay_ms(100);
+					if(!WIFI_ClientConnectServer(server, port))
+					{
+						debug("connect fail\r\n");
+						HeartBeat_ConnectFailCounter++;
+						return;
+					}
+				}
+				device_para[0] = '\0';
+				strcat(device_para, STATUS_PRE);		//心跳字符串
+				strcat(device_para, "user=");
+				strcat(device_para, user);
+				strcat(device_para , "&pwd=");
+				strcat(device_para, upwd);
+				strcat(device_para, "&status=");
+				DeviceGetStatus(device_para);	//获取设备信息字符串
+				 //向服务器发送设备状态http 请求
+				if(!WIFI_Client_HTTP_Request(HTTP_Client_Request_Head1, device_para, HTTP_Client_Request_Head3))
+				{
+					debug("request fail\r\n");
+					HeartBeat_SendFailCounter++;
+					return;
+				}
+				if(WIFI_Receive(3000))		//等待服务器响应
+				{
+					debug("CTRL Report!\r\n");
+
+				}
+			}
 		}
 		else
 		{
@@ -370,7 +406,7 @@ void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
 	}
 	SERVER_LIGHT_OFF();	
 	heartbeat_totalcounter = HeartBeat_OKCounter + HeartBeat_ErrMsgCounter + HeartBeat_TimeoutCounter;
-	debug("##########ReloginCounter:");
+	debug("#############ReloginCounter:");
 	debug_var(ReloginCounter);
 	debug("\r\n");
 	debug("OK	ErrMsg	Timeout	%	%	%\r\n");
@@ -389,9 +425,9 @@ void client_heart_beat(u8 *server, u8 *port, u8 *user, u8 *upwd)
 	res = ((float)HeartBeat_TimeoutCounter/(float)heartbeat_totalcounter)*100.0;
 	debug_var((u16)res);
 	debug("%\r\n");
-	debug("HeartBeat_ConnectFailCounter:");
+	debug("ConnectFail:");
 	debug_var(HeartBeat_ConnectFailCounter);
-	debug("	HeartBeat_SendFailCounter:");
+	debug("	SendFail:");
 	debug_var(HeartBeat_SendFailCounter);
 	debug("\r\n");
 }
@@ -415,8 +451,9 @@ void task_Client(u8 *server, u8 *port, u8 *user, u8 *upwd)
 		case unkown:			//未知状态
 			EEPROM_read_n(EEPROM_SECOND_ADDRESS, eeprom_buf, 200);		//获取eeprom中的参数
 			eeprom_buf[199] = 0x00;
-			debug("@@@@@@@@@@@@@@@");
+			debug("read eeprom_buf: ");
 			debug(eeprom_buf);
+			debug("\r\n");
 			if(!strstr(eeprom_buf, HTTP_CLIENT_SERVER_REPLY_REGIST_OK))		//如果参数不合法
 			{
 				client_regist(server, port, user, upwd);		//进行远程注册

@@ -433,6 +433,11 @@
               <FileType>1</FileType>
               <FilePath>.\STC_LIB\USART.C</FilePath>
             </File>
+            <File>
+              <FileName>Exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\STC_LIB\Exti.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

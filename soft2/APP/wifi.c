@@ -135,25 +135,26 @@ u8 WIFI_Receive(u16 timeout_ms)
 			COM2.RX_Cnt=0;			//清零接收计数器
 			COM2.B_RX_OK=0;		//清零接收标志
 			COM2.RX_TimeOut=TimeOutSet2;	//设置块接收时间
-			debug("1");
+			//debug("1");
 			pre_second = second;
 			while(COM2.RX_TimeOut>0)			//如果块接收超时时间未到，继续等待
 			{
 				if(pre_second != second )
 				{
-					debug("$$");
-					debug_var(COM2.RX_TimeOut);
-					debug("\r\n");
+					//debug("$$");
+					//debug_var(COM2.RX_TimeOut);
+					//debug("\r\n");
 					pre_second = second;
 				}
 
 			}
-			debug("2");
+			//debug("2");
 			COM2.B_RX_EN=0;			//超时时间到，停止接收
 			if(COM2.B_RX_OK)			//如果收到字节
 			{
 				return COM2.RX_Cnt;	//返回字节
 			}
+			dog_clear();
 		}
 	}
 	return NULL;
@@ -183,12 +184,12 @@ u8 wifi_send_and_wait(u8 *send, u8 *match, u16 timeout_ms)
 			debug(RX2_Buffer);
 			if(p=strstr(RX2_Buffer,match))
 			{
-				debug_vip("match");
+				//debug_vip("match");
 				return 1;
 			}
 		}
 	}
-	debug("send timeout!!!!!!!!!!!!!!\r\n");
+	debug("send timeout!!!!!!!\r\n");
 	return 0;
 }
 

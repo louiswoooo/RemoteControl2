@@ -1,0 +1,192 @@
+# 定义main模块下的访问路径
+from flask import render_template, request, redirect, session
+from . import main
+from .. import db
+from ..models import *
+from datetime import datetime
+import re
+import time
+
+#SWITCH1=ON,SWITCH2=ON,SWITCH3=OFF,SWITCH4=ON,
+
+# 用于用户网页的control 请求与实验板的status 请求的同步信号量，机制为：用户使用网页控制的时候，点击control 页面发出控制请求，
+# 此时该页面需要获取实验板的状态并显示，此时服务器等待第一次实验板心跳，并回复实验板新发出的control 请求，并等待第二次心跳，
+# 当第二次心跳到达以后，此时实验板的状态已经是响应命令以后的状态了，服务器收到此状态并回复给control 页面，完成页面请求
+# 本全局信号量列表，元素为列表，结构{uid（用户id）， status（信号状态）}，信号值意义:0无动作，1收到control 命令，
+# 但尚未收到心跳下发，#2已经收到一次心跳，命令已经下发，3收到2次心跳
+SigDict = {}
+
+# 以下为与实验板http请求相关的路径
+#根路径
+@main.route('/a11')
+def a11_views():
+    return "这里是实验板根路径"
+
+#通过网页模拟实验板进行各种http请求的网页路径，用于调试
+@main.route('/a11/simu')
+def simu_views():
+    return render_template('board_simu.html')
+
+#实验板注册访问路径
+@main.route('/a11/bregist')
+def bregist_views():
+    regist_name = request.args.get("user")      #获取用户名
+    regist_pwd = request.args.get("pwd")        #获取密码
+    user = User.query.filter_by(user = regist_name).first()     #查询是否存在同名用户
+    if not user:            #不存在则存入数据库
+        comer = User()      #定义User类的一个对象
+        comer.user = regist_name
+        comer.pwd = regist_pwd
+        comer.regist_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        db.session.add(comer)           #插入数据库记录
+        return "bregist=ok&user=" + regist_name + "&password=" + regist_pwd     #注册成功返回
+    else:
+        return "bregist=fail&user=" + regist_name + "&password=" + regist_pwd   #注册失败返回
+
+#实验板登录访问路径
+@main.route('/a11/blogin')
+def blogin_views():
+    global SigDict
+    login_name = request.args.get("user")       #获取实验板发送的用户名
+    login_pwd = request.args.get("pwd")         #获取密码
+    login_status = request.args.get("status")   #获取登录状态
+    user = User.query.filter_by(user = login_name).first()      #查询用户是否存在
+    # print(user)
+    if user:        #如果存在
+        SigDict[user.id] = 0        #初始化登录信号量，并插入全局信号字典
+        # print(SigDict)
+        loger = Login()             #创建Login对象
+        loger.user_id = user.id
+        loger.login_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        loger.login_status = login_status
+        db.session.add(loger)       #插入数据库
+        return "blogin=ok&user=" + login_name + "&password=" + login_pwd    #向实验板回复登录状态
+    else:
+        return "blogin=fail&user=" + login_name + "&password=" + login_pwd
+
+#实验板心跳访问路径
+@main.route('/a11/status')
+def status_views():
+    status_name = request.args.get("user")      #获取实验板参数
+    status_pwd = request.args.get("pwd")
+    status_status = request.args.get("status")  #获取心跳状态
+    user = User.query.filter_by(user = status_name).first()     #查询用户
+    if user:        #如果用户存在
+        user.last_heartbeat_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")     #修改数据库数据
+        user.last_heartbeat_status = status_status
+        db.session.add(user)
+        ret_str = "status=ok&user=" + status_name + "&password=" + status_pwd       #创建返回字符串
+        command = Command.query.filter_by(user_id = user.id).all()[-1]        #为保持状态同步，查询最近一条命令
+        if not command:     #如果没有找到一条命令
+            command = Command.query.filter_by(user_id=1).first()    #把user_id为1的超级用户id下发
+        global SigDict          #更改全局信号量
+        if SigDict[user.id] == 1:
+            SigDict[user.id] = 2
+        elif SigDict[user.id] == 2:
+            SigDict[user.id] = 3
+        time.sleep(0.2)
+        print("222 status:find last cmd:%s"%command.cmd)
+        return ret_str + "&status=" + command.cmd          #返回命令字符串给实验板
+    else:
+        return "status=fail&user=" + status_name + "&password=" + status_pwd
+
+#以下为用户控制相关的路径
+#用户控制登录路径
+@main.route('/a11/login',methods=['GET','POST'])
+def login_views():
+    if request.method == 'GET':                 #如果为GET 页面
+        return render_template('login.html')        #返回登录页面
+    else:       #如果为POST 提交参数
+        loginname = request.form.get('user')    #获取登录名
+        upwd = request.form.get('pwd')          #获取密码
+        user = User.query.filter_by(user=loginname).first()     #查询数据库是否存在此用户
+        if user:        #如果存在，判断此用户的实验板是否在线
+            time1= datetime.now()       #获取当前时间
+            time2= user.last_heartbeat_time     #获取最后心跳时间
+            second_interval_total = (time1 - time2).total_seconds()     #计算间隔秒
+            print(second_interval_total)
+            if second_interval_total > 20:      #如果最后一次心跳与当前时间超过20S，则判断登录失败
+                return "登陆失败，用户名为 %s 的实验板超过20S未上线"%loginname
+            session['uid'] = user.id        #加入浏览器session
+            session['uname'] = user.user
+            return redirect("/a11/control")     #重定向到control 页面
+        else:       #不存在用户则提示
+            errmsg = "不存在这个用户"
+            return render_template("login.html",errMsg=errmsg)
+        return redirect('/a11/login')
+
+#用户的浏览器控制页面访问路径
+@main.route('/a11/control')
+def control_views():
+    user_id = session['uid']
+    print("uid is %s"%user_id)
+    user = User.query.filter_by(id = user_id).first()    #查询用户
+    uname = user.user
+    last_heart_beat_status = user.last_heartbeat_status
+    para = request.args.get("para")
+    print("USER is %d %s"%(user.id , uname))
+    print("000 status:last_heart_beat_status:%s"%last_heart_beat_status)
+    # 如果是从login页面来的--无para参数，获取最后的心跳状态，并赋值给参数switch1-4
+    if not para:
+        res = re.findall("SWITCH1=(\w*),", last_heart_beat_status)
+        switch1 = res[0]
+        res = re.findall("SWITCH2=(\w*),", last_heart_beat_status)
+        switch2 = res[0]
+        res = re.findall("SWITCH3=(\w*),", last_heart_beat_status)
+        switch3 = res[0]
+        res = re.findall("SWITCH4=(\w*),", last_heart_beat_status)
+        switch4 = res[0]
+        return render_template("control.html", params=locals())
+    else:               #如果是点击了控制请求
+        res = re.findall("SWITCH1-(\w*),", para)
+        if res:         #找到switch1 参数
+            switch1 = res[0]
+        else:           #否则找last_heart_beat_status中switch1 状态
+            res = re.findall("SWITCH1=(\w*),", last_heart_beat_status)
+            switch1 = res[0]
+        cmd = "SWITCH1=" + res[0] + ','
+
+        res = re.findall("SWITCH2-(\w*),", para)
+        if res:
+            switch2 = res[0]
+        else:
+            res = re.findall("SWITCH2=(\w*),", last_heart_beat_status)
+            switch2 = res[0]
+        cmd = cmd + "SWITCH2=" + res[0] + ','
+
+        res = re.findall("SWITCH3-(\w*),", para)
+        if res:
+            switch3 = res[0]
+        else:
+            res = re.findall("SWITCH3=(\w*),", last_heart_beat_status)
+            switch3 = res[0]
+        cmd = cmd + "SWITCH3=" + res[0] + ','
+
+        res = re.findall("SWITCH4-(\w*),", para)
+        if res:
+            switch4 = res[0]
+        else:
+            res = re.findall("SWITCH4=(\w*),", last_heart_beat_status)
+            switch4 = res[0]
+        cmd = cmd + "SWITCH4=" +  res[0] + ','
+
+        print("1111 control:insert cmd is:%s"%cmd)
+        ctrl_cmd = Command()        #创建Command 对象
+        ctrl_cmd.user_id = user.id
+        ctrl_cmd.cmd = cmd
+        ctrl_cmd.cmd_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        db.session.add(ctrl_cmd)        #插入数据库
+
+        global SigDict
+        SigDict[user.id] = 1    #设置该uid信号量为有命令到来，并等待实验板同步状态
+        print(SigDict)
+        for i in range(10):             #等待实验板上传状态，等待10s
+            if SigDict[user.id] == 3:
+                SigDict[user.id] = 0
+                return render_template("control.html", params=locals())
+            else:
+                time.sleep(1)
+        return "实验板超过10S未上线"
+
+
+

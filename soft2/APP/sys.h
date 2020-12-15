@@ -8,5 +8,10 @@ void sys_idle(void);
 void dog_init(void);
 void dog_clear(void);
 void debug_time(void);
+void sys_sleep(void);
+void sys_reset(void);
+void sys_clear(void);
+void dog_init(void);
+void dog_clear(void);
 
 #endif

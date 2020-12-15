@@ -11,7 +11,6 @@
 
 
 void bsp(void);
-void sys_sleep(void);
 
 void Debug_Var(u16 var);
 #endif

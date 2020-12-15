@@ -8,7 +8,7 @@
 #define	COM_TX2_Lenth	16
 #define	COM_RX2_Lenth	1800
 
-#define	COM_TX1_Lenth	1024
+#define	COM_TX1_Lenth	924
 #define	COM_RX1_Lenth	16
 
 #define	COM_TX4_Lenth	512

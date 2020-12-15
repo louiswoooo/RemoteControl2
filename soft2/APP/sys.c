@@ -13,12 +13,19 @@
 #include "debug.h"
 #include "usart.h"
 #include "sys.h"
+#include "eeprom.h"
+
+#define DOG_FLAG_MASK			0x80
+#define DOG_ENABLE_MASK		0x20
+#define	DOG_CLEAR_MASK		0x10
+#define	DOG_IDLECOUNT_MASK 0x08
+#define DOG_PRESCALER_MASK			0xf8
+#define DOG_PRESCALER			7
+
 
 u8 sys_tick;										//时间片计数器
 u8 second,minute,hour;					//时钟任务变量
 u16 tick_counter;
-
-extern u8 second,minute,hour;					
 
 void debug_time(void)
 {
@@ -104,6 +111,45 @@ void sys_tick_int(void) interrupt TIMER0_VECTOR using 1
 	}
 	EA=1;
 }
+
+void sys_sleep(void)
+{
+	PCON |= 0x01;
+	_nop_();
+	_nop_();
+	_nop_();
+	_nop_();
+}
+
+void sys_reset(void)
+{
+	IAP_CONTR |= 0x20;
+}
+
+void sys_clear(void)
+{
+	EEPROM_SectorErase(EEPROM_FIRST_ADDRESS);
+	EEPROM_SectorErase(EEPROM_SECOND_ADDRESS);
+	debug("erase paras has done\r\n");
+	delay_s(2);
+}
+
+
+//看门狗配置
+//使能，清看门狗，空闲计数
+void dog_init(void)
+{
+	WDT_CONTR =0x00;
+	WDT_CONTR = DOG_ENABLE_MASK | DOG_CLEAR_MASK | DOG_IDLECOUNT_MASK;
+	WDT_CONTR |= DOG_PRESCALER;
+	
+}
+//清看门狗
+void dog_clear(void)
+{
+	WDT_CONTR |= DOG_CLEAR_MASK;
+}
+
 /****************************************************************************************
   * @brief:	时钟任务，每隔1s打印时间
   * @param:	none
@@ -143,27 +189,5 @@ void sys_idle(void)
 void sys_sleep(void)
 {
 	PCON = 0x02;
-}
-
-#define DOG_FLAG_MASK			0x80
-#define DOG_ENABLE_MASK		0x20
-#define	DOG_CLEAR_MASK		0x10
-#define	DOG_IDLECOUNT_MASK 0x08
-#define DOG_PRESCALER_MASK			0xf8
-#define DOG_PRESCALER			6
-
-//看门狗配置
-//使能，清看门狗，空闲计数
-void dog_init(void)
-{
-	WDT_CONTR =0x00;
-	WDT_CONTR = DOG_ENABLE_MASK | DOG_CLEAR_MASK | DOG_IDLECOUNT_MASK;
-	WDT_CONTR |= DOG_PRESCALER;
-	
-}
-//清看门狗
-void dog_clear(void)
-{
-	WDT_CONTR |= DOG_CLEAR_MASK;
 }
 */
